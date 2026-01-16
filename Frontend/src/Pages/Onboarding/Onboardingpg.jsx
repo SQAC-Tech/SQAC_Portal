@@ -13,6 +13,9 @@ import {
 import { useState } from "react";
 import axios from "axios";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const steps = ["Basic", "Academic", "Social", "Address"];
 
 /* ---------------- STEPS ---------------- */
@@ -126,84 +129,96 @@ export default function OnboardingPage() {
 
     try {
       await axios.post("http://localhost:3000/user/create", payload);
-      alert("User stored successfully 🎉");
+
+      toast.success("User stored successfully 🎉", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
     } catch (err) {
-      alert("Submission failed ❌");
+      toast.error("Submission failed ❌", {
+        position: "top-right",
+        autoClose: 3000,
+      });
       console.error(err);
     }
   };
 
   return (
-    <div className="min-h-screen flex
-      bg-gradient-to-br from-[#FFE3C2] via-[#FFB7A5] to-[#F76C8A]">
+    <>
+      <ToastContainer />
 
-      {/* LEFT SIDEBAR */}
-      <div className="hidden md:flex w-1/3 px-10 py-12 flex-col justify-between
-        bg-gradient-to-br from-[#F76C8A] via-[#F4A261] to-[#C83A4A] text-white">
+      <div className="min-h-screen flex
+        bg-gradient-to-br from-[#FFE3C2] via-[#FFB7A5] to-[#F76C8A]">
 
-        <div>
-          <h1 className="text-3xl font-bold mb-3">Let’s get you started</h1>
-          <p className="text-white/80 italic text-sm max-w-xs">
-            Where Code Meets Quality
-          </p>
+        {/* LEFT SIDEBAR */}
+        <div className="hidden md:flex w-1/3 px-10 py-12 flex-col justify-between
+          bg-gradient-to-br from-[#F76C8A] via-[#F4A261] to-[#C83A4A] text-white">
 
-          <div className="flex gap-2 mt-8">
-            {steps.map((_, i) => (
-              <span key={i}
-                className={`h-1 w-10 rounded-full ${
-                  i <= step ? "bg-white" : "bg-white/40"
-                }`}
-              />
-            ))}
+          <div>
+            <h1 className="text-3xl font-bold mb-3">Let’s get you started</h1>
+            <p className="text-white/80 italic text-sm max-w-xs">
+              Where Code Meets Quality
+            </p>
+
+            <div className="flex gap-2 mt-8">
+              {steps.map((_, i) => (
+                <span key={i}
+                  className={`h-1 w-10 rounded-full ${
+                    i <= step ? "bg-white" : "bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
+
+          <p className="text-xs text-white/70">
+            © {new Date().getFullYear()} SQAC. All rights reserved.
+          </p>
         </div>
 
-        <p className="text-xs text-white/70">
-          © {new Date().getFullYear()} SQAC. All rights reserved.
-        </p>
+        {/* RIGHT FORM */}
+        <main className="flex-1 flex items-center justify-center px-6 py-12">
+          <div className="w-full max-w-xl bg-white/80 backdrop-blur-xl
+            p-8 rounded-2xl shadow-xl border border-white/40">
+
+            <h2 className="text-3xl font-bold text-[#C83A4A] mb-1">
+              Member Onboarding
+            </h2>
+
+            <p className="text-sm text-gray-600 mb-6">
+              Step {step + 1} of {steps.length}
+            </p>
+
+            {step === 0 && <StepOne formData={formData} setFormData={setFormData} />}
+            {step === 1 && <StepTwo formData={formData} setFormData={setFormData} />}
+            {step === 2 && <StepThree formData={formData} setFormData={setFormData} />}
+            {step === 3 && <StepFour formData={formData} setFormData={setFormData} />}
+
+            <div className="flex justify-between mt-10">
+              <button
+                disabled={step === 0}
+                onClick={() => setStep(step - 1)}
+                className="px-4 py-2 rounded border disabled:opacity-40"
+              >
+                Back
+              </button>
+
+              <button
+                onClick={() =>
+                  step === steps.length - 1 ? submitForm() : setStep(step + 1)
+                }
+                className="px-6 py-2 rounded text-white
+                  bg-gradient-to-r from-[#F4A261] to-[#C83A4A]
+                  hover:scale-[1.03] transition"
+              >
+                {step === steps.length - 1 ? "Submit" : "Next"}
+              </button>
+            </div>
+          </div>
+        </main>
       </div>
-
-      {/* RIGHT FORM */}
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-xl bg-white/80 backdrop-blur-xl
-          p-8 rounded-2xl shadow-xl border border-white/40">
-
-          <h2 className="text-3xl font-bold text-[#C83A4A] mb-1">
-            Member Onboarding
-          </h2>
-
-          <p className="text-sm text-gray-600 mb-6">
-            Step {step + 1} of {steps.length}
-          </p>
-
-          {step === 0 && <StepOne formData={formData} setFormData={setFormData} />}
-          {step === 1 && <StepTwo formData={formData} setFormData={setFormData} />}
-          {step === 2 && <StepThree formData={formData} setFormData={setFormData} />}
-          {step === 3 && <StepFour formData={formData} setFormData={setFormData} />}
-
-          <div className="flex justify-between mt-10">
-            <button
-              disabled={step === 0}
-              onClick={() => setStep(step - 1)}
-              className="px-4 py-2 rounded border disabled:opacity-40"
-            >
-              Back
-            </button>
-
-            <button
-              onClick={() =>
-                step === steps.length - 1 ? submitForm() : setStep(step + 1)
-              }
-              className="px-6 py-2 rounded text-white
-                bg-gradient-to-r from-[#F4A261] to-[#C83A4A]
-                hover:scale-[1.03] transition"
-            >
-              {step === steps.length - 1 ? "Submit" : "Next"}
-            </button>
-          </div>
-        </div>
-      </main>
-    </div>
+    </>
   );
 }
 
