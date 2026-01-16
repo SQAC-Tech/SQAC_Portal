@@ -6,55 +6,59 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
 
     regNum: {
       type: String,
       required: true,
       unique: true,
-      trim: true
+      trim: true,
     },
 
     email: {
       type: String,
       required: true,
       unique: true,
-      lowercase: true
+      lowercase: true,
     },
 
     phoneNumber: {
       type: String,
-      required: true
+      required: true,
     },
 
     coreDomain: {
       type: String,
-      required: true
+      required: true,
     },
 
     subDomain: {
-      type: String
+      type: String,
     },
 
     position: {
-      type: String
+      type: String,
     },
 
     address: {
-      type: String
+      type: String,
     },
 
-    socials: {
-      linkedin: { type: String },
-      github: { type: String },
-      instagram: { type: String }
+    linkedin: { 
+      type: String 
+    },
+    github: { 
+      type: String 
+    },
+    instagram: { 
+      type: String 
     },
 
     bio: {
       type: String,
-      maxlength: 150
-    }
+      maxlength: 150,
+    },
   },
   { timestamps: true }
 );
