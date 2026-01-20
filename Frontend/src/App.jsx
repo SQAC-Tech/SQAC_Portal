@@ -1,15 +1,15 @@
 import {BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import OnboardingPage from './Pages/Onboarding/Onboardingpg'
+import Login from './Pages/Login';
 
 function App() {
 
 
   return (
-    <Router>
       <Routes>
         <Route path="/" element={<OnboardingPage />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
-    </Router>
   )
 }
 
