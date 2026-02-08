@@ -20,6 +20,30 @@ import "react-toastify/dist/ReactToastify.css";
 
 const steps = ["Basic", "Academic", "Social", "Address"];
 
+/* ---------------- DOMAIN OPTIONS ---------------- */
+const DOMAIN_OPTIONS = {
+  Technical: [
+    "Web Development",
+    "App Development",
+    "AI / ML",
+  ],
+  Corporate: [
+    "Sponsorship",
+    "Events"
+  ],
+  Media: [
+    "Creatives",
+    "Public Relations"
+  ]
+};
+
+const POSITION_OPTIONS = [
+  "Domain Lead", 
+  "Associate Lead",
+  "Member"
+];
+
+
 /* ---------------- STEPS ---------------- */
 
 function StepOne({ formData, setFormData }) {
@@ -48,20 +72,47 @@ function StepOne({ formData, setFormData }) {
 }
 
 function StepTwo({ formData, setFormData }) {
+  const subDomains = DOMAIN_OPTIONS[formData.coreDomain] || [];
+
   return (
     <div className="space-y-4">
-      <Input placeholder="Core Domain*" value={formData.coreDomain}
-        onChange={(val) => setFormData({ ...formData, coreDomain: val })} />
+      {/* Core Domain */}
+      <Select
+        placeholder="Select Core Domain*"
+        value={formData.coreDomain}
+        options={Object.keys(DOMAIN_OPTIONS)}
+        onChange={(val) =>
+          setFormData({
+            ...formData,
+            coreDomain: val,
+            subDomain: "" // reset sub-domain
+          })
+        }
+      />
 
-      <Input placeholder="Sub Domain*" value={formData.subDomain}
-        onChange={(val) => setFormData({ ...formData, subDomain: val })} />
+      {/* Sub Domain */}
+      <Select
+        placeholder="Select Sub Domain*"
+        value={formData.subDomain}
+        options={subDomains}
+        disabled={!formData.coreDomain}
+        onChange={(val) =>
+          setFormData({ ...formData, subDomain: val })
+        }
+      />
 
-      <Input placeholder="Position*" value={formData.position}
-        onChange={(val) => setFormData({ ...formData, position: val })} />
+      {/* Position */}
+      <Select
+        placeholder="Select Position*"
+        value={formData.position}
+        options={POSITION_OPTIONS}
+        onChange={(val) =>
+          setFormData({ ...formData, position: val })
+        }
+      />
     </div>
   );
 }
-
 function StepThree({ formData, setFormData }) {
   return (
     <div className="space-y-4">
@@ -139,7 +190,7 @@ export default function OnboardingPage() {
       toast.success("Welcome aboard! 🎉", { autoClose: 2000 });
 
       setTimeout(() => {
-        navigate("/");
+        navigate("/profile");
       }, 1500);
 
     } catch (err) {
@@ -159,6 +210,7 @@ export default function OnboardingPage() {
 
           <div>
             <h1 className="text-3xl font-bold mb-3">Let’s get you started</h1>
+
             <p className="text-white/80 italic text-sm max-w-xs">
               Where Code Meets Quality
             </p>
@@ -243,5 +295,23 @@ function TextArea({ placeholder, rows, value, onChange }) {
       onChange={(e) => onChange(e.target.value)}
       className="w-full border rounded-lg px-4 py-3 text-sm resize-none"
     />
+  );
+}
+
+function Select({ placeholder, value, options, onChange, disabled = false }) {
+  return (
+    <select
+      value={value}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full border rounded-lg px-4 py-3 text-sm bg-white disabled:opacity-50"
+    >
+      <option value="">{placeholder}</option>
+      {options.map((opt) => (
+        <option key={opt} value={opt}>
+          {opt}
+        </option>
+      ))}
+    </select>
   );
 }
