@@ -86,6 +86,27 @@ const createUser = async (req, res) => {
   }
 };
 
+/* ---------- UPDATE ---------- */
+const updateUser = async (req, res) => {
+  try {
+    const token = req.cookies.session;
+    if (!token) return res.status(401).json({ error: "Not authenticated" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      decoded.userId,
+      req.body,
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    res.json(updatedUser);
+  } catch (err) {
+    console.error("UPDATE ERROR:", err);
+    res.status(400).json({ error: "Update failed" });
+  }
+};
+
 /* ---------- LOGIN ---------- */
 const loginUser = async (req, res) => {
   try {
@@ -150,4 +171,5 @@ module.exports = {
   loginUser,
   getMe,
   logoutUser,
+  updateUser,
 };

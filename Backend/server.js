@@ -9,6 +9,7 @@ const {
   loginUser,
   getMe,
   logoutUser,
+  updateUser,
 } = require("./routes/userRoutes");
 
 const app = express();
@@ -27,8 +28,9 @@ app.use(
 /* ---------- ROUTES ---------- */
 app.post("/user/create", createUser);
 app.post("/user/login", loginUser);
-
 app.post("/logout", logoutUser);
+app.get("/user/me", getMe);
+app.put("/user/me", updateUser);
 
 /* ---------- DATABASE ---------- */
 mongoose
