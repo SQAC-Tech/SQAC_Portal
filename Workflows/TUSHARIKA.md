@@ -81,3 +81,12 @@ GET /api/warnings/stats
   → Use verifyToken, filter Warning by issuedTo === req.user.userId
 
 This is literally 5-6 lines in your controller. Just a .countDocuments() call.
+
+### Missing Coordination Details To Add
+
+Follow `MASTER.md` if any instruction conflicts with this file.
+
+Add these constraints without removing the text above:
+- Stay inside your notice/warning files only.
+- After creating a notice, import Shaurya's notifier and emit `new_notice`.
+- After issuing a warning, import Shaurya's notifier and emit `new_warning`.

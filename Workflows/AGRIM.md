@@ -201,3 +201,14 @@ export default function EmptyState({ message = "Nothing here yet" }) {
     </div>
   )
 }
+
+### Missing Coordination Details To Add
+
+Follow `MASTER.md` if any instruction conflicts with this file.
+
+Add these constraints without removing the text above:
+- You also own `main.jsx` and `AuthContext.jsx`.
+- `main.jsx` should wrap `BrowserRouter`, `AuthProvider`, `SocketProvider`, and `Toaster`.
+- Onboarding must store and use the `onboardingToken` returned by `/api/auth/register`.
+- `Navbar.jsx`, `App.jsx`, and `main.jsx` are yours only; others should not edit them.
+- Import Chirag's `NotificationBell` into `Navbar.jsx`.

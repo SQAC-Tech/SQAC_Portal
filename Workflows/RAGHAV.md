@@ -174,3 +174,12 @@ useEffect(() => {
 
 Each notification in dropdown: [icon] "New notice: Club Meeting Update" — just now
 "Clear all" button at bottom of dropdown.
+
+### Missing Coordination Details To Add
+
+Follow `MASTER.md` if any instruction conflicts with this file.
+
+Add these constraints without removing the text above:
+- You also own `AdminLayout.jsx`.
+- Agrim owns the top-level `/admin/*` route wiring in `App.jsx`; do not edit `App.jsx`.
+- Keep all admin work inside admin pages plus `api/axios.js` to avoid merge conflicts.

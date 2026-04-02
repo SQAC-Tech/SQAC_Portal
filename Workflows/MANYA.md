@@ -120,3 +120,13 @@ GET /api/attendance/summary/:memberId
 
 These are small additions to your existing routes — just add new route handlers,
 don't change any existing ones.
+
+### Missing Coordination Details To Add
+
+Follow `MASTER.md` if any instruction conflicts with this file.
+
+Add these constraints without removing the text above:
+- Only work inside your model/route/controller files.
+- Mahik mounts your routes; do not edit boot files.
+- On task assignment, import Shaurya's notifier and emit `task_assigned`.
+- On meeting creation, import Shaurya's notifier and emit `new_meeting`.

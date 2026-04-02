@@ -123,3 +123,15 @@ Create a README.md at project root with:
 5. Folder structure overview
 6. List of all API endpoints grouped by module
 7. Role permission table (board / domain_lead / associate / member)
+
+### Missing Coordination Details To Add
+
+Follow `MASTER.md` if any instruction conflicts with this file.
+
+Add these constraints without removing the text above:
+- Split bootstrapping into `app.js` and `server.js`.
+- `app.js` should configure Express and export `app`.
+- `server.js` should create the HTTP server, initialize Shaurya's socket setup, and call `server.listen`.
+- `POST /api/auth/register` must also return `onboardingToken` and a lightweight `user` object so onboarding can continue before approval.
+- `POST /api/auth/complete-onboarding` must accept the onboarding token in `Authorization`.
+- `PATCH /api/users/:id/approve` must emit `account_approved` using Shaurya's notifier helper.
