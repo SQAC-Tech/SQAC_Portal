@@ -171,3 +171,12 @@ Do the same for these notification triggers (you don't write these — the other
 - Meeting scheduled → notifier.toAll('new_meeting', { title, scheduledAt })
 
 Tell Mahik, Manya, and Tusharika to import notifier and fire these events in their controllers at the relevant points.
+
+### Missing Coordination Details To Add
+
+Follow `MASTER.md` if any instruction conflicts with this file.
+
+Add these constraints without removing the text above:
+- You also own backend Firebase Admin setup in `config/firebaseAdmin.js`.
+- Keep notifier API stable because other backend teammates depend on it.
+- Mahik owns `server.js`; you only provide the socket initializer and notifier helper.

@@ -200,3 +200,12 @@ notifier.toUser(warning.issuedTo.toString(), 'new_warning', {
 
 (Just give Tusharika these exact 2 lines to paste into her controllers —
 you don't write her controllers, just help her add these snippets.)
+
+### Missing Coordination Details To Add
+
+Follow `MASTER.md` if any instruction conflicts with this file.
+
+Add these constraints without removing the text above:
+- You own `SocketContext.jsx` and `NotificationBell.jsx` only on the shared shell side.
+- Agrim owns `Navbar.jsx`, `App.jsx`, and `main.jsx`; do not edit those files.
+- Your socket provider should reconnect cleanly when the auth token changes.
