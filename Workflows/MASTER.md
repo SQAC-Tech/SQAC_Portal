@@ -42,18 +42,18 @@ club-portal/
 │   │   │   ├── auth.middleware.js        ← Mahik (verifyToken)
 │   │   │   └── role.middleware.js        ← Mahik (requireRole)
 │   │   ├── socket/
-│   │   │   └── chat.socket.js           ← Shaurya
-│   │   └── app.js                       ← Mahik (sets up express + mounts all routes)
+│   │   │   └── chat.socket.js            ← Shaurya
+│   │   └── app.js                        ← Mahik (Express setup + routes)
 │   ├── .env.example
 │   └── package.json
 │
 └── frontend/
     ├── src/
     │   ├── api/
-    │   │   └── axios.js                  ← Raghav (base axios instance with token injection)
+    │   │   └── axios.js                  ← Raghav (base axios + token injection)
     │   ├── context/
-    │   │   ├── AuthContext.jsx           ← Mahik/Agrim (share user state globally)
-    │   │   └── SocketContext.jsx         ← Chirag (socket.io-client instance)
+    │   │   ├── AuthContext.jsx           ← Mahik/Agrim (global auth state)
+    │   │   └── SocketContext.jsx         ← Chirag (socket.io client)
     │   ├── pages/
     │   │   ├── auth/
     │   │   │   ├── Login.jsx             ← Agrim
@@ -88,8 +88,6 @@ club-portal/
     │   │       └── RoleGuard.jsx         ← Agrim
     │   └── App.jsx                       ← Agrim (routing setup)
     └── package.json
-
-
 ### Onboarding Flow (Important — Sabko pata hona chahiye)
 New Person Registers
      ↓
