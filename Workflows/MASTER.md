@@ -14,105 +14,106 @@ The goal is parallel implementation with minimal merge conflicts.
 club-portal/
 ├── backend/
 │   ├── src/
-│   │   ├── app.js
-│   │   ├── server.js
+│   │   ├── app.js                        ← Mahik
+│   │   ├── server.js                     ← Mahik
 │   │   ├── config/
-│   │   │   ├── db.js
-│   │   │   ├── firebaseAdmin.js
-│   │   │   └── socket.js
+│   │   │   ├── db.js                     ← Mahik
+│   │   │   ├── firebaseAdmin.js          ← Shaurya
+│   │   │   └── socket.js                 ← Shaurya
 │   │   ├── models/
-│   │   │   ├── User.js
-│   │   │   ├── Project.js
-│   │   │   ├── Task.js
-│   │   │   ├── Meeting.js
-│   │   │   ├── Attendance.js
-│   │   │   ├── Notice.js
-│   │   │   ├── Warning.js
-│   │   │   ├── Message.js
-│   │   │   └── Certificate.js
+│   │   │   ├── User.js                   ← Mahik
+│   │   │   ├── Project.js                ← Manya
+│   │   │   ├── Task.js                   ← Manya
+│   │   │   ├── Meeting.js                ← Manya
+│   │   │   ├── Attendance.js             ← Manya
+│   │   │   ├── Notice.js                 ← Tusharika
+│   │   │   ├── Warning.js                ← Tusharika
+│   │   │   ├── Message.js                ← Shaurya
+│   │   │   └── Certificate.js            ← Shaurya
 │   │   ├── routes/
-│   │   │   ├── auth.routes.js
-│   │   │   ├── user.routes.js
-│   │   │   ├── project.routes.js
-│   │   │   ├── task.routes.js
-│   │   │   ├── meeting.routes.js
-│   │   │   ├── attendance.routes.js
-│   │   │   ├── notice.routes.js
-│   │   │   ├── warning.routes.js
-│   │   │   ├── chat.routes.js
-│   │   │   ├── mail.routes.js
-│   │   │   └── certificate.routes.js
+│   │   │   ├── auth.routes.js            ← Mahik
+│   │   │   ├── user.routes.js            ← Mahik
+│   │   │   ├── project.routes.js         ← Manya
+│   │   │   ├── task.routes.js            ← Manya
+│   │   │   ├── meeting.routes.js         ← Manya
+│   │   │   ├── attendance.routes.js      ← Manya
+│   │   │   ├── notice.routes.js          ← Tusharika
+│   │   │   ├── warning.routes.js         ← Tusharika
+│   │   │   ├── chat.routes.js            ← Shaurya
+│   │   │   ├── mail.routes.js            ← Shaurya
+│   │   │   └── certificate.routes.js     ← Shaurya
 │   │   ├── controllers/
-│   │   │   ├── auth.controller.js
-│   │   │   ├── user.controller.js
-│   │   │   ├── project.controller.js
-│   │   │   ├── task.controller.js
-│   │   │   ├── meeting.controller.js
-│   │   │   ├── attendance.controller.js
-│   │   │   ├── notice.controller.js
-│   │   │   ├── warning.controller.js
-│   │   │   ├── chat.controller.js
-│   │   │   ├── mail.controller.js
-│   │   │   └── certificate.controller.js
+│   │   │   ├── auth.controller.js        ← Mahik
+│   │   │   ├── user.controller.js        ← Mahik
+│   │   │   ├── project.controller.js     ← Manya
+│   │   │   ├── task.controller.js        ← Manya
+│   │   │   ├── meeting.controller.js     ← Manya
+│   │   │   ├── attendance.controller.js  ← Manya
+│   │   │   ├── notice.controller.js      ← Tusharika
+│   │   │   ├── warning.controller.js     ← Tusharika
+│   │   │   ├── chat.controller.js        ← Shaurya
+│   │   │   ├── mail.controller.js        ← Shaurya
+│   │   │   └── certificate.controller.js ← Shaurya
 │   │   ├── middleware/
-│   │   │   ├── auth.middleware.js
-│   │   │   └── role.middleware.js
+│   │   │   ├── auth.middleware.js        ← Mahik
+│   │   │   └── role.middleware.js        ← Mahik
 │   │   └── socket/
-│   │       ├── chat.socket.js
-│   │       └── notifier.js
-│   ├── .env.example
+│   │       ├── chat.socket.js            ← Shaurya
+│   │       └── notifier.js               ← Shaurya
+│   ├── .env.example                     ← Mahik
 │   ├── package.json
-│   └── README.md
+│   └── README.md                       ← Mahik
+│
 └── frontend/
     ├── src/
-    │   ├── main.jsx
-    │   ├── App.jsx
+    │   ├── main.jsx                     ← Agrim
+    │   ├── App.jsx                      ← Agrim
     │   ├── api/
-    │   │   └── axios.js
-    │   ├── firebase.js
+    │   │   └── axios.js                 ← Raghav
+    │   ├── firebase.js                  ← Agrim
     │   ├── context/
-    │   │   ├── AuthContext.jsx
-    │   │   └── SocketContext.jsx
+    │   │   ├── AuthContext.jsx          ← Agrim
+    │   │   └── SocketContext.jsx        ← Chirag
     │   ├── components/
     │   │   └── common/
-    │   │       ├── Navbar.jsx
-    │   │       ├── ProtectedRoute.jsx
-    │   │       ├── RoleGuard.jsx
-    │   │       ├── NotificationBell.jsx
-    │   │       ├── Spinner.jsx
-    │   │       └── EmptyState.jsx
+    │   │       ├── Navbar.jsx           ← Agrim
+    │   │       ├── ProtectedRoute.jsx   ← Agrim
+    │   │       ├── RoleGuard.jsx        ← Agrim
+    │   │       ├── NotificationBell.jsx ← Chirag
+    │   │       ├── Spinner.jsx          ← Agrim
+    │   │       └── EmptyState.jsx       ← Agrim
     │   ├── pages/
     │   │   ├── auth/
-    │   │   │   ├── Login.jsx
-    │   │   │   └── Onboarding.jsx
+    │   │   │   ├── Login.jsx            ← Agrim
+    │   │   │   └── Onboarding.jsx       ← Agrim
     │   │   ├── member/
-    │   │   │   ├── Dashboard.jsx
-    │   │   │   ├── Profile.jsx
-    │   │   │   ├── MyTasks.jsx
-    │   │   │   ├── MyProjects.jsx
-    │   │   │   └── MyMeetings.jsx
+    │   │   │   ├── Dashboard.jsx        ← Agrim
+    │   │   │   ├── Profile.jsx          ← Agrim
+    │   │   │   ├── MyTasks.jsx          ← Agrim
+    │   │   │   ├── MyProjects.jsx       ← Agrim
+    │   │   │   └── MyMeetings.jsx       ← Agrim
     │   │   ├── admin/
-    │   │   │   ├── AdminLayout.jsx
-    │   │   │   ├── AdminDashboard.jsx
-    │   │   │   ├── MemberList.jsx
-    │   │   │   ├── MemberDetail.jsx
-    │   │   │   ├── ProjectManager.jsx
-    │   │   │   ├── TaskAssign.jsx
-    │   │   │   ├── MeetingManager.jsx
-    │   │   │   ├── AttendanceTracker.jsx
-    │   │   │   ├── OnboardApproval.jsx
-    │   │   │   ├── CertGenerator.jsx
-    │   │   │   ├── MassMailer.jsx
-    │   │   │   └── WarningsAdmin.jsx
+    │   │   │   ├── AdminLayout.jsx      ← Raghav
+    │   │   │   ├── AdminDashboard.jsx   ← Raghav
+    │   │   │   ├── MemberList.jsx       ← Raghav
+    │   │   │   ├── MemberDetail.jsx     ← Raghav
+    │   │   │   ├── ProjectManager.jsx   ← Raghav
+    │   │   │   ├── TaskAssign.jsx       ← Raghav
+    │   │   │   ├── MeetingManager.jsx   ← Raghav
+    │   │   │   ├── AttendanceTracker.jsx← Raghav
+    │   │   │   ├── OnboardApproval.jsx  ← Raghav
+    │   │   │   ├── CertGenerator.jsx    ← Raghav
+    │   │   │   ├── MassMailer.jsx       ← Raghav
+    │   │   │   └── WarningsAdmin.jsx    ← Raghav
     │   │   ├── notices/
-    │   │   │   ├── NoticeBoard.jsx
-    │   │   │   └── WarningList.jsx
+    │   │   │   ├── NoticeBoard.jsx      ← Chirag
+    │   │   │   └── WarningList.jsx      ← Chirag
     │   │   └── chat/
-    │   │       ├── ChatLayout.jsx
-    │   │       ├── GroupChat.jsx
-    │   │       └── DirectChat.jsx
+    │   │       ├── ChatLayout.jsx       ← Chirag
+    │   │       ├── GroupChat.jsx        ← Chirag
+    │   │       └── DirectChat.jsx       ← Chirag
     │   └── utils/
-    │       └── formatters.js
+    │       └── formatters.js           ← Shared (All)
     └── package.json
 ```
 
