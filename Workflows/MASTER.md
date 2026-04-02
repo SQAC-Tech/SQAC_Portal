@@ -1,3 +1,4 @@
+```bash
 club-portal/
 ├── backend/
 │   ├── src/
@@ -88,6 +89,7 @@ club-portal/
     │   │       └── RoleGuard.jsx         ← Agrim
     │   └── App.jsx                       ← Agrim (routing setup)
     └── package.json
+```
 ### Onboarding Flow (Important — Sabko pata hona chahiye)
 New Person Registers
      ↓
