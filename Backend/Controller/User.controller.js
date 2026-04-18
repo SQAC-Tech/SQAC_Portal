@@ -129,11 +129,20 @@ const loginUser = async (req, res) => {
   }
 };
 
-
-
 const logoutUser = (req, res) => {
   res.clearCookie("session");
   res.json({ message: "Logged out" });
 };
 
-export { createUser, loginUser, logoutUser, authicateTOken, role};
+const getrole = async(req,res)=>{
+    try {
+        const {role} = req.user.role;
+        res.json(role);
+
+    } catch (error) {
+        res.error(500).json({message:"Server error"});
+    }
+}
+
+
+export { createUser, loginUser, logoutUser, authicateTOken, getrole};

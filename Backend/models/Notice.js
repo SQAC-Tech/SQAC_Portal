@@ -8,6 +8,10 @@ const noticeSchema = new mongoose.Schema({
         default: Date.now
     },
     author:String,
+    image:String,
+    link:String,
+    domain:String,
+    subDomain:String,
 });
 
 export default mongoose.model("Notice", noticeSchema);
