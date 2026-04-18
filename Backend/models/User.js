@@ -1,20 +1,18 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+import mongoose from "mongoose";
+
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
-      trim: true
-    },
+          },
 
     regNum: {
       type: String,
       required: true,
       unique: true,
-      trim: true
-    },
+          },
 
     email: {
       type: String,
@@ -31,7 +29,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minlength: 6,
+      minlength: 8,
       select: false
     },
 
@@ -42,7 +40,6 @@ const userSchema = new mongoose.Schema(
 
     subDomain: String,
     position: String,
-    address: String,
 
     socials: {
       linkedin: String,
@@ -53,22 +50,25 @@ const userSchema = new mongoose.Schema(
     bio: {
       type: String,
       maxlength: 150
+    },
+    image:{
+        type:String,
+        default:"https://images.unsplash.com/photo-1680355466468-bd0a68b11fa0?q=80&w=715&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    },
+    role:{
+        type:String,
+        enum:['user','admin','subadmin','lead'],
+        default:'user'
+    },
+    attendance:{
+        type:Number,
+        default:0
+    },
+    approved:{
+        type:Boolean,
+        default:false
     }
   },
   { timestamps: true }
 );
-
-/* 🔐 Hash password before saving (MODERN WAY) */
-userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-/* 🔍 Compare password during login */
-userSchema.methods.comparePassword = async function (enteredPassword) {
-  return bcrypt.compare(enteredPassword, this.password);
-};
-
-module.exports = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);

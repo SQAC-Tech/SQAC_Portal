@@ -1,43 +1,98 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-require("dotenv").config();
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import connectDB from './lib/db.js';
 
-const {
-  createUser,
-  loginUser,
-  getMe,
-  logoutUser,
-} = require("./routes/userRoutes");
+// Controllers
+import { 
+    createUser, 
+    loginUser, 
+    logoutUser, 
+    authenticateToken, 
+    getrole 
+} from './Controller/User.controller.js';
+
+import { 
+    getprofile, 
+    getotp, 
+    verifyotp, 
+    resetpassword, 
+    editprofile 
+} from './Controller/role.user.controller.js';
+
+import { 
+    getmembers, 
+    getSubAdmins, 
+    deleteUser, 
+    deleteSubAdmin, 
+    changeposition, 
+    changerole, 
+    allowmember, 
+    showstatus, 
+    rejectmember, 
+    getpendingmembers, 
+    getnotices, 
+    createnotice, 
+    deletenotice 
+} from './Controller/admin.controller.js';
+
+dotenv.config();
 
 const app = express();
 
-/* ---------- MIDDLEWARE ---------- */
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true
+}));
 
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
-
-/* ---------- ROUTES ---------- */
+// --- Public Routes ---
 app.post("/user/create", createUser);
 app.post("/user/login", loginUser);
-
 app.post("/logout", logoutUser);
 
-/* ---------- DATABASE ---------- */
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB error:", err));
+// OTP & Password Reset
+app.post("/otp/get", getotp);
+app.post("/otp/verify", verifyotp);
+app.post("/password/reset", resetpassword);
 
-/* ---------- SERVER ---------- */
+// --- Protected Routes ---
+app.use(authenticateToken); // Apply to all routes below
+
+// User Profile
+app.get("/user/profile", getprofile);
+app.put("/user/update", editprofile);
+app.get("/user/role", getrole);
+
+// Admin Management
+app.get("/admin/members", getmembers);
+app.get("/admin/subadmins", getSubAdmins);
+app.delete("/admin/user/:id", deleteUser);
+app.delete("/admin/subadmin/:id", deleteSubAdmin);
+app.put("/admin/position/:id", changeposition);
+app.put("/admin/role/:id", changerole);
+app.post("/admin/approve/:id", allowmember);
+app.get("/admin/status/:id", showstatus);
+app.post("/admin/reject/:id", rejectmember);
+app.get("/admin/pending", getpendingmembers);
+
+// Notices
+app.get("/notices", getnotices);
+app.post("/notices/create", createnotice);
+app.delete("/notices/:id", deletenotice);
+
+// Database Connection and Server Start
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`🚀 Server running on http://localhost:${PORT}`)
-);
+
+connectDB().then(() => {
+    console.log("Connected to MongoDB");
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+}).catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+});
