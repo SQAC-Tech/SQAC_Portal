@@ -1,5 +1,5 @@
 import User from "../models/User.js";
-import {role} from "./User.controller.js";
+import {getrole} from "./User.controller.js";
 
 const getmembers = async(req,res)=>{
     if(role != "admin"){
@@ -99,7 +99,7 @@ const allowmember = async(req,res)=>{
 }
 
 const showstatus = async(req,res)=>{
-    if(role!=admin){
+    if(role!=admin && role!=subadmin){
         res.json('Not authorised');
     }
     try {
@@ -112,7 +112,7 @@ const showstatus = async(req,res)=>{
     }
 }
 const rejectmember = async(req,res)=>{
-    if(role!=admin){
+    if(role!=admin && role!=subadmin){
         res.json('Not authorised');
     }
     try {
@@ -123,4 +123,55 @@ const rejectmember = async(req,res)=>{
         res.status(500).json({message:"Server Error"});
     }
 }
+const getpendingmembers = async(req,res)=>{
+    if(role!=admin && role!=subadmin){
+        res.json('Not authorised');
+    }
+    try {
+        const pendingMembers = await User.find({approved:false,role:'user'});
+        res.json(pendingMembers);
+    }
+        catch (error) {
+        res.status(500).json({message:"Server Error"});
+    }
+}
+const getnotices = async(req,res)=>{
+    if(role!=admin && role!=subadmin){
+        res.json('Not authorised');
+    }
+    try {
+        const notices = await Notice.find();
+        res.json(notices);
 
+    } catch (error) {
+        res.status(500).json({message:"Server Error"});
+    }
+}
+const createnotice = async(req,res)=>{
+    if(role!=admin && role!=subadmin && role!=lead){
+        res.json('Not authorised');
+    }
+    try {
+        const {title,description,domain,subdomain,image,link} = req.body;
+        const{author} = req.user.name;
+        const notice = new Notice({title,description,domain,subdomain,image,link,author});
+        await notice.save();
+        res.json({message:"Notice created successfully"});
+
+    } catch (error) {
+        res.status(500).json({message:"Server Error"});
+    }
+}
+const deletenotice = async(req,res)=>{
+    if(role!=admin){
+        res.json('Not authorised');
+    }
+    try {
+        const {id} = req.params.id;
+        await Notice.findByIdAndDelete(id);
+        res.json({message:"Notice deleted successfully"});
+    } catch (error) {
+        res.status(500).json({message:"Server Error"});
+    }
+}
+export {getmembers,getSubAdmins,deleteUser,deleteSubAdmin,changeposition,changerole,allowmember,showstatus,rejectmember,getpendingmembers,getnotices,createnotice,deletenotice};
