@@ -264,9 +264,7 @@ export default function Login() {
 
       {/* Shared Footer Component */}
       <footer className="w-full py-12 px-10 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-white/5 bg-[#0f0d16] font-manrope text-sm tracking-wide z-10">
-        <div className="text-slate-500">
-          © 2024 SQAC Portal. Spatial Luminescence.
-        </div>
+        <div className="text-slate-500">© 2026 SQAC Portal.</div>
         <nav className="flex gap-8">
           <Link
             to="#"
