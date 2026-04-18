@@ -84,4 +84,43 @@ const changerole = async(req,res)=>{
 
     }
 }
+const allowmember = async(req,res)=>{
+    if(role!=admin){
+        res.json('Not authorised');
+    }
+    try {
+        const {id} = req.params.id;
+        await User.findByIdAndUpdate(id,{approved:true});
+        res.json({message:"Member approved successfully"});
+
+    } catch (error) {
+        res.status(500).json({message:"Server Error"});
+    }
+}
+
+const showstatus = async(req,res)=>{
+    if(role!=admin){
+        res.json('Not authorised');
+    }
+    try {
+        const {id} = req.params.id;
+        const user = await User.findById(id);
+        res.json({approved:user.approved});
+
+    } catch (error) {
+        res.status(500).json({message:"Server Error"});
+    }
+}
+const rejectmember = async(req,res)=>{
+    if(role!=admin){
+        res.json('Not authorised');
+    }
+    try {
+        const {id} = req.params.id;
+        await User.findByIdAndUpdate(id,{approved:false});
+        res.json({message:"Member rejected successfully"});
+    } catch (error) {
+        res.status(500).json({message:"Server Error"});
+    }
+}
 
