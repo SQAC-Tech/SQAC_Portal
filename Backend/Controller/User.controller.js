@@ -1,11 +1,25 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
+import cookieParser from "cookie-parser";
+dotenv.config();
 
-/* ---------- UTIL ---------- */
 const generateToken = (userId) =>
   jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-/* ---------- REGISTER ---------- */
+const authicateTOken = (req,res,next)=>{
+    const token = req.cookies.session;
+    if (!token) return res.status(401).json({ error: "Not authenticated" });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.userId = decoded.userId;
+        next();
+    } catch {
+        res.status(401).json({ error: "Invalid session" });
+    }
+}
+
 const createUser = async (req, res) => {
   try {
     let {
@@ -26,13 +40,12 @@ const createUser = async (req, res) => {
       return res.status(400).json({ error: "Required fields missing" });
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       return res.status(400).json({
-        error: "Password must be at least 6 characters long",
+        error: "Password must be at least 8 characters long",
       });
     }
 
-    // Normalize
     email = email.trim().toLowerCase();
     regNum = regNum.trim();
 
@@ -45,13 +58,14 @@ const createUser = async (req, res) => {
         error: "User with this email or registration number already exists",
       });
     }
+    const hashedPassword = await bcrypt.hash(password, 15);
 
     const user = await User.create({
       name,
       regNum,
       email,
       phoneNumber,
-      password,
+      password: hashedPassword,
       coreDomain,
       subDomain,
       position,
@@ -60,15 +74,6 @@ const createUser = async (req, res) => {
       bio,
     });
 
-    const token = generateToken(user._id);
-
-    // 🍪 session cookie
-    res.cookie("session", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false, // true in prod
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
 
     res.status(201).json({
       message: "User registered successfully",
@@ -86,7 +91,6 @@ const createUser = async (req, res) => {
   }
 };
 
-/* ---------- LOGIN ---------- */
 const loginUser = async (req, res) => {
   try {
     let { email, password } = req.body;
@@ -95,7 +99,7 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({ email }).select("+password");
 
-    if (!user || !(await user.comparePassword(password))) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
@@ -124,30 +128,11 @@ const loginUser = async (req, res) => {
   }
 };
 
-/* ---------- CURRENT USER ---------- */
-const getMe = async (req, res) => {
-  try {
-    const token = req.cookies.session;
-    if (!token) return res.status(401).json({ error: "Not authenticated" });
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select("-password");
 
-    res.json(user);
-  } catch {
-    res.status(401).json({ error: "Invalid session" });
-  }
-};
-
-/* ---------- LOGOUT ---------- */
 const logoutUser = (req, res) => {
   res.clearCookie("session");
   res.json({ message: "Logged out" });
 };
 
-module.exports = {
-  createUser,
-  loginUser,
-  getMe,
-  logoutUser,
-};
+export { createUser, loginUser, logoutUser, authicateTOken };
