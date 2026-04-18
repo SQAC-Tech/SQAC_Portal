@@ -8,14 +8,18 @@ dotenv.config();
 const generateToken = (userId) =>
   jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-const authicateTOken = (req,res,next)=>{
+const authenticateToken = async (req, res, next) => {
     const token = req.cookies.session;
     if (!token) return res.status(401).json({ error: "Not authenticated" });
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.userId);
+        if (!user) return res.status(404).json({ error: "User not found" });
+        
         req.userId = decoded.userId;
+        req.user = user; 
         next();
-    } catch {
+    } catch (err) {
         res.status(401).json({ error: "Invalid session" });
     }
 }
@@ -112,7 +116,6 @@ const loginUser = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    const role = user.role;
     res.json({
       message: "Login successful",
       user: {
@@ -134,15 +137,17 @@ const logoutUser = (req, res) => {
   res.json({ message: "Logged out" });
 };
 
-const getrole = async(req,res)=>{
+const getrole = async (req, res) => {
     try {
-        const {role} = req.user.role;
-        res.json(role);
-
+        if (!req.user) {
+            return res.status(401).json({ message: "Not authenticated" });
+        }
+        res.json({ role: req.user.role });
     } catch (error) {
-        res.error(500).json({message:"Server error"});
+        console.error("GET ROLE ERROR:", error);
+        res.status(500).json({ message: "Server error" });
     }
-}
+};
 
 
-export { createUser, loginUser, logoutUser, authicateTOken, getrole};
+export { createUser, loginUser, logoutUser, authenticateToken, getrole};

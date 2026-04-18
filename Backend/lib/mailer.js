@@ -8,4 +8,15 @@ const transporter = nodemailer.createTransport({
         user:processs.env.USER_EMAIL,
         pass:process.env.USER_PASS
     }
-})
+});
+
+const sendMail = async({to, subject, html})=>{
+    await transporter.sendMail({
+        from:`"SQAC Portal Admin" <${process.env.EMAIL_USER}>`,
+        to,
+        subject,
+        html,
+    });
+}
+
+export default sendMail;
