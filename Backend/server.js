@@ -1,37 +1,25 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-require("dotenv").config();
-
-const {
-  createUser,
-  loginUser,
-  getMe,
-  logoutUser,
-} = require("./routes/userRoutes");
-
+import express from 'express'
+import cors from 'cors'
+import dotenv from 'dotenv'
+import connectDB from './lib/db.js'
+import cookieParser from 'cookie-parser'
+import { createUser, loginUser, logoutUser, authicateTOken } from './Controller/User.controller.js';
+dotenv.config();
 const app = express();
-
 app.use(express.json());
 app.use(cookieParser());
-
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.post("/user/create", createUser);
 app.post("/user/login", loginUser);
-
 app.post("/logout", logoutUser);
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB error:", err));
+connectDB().then(() => {
+  console.log("Connected to MongoDB");
+}).catch((err) => {
+  console.error("MongoDB connection error:", err);
+  process.exit(1);
+});
 
 
 const PORT = process.env.PORT || 3000;
