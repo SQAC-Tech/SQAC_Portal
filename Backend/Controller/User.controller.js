@@ -112,6 +112,7 @@ const loginUser = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    const role = user.role;
     res.json({
       message: "Login successful",
       user: {
@@ -135,4 +136,4 @@ const logoutUser = (req, res) => {
   res.json({ message: "Logged out" });
 };
 
-export { createUser, loginUser, logoutUser, authicateTOken };
+export { createUser, loginUser, logoutUser, authicateTOken, role};
