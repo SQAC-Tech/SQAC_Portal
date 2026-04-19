@@ -75,7 +75,10 @@
     .prismatic-edge::before {
         content: '';
         position: absolute;
-        top: -1px; bottom: -1px; left: -1px; right: -1px;
+        top: -1px;
+        bottom: -1px;
+        left: -1px;
+        right: -1px;
         background: linear-gradient(45deg, #f183ff, transparent, #ff6c95, transparent, #81ecff);
         z-index: -1;
         border-radius: inherit;
@@ -83,7 +86,7 @@
     }
 
     .bg-grid {
-        background-image: 
+        background-image:
             linear-gradient(to right, rgba(241, 131, 255, 0.05) 1px, transparent 1px),
             linear-gradient(to bottom, rgba(241, 131, 255, 0.05) 1px, transparent 1px);
         background-size: 60px 60px;
@@ -92,7 +95,7 @@
     }
 
     .recessed-void {
-        box-shadow: inset 0 2px 20px 0 rgba(0,0,0,0.8);
+        box-shadow: inset 0 2px 20px 0 rgba(0, 0, 0, 0.8);
     }
 
     .interactive-login-scene {
@@ -216,5 +219,62 @@
         100% {
             background-position: 18% 24%, 76% 20%, 50% 88%;
         }
+    }
+
+    /* Onboarding Rocket Launch Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes popupContent {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes rocketLaunch {
+        0% {
+            transform: translateY(50px) scale(0.8);
+            opacity: 0;
+        }
+
+        15% {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        40% {
+            transform: translateY(0) scale(1) rotate(0deg);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateY(-1000px) scale(0.8) rotate(15deg);
+            opacity: 0;
+        }
+    }
+
+    .overlay-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .rocket-anim {
+        animation: rocketLaunch 3.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .popup-anim {
+        animation: popupContent 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 }
