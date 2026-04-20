@@ -241,7 +241,7 @@ export default function Login() {
 
             <div className="mt-6 flex flex-col sm:flex-row gap-4">
               <Link
-                to="/"
+                to="/onboarding"
                 className="flex-1 bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/10 py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
               >
                 <span className="material-symbols-outlined text-xl">
