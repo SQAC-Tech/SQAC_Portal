@@ -111,8 +111,8 @@ export default function Login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         console.log("Login successful");
-        // Redirect to dashboard or home page
-        window.location.href = "/dashboard"; // Adjust as needed
+        // Redirect to dashboard
+        window.location.href = "/dashboard";
       } else {
         setError(data.message || "Login failed");
       }
