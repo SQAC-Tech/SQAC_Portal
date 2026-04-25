@@ -1,5 +1,5 @@
 import Certificate from '../models/Certificate.js';
-import User from '../../models/User.js';
+import User from '../models/User.js';
 import { supabase } from '../config/supabase.js';
 import nodemailer from 'nodemailer';
 

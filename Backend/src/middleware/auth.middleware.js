@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import User from "../../models/User.js";
+import User from "../models/User.js";
 
 export const verifyToken = async (req, res, next) => {
     // Check for cookie or Authorization header
