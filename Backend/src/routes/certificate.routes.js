@@ -1,20 +1,15 @@
-const express = require('express');
+import express from 'express';
+import { verifyToken } from '../middleware/auth.middleware.js';
+import { requireRole } from '../middleware/role.middleware.js';
+import * as certController from '../controllers/certificate.controller.js';
+
 const router = express.Router();
-const { verifyToken } = require('../middleware/auth.middleware');
-const { requireRole } = require('../middleware/role.middleware');
-const certController = require('../controllers/certificate.controller');
 
 /**
  * Certificate Routes
  */
 
-// POST /api/certificate/generate — board or domain_lead only
-router.post(
-  '/generate',
-  verifyToken,
-  requireRole('board', 'domain_lead'),
-  certController.generateCertificate
-);
+
 
 // GET /api/certificate/my — logged-in user's own certificates
 router.get('/my', verifyToken, certController.getMyCertificates);
@@ -23,8 +18,19 @@ router.get('/my', verifyToken, certController.getMyCertificates);
 router.get(
   '/user/:userId',
   verifyToken,
-  requireRole('board', 'domain_lead'),
+  //requireRole('board', 'domain_lead'),
   certController.getUserCertificates
 );
 
-module.exports = router;
+// GET /api/certificate/verify/:credentialId — Public
+router.get('/verify/:credentialId', certController.verifyCertificate);
+
+// POST /api/certificate/upload-generated — Board, domain_lead, or Admin
+router.post(
+  '/upload-generated',
+  verifyToken,
+  //requireRole('admin', 'board', 'domain_lead', 'secretary', 'joint sec', 'technical lead', 'project lead', 'corporate lead'),
+  certController.uploadGenerated
+);
+
+export default router;
