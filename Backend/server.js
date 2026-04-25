@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import connectDB from './lib/db.js';
+import connectDB from './src/lib/db.js';
 
 // Controllers
 import { 
@@ -11,7 +11,7 @@ import {
     logoutUser, 
     authenticateToken, 
     getrole 
-} from './Controller/User.controller.js';
+} from './src/controllers/User.controller.js';
 
 import { 
     getprofile, 
@@ -19,7 +19,7 @@ import {
     verifyotp, 
     resetpassword, 
     editprofile 
-} from './Controller/role.user.controller.js';
+} from './src/controllers/role.user.controller.js';
 
 import { 
     getmembers, 
@@ -35,7 +35,7 @@ import {
     getnotices, 
     createnotice, 
     deletenotice 
-} from './Controller/admin.controller.js';
+} from './src/controllers/admin.controller.js';
 
 import certificateRoutes from './src/routes/certificate.routes.js';
 
