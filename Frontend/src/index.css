@@ -530,4 +530,966 @@
             box-shadow: 0 18px 40px rgba(241, 131, 255, 0.08);
         }
     }
+
+    /* ====================================================================
+       MEETING SCHEDULER — Glass-In-Void Theme
+       ==================================================================== */
+
+    /* --- Page Shell --- */
+    .sched-page {
+        position: relative;
+        height: 100vh;
+        background: #0f0d16;
+        color: #f5eefc;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sched-page__bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background:
+            radial-gradient(ellipse 900px 700px at 8% 12%, #1a1625 0%, transparent 60%),
+            #0f0d16;
+        pointer-events: none;
+    }
+
+    /* --- Top Bar --- */
+    .sched-page__topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 32px;
+        background: rgba(15, 13, 22, 0.75);
+        backdrop-filter: blur(24px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .sched-page__topbar-left {
+        flex-shrink: 0;
+    }
+
+    .sched-page__topbar-brand {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+    }
+
+    .sched-page__topbar-search {
+        position: relative;
+        flex: 1;
+        max-width: 380px;
+    }
+
+    .sched-page__topbar-search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        color: rgba(255, 255, 255, 0.35);
+        pointer-events: none;
+    }
+
+    .sched-page__topbar-search-input {
+        width: 100%;
+        height: 44px;
+        padding: 0 16px 0 48px;
+        border-radius: 9999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        color: #ffffff;
+        font-family: 'Manrope', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        outline: none;
+        transition: border-color 0.3s ease, background 0.3s ease;
+    }
+
+    .sched-page__topbar-search-input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .sched-page__topbar-search-input:focus {
+        border-color: rgba(241, 131, 255, 0.5);
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .sched-page__topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .sched-page__topbar-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .sched-page__topbar-icon-btn:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .sched-page__topbar-avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #f183ff, #ff6c95);
+        color: #ffffff;
+        margin-left: 8px;
+        cursor: pointer;
+        box-shadow: 0 0 16px rgba(241, 131, 255, 0.3);
+    }
+
+    /* --- Three-Pane Layout --- */
+    .sched-page__layout {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .sched-page__main {
+        flex: 1;
+        min-width: 0;
+        padding: 24px 24px 32px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sched-page__utility {
+        flex-shrink: 0;
+        width: 360px;
+        padding: 24px 24px 32px 0;
+        overflow-y: auto;
+    }
+
+    /* Scrollbar Styling for Panes */
+    .sched-page__main::-webkit-scrollbar,
+    .sched-page__utility::-webkit-scrollbar {
+        width: 6px;
+    }
+    .sched-page__main::-webkit-scrollbar-track,
+    .sched-page__utility::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .sched-page__main::-webkit-scrollbar-thumb,
+    .sched-page__utility::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+    .sched-page__main::-webkit-scrollbar-thumb:hover,
+    .sched-page__utility::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* --- Page Headline --- */
+    .sched-page__headline {
+        margin-bottom: 32px;
+    }
+
+    .sched-page__title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 32px;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+    }
+
+    .sched-page__subtitle {
+        margin-top: 6px;
+        font-family: 'Manrope', sans-serif;
+        font-weight: 500;
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* ====================================================================
+       A. LEFT NAVIGATION RAIL (ScheduleSidebar)
+       ==================================================================== */
+    .sched-sidebar {
+        flex-shrink: 0;
+        width: 260px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        z-index: 2;
+        overflow-y: auto;
+    }
+
+    .sched-sidebar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .sched-sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    /* Logo */
+    .sched-sidebar__logo {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 48px;
+    }
+
+    .sched-sidebar__logo-glyph {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(145deg, rgba(241, 131, 255, 0.2), rgba(255, 108, 149, 0.15));
+        border: 1px solid rgba(241, 131, 255, 0.2);
+    }
+
+    .sched-sidebar__logo-title {
+        display: block;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 20px;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+    }
+
+    .sched-sidebar__logo-sub {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        color: #f183ff;
+        margin-top: 2px;
+    }
+
+    /* Nav Items */
+    .sched-sidebar__nav {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+    }
+
+    .sched-sidebar__nav-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        border-radius: 14px;
+        text-decoration: none;
+        font-family: 'Manrope', sans-serif;
+        font-weight: 500;
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.55);
+        transition: all 0.25s ease;
+        border: 1px solid transparent;
+    }
+
+    .sched-sidebar__nav-item:hover {
+        color: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .sched-sidebar__nav-item.is-active {
+        color: #ffffff;
+        background: linear-gradient(135deg, rgba(241, 131, 255, 0.15), rgba(255, 108, 149, 0.1));
+        border-color: rgba(241, 131, 255, 0.12);
+    }
+
+    .sched-sidebar__nav-indicator {
+        position: absolute;
+        right: -1px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2px;
+        height: 24px;
+        border-radius: 9999px;
+        background: #f183ff;
+        box-shadow: 0 0 8px rgba(241, 131, 255, 0.6);
+    }
+
+    .sched-sidebar__nav-icon {
+        font-size: 22px;
+        opacity: 0.7;
+        transition: opacity 0.25s ease;
+    }
+
+    .sched-sidebar__nav-item.is-active .sched-sidebar__nav-icon {
+        opacity: 1;
+        color: #f183ff;
+    }
+
+    .sched-sidebar__nav-label {
+        letter-spacing: 0.01em;
+    }
+
+    /* Bottom CTA */
+    .sched-sidebar__footer {
+        margin-top: auto;
+        padding-top: 24px;
+    }
+
+    .sched-sidebar__cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        height: 52px;
+        border-radius: 9999px;
+        border: none;
+        background: linear-gradient(135deg, #f183ff 0%, #ff6c95 100%);
+        color: #ffffff;
+        font-family: 'Manrope', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        box-shadow: 0 0 20px rgba(241, 131, 255, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sched-sidebar__cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(241, 131, 255, 0.45), 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ====================================================================
+       B. CENTRAL CALENDAR MODULE
+       ==================================================================== */
+    .sched-calendar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        flex: 1;
+    }
+
+    /* Glass Card Container */
+    .sched-calendar__card {
+        background: rgba(39, 36, 49, 0.4);
+        backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        flex-shrink: 0;
+    }
+
+    /* Calendar Header */
+    .sched-calendar__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .sched-calendar__month-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 20px;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+    }
+
+    .sched-calendar__nav-arrows {
+        display: flex;
+        gap: 4px;
+    }
+
+    .sched-calendar__arrow {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .sched-calendar__arrow:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(241, 131, 255, 0.3);
+    }
+
+    /* Day Headers */
+    .sched-calendar__day-headers {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0;
+        margin-bottom: 8px;
+    }
+
+    .sched-calendar__day-label {
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.4);
+        padding: 8px 0;
+    }
+
+    /* Date Grid */
+    .sched-calendar__grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
+
+    .sched-calendar__date-cell {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        aspect-ratio: 1;
+        max-width: 48px;
+        max-height: 48px;
+        margin: 0 auto;
+        border-radius: 50%;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.8);
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .sched-calendar__date-cell:hover:not(.is-selected):not(.is-outside) {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .sched-calendar__date-cell.is-outside {
+        color: rgba(255, 255, 255, 0.2);
+        cursor: default;
+    }
+
+    .sched-calendar__date-cell.is-selected {
+        background: #f183ff;
+        color: #ffffff;
+        font-weight: 700;
+        box-shadow: 0 0 20px rgba(241, 131, 255, 0.5), 0 0 40px rgba(241, 131, 255, 0.2);
+    }
+
+    /* Bloom glow behind selected date */
+    .sched-calendar__date-bloom {
+        position: absolute;
+        inset: -6px;
+        border-radius: 50%;
+        background: rgba(241, 131, 255, 0.25);
+        filter: blur(10px);
+        z-index: -1;
+        animation: sched-pulse 2.5s ease-in-out infinite;
+    }
+
+    .sched-calendar__date-number {
+        position: relative;
+        z-index: 1;
+        line-height: 1;
+    }
+
+    /* Event Dots */
+    .sched-calendar__event-dots {
+        position: absolute;
+        bottom: 4px;
+        display: flex;
+        gap: 3px;
+        z-index: 1;
+    }
+
+    .sched-calendar__event-dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+    }
+
+    /* --- Upcoming Today --- */
+    .sched-calendar__upcoming {
+        background: rgba(39, 36, 49, 0.4);
+        backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 20px 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sched-calendar__upcoming-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .sched-calendar__upcoming-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+    }
+
+    .sched-calendar__upcoming-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 14px;
+        border-radius: 9999px;
+        background: rgba(241, 131, 255, 0.1);
+        border: 1px solid rgba(241, 131, 255, 0.2);
+        color: #f183ff;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .sched-calendar__upcoming-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+    
+    .sched-calendar__upcoming-list::-webkit-scrollbar {
+        width: 4px;
+    }
+    .sched-calendar__upcoming-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    .sched-calendar__upcoming-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 20px;
+        border-radius: 16px;
+        background: rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .sched-calendar__upcoming-item:hover {
+        transform: translateX(4px);
+        background: rgba(0, 0, 0, 0.25);
+    }
+
+    .sched-calendar__upcoming-item-border {
+        flex-shrink: 0;
+        width: 4px;
+        height: 40px;
+        border-radius: 9999px;
+        background: var(--event-color, #f183ff);
+        box-shadow: 0 0 8px var(--event-color, rgba(241, 131, 255, 0.4));
+    }
+
+    .sched-calendar__upcoming-item-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .sched-calendar__upcoming-item-title {
+        font-family: 'Manrope', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        color: #ffffff;
+    }
+
+    .sched-calendar__upcoming-item-time {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.45);
+    }
+
+    /* ====================================================================
+       C. CREATE NEW MEETING PANEL (Right Sidebar)
+       ==================================================================== */
+    .sched-meeting {
+        background: rgba(39, 36, 49, 0.4);
+        backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .sched-meeting__header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .sched-meeting__header-icon {
+        font-size: 24px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .sched-meeting__title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+    }
+
+    .sched-meeting__form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .sched-meeting__field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .sched-meeting__field--half {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .sched-meeting__row {
+        display: flex;
+        gap: 12px;
+    }
+
+    .sched-meeting__label {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+    }
+
+    .sched-meeting__input-wrapper {
+        position: relative;
+    }
+
+    .sched-meeting__input {
+        width: 100%;
+        height: 48px;
+        padding: 0 44px 0 16px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        color: #ffffff;
+        font-family: 'Manrope', sans-serif;
+        font-weight: 500;
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sched-meeting__input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .sched-meeting__input:focus {
+        border-color: rgba(241, 131, 255, 0.4);
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 0 3px rgba(241, 131, 255, 0.08);
+    }
+
+    .sched-meeting__input-icon {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        color: rgba(255, 255, 255, 0.6);
+        pointer-events: none;
+    }
+
+    .sched-meeting__input-wrapper--textarea {
+        /* No specific override needed */
+    }
+
+    .sched-meeting__textarea {
+        width: 100%;
+        min-height: 80px;
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        color: #ffffff;
+        font-family: 'Manrope', sans-serif;
+        font-weight: 500;
+        font-size: 13px;
+        outline: none;
+        resize: vertical;
+        transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sched-meeting__textarea::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .sched-meeting__textarea:focus {
+        border-color: rgba(241, 131, 255, 0.4);
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 0 3px rgba(241, 131, 255, 0.08);
+    }
+
+    /* Primary CTA */
+    .sched-meeting__cta {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        height: 48px;
+        margin-top: 4px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #f183ff 0%, #ff6c95 100%);
+        color: #ffffff;
+        font-family: 'Manrope', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(241, 131, 255, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sched-meeting__cta::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(135deg, #f183ff 0%, #ff6c95 100%);
+        filter: blur(12px);
+        opacity: 0;
+        z-index: -1;
+        transition: opacity 0.3s ease;
+    }
+
+    .sched-meeting__cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 32px rgba(241, 131, 255, 0.45), 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .sched-meeting__cta:hover::before {
+        opacity: 0.5;
+    }
+
+    .sched-meeting__cta-icon {
+        font-size: 20px;
+        transform: rotate(-45deg);
+        transition: transform 0.3s ease;
+    }
+
+    .sched-meeting__cta:hover .sched-meeting__cta-icon {
+        transform: rotate(0deg);
+    }
+
+    /* ====================================================================
+       SCHEDULER ANIMATIONS
+       ==================================================================== */
+    @keyframes sched-pulse {
+        0%, 100% {
+            opacity: 0.4;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.7;
+            transform: scale(1.15);
+        }
+    }
+
+    @keyframes sched-fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .sched-calendar__card {
+        animation: sched-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .sched-calendar__upcoming {
+        animation: sched-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    }
+
+    .sched-meeting {
+        animation: sched-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+    }
+
+    /* ====================================================================
+       RESPONSIVE DESIGN (Meeting Scheduler)
+       ==================================================================== */
+    
+    @media (max-width: 1200px) {
+        .sched-page__utility {
+            width: 300px;
+            padding-right: 20px;
+        }
+        .sched-page__main {
+            padding: 24px 20px 24px;
+        }
+        .sched-sidebar {
+            width: 240px;
+            padding: 20px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .sched-page__layout {
+            flex-direction: column;
+            overflow-y: auto;
+            min-height: auto;
+        }
+        
+        .sched-page {
+            height: auto;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sched-sidebar {
+            width: 100%;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            height: auto;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 13, 22, 0.5);
+            backdrop-filter: blur(20px);
+            z-index: 10;
+        }
+        
+        .sched-sidebar__logo {
+            margin-bottom: 0;
+        }
+        
+        .sched-sidebar__nav {
+            flex-direction: row;
+            flex: 0;
+        }
+        
+        .sched-sidebar__nav-label {
+            display: none;
+        }
+        
+        .sched-sidebar__nav-indicator {
+            top: auto;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 2px;
+        }
+        
+        .sched-sidebar__footer {
+            margin-top: 0;
+            padding-top: 0;
+        }
+        
+        .sched-sidebar__cta {
+            width: auto;
+            padding: 0 16px;
+            height: 40px;
+            font-size: 13px;
+        }
+        
+        .sched-page__main {
+            padding: 24px;
+            overflow-y: visible;
+        }
+        
+        .sched-page__utility {
+            width: 100%;
+            padding: 0 24px 32px;
+            overflow-y: visible;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .sched-page__topbar {
+            padding: 12px 16px;
+        }
+        
+        .sched-sidebar {
+            padding: 12px 16px;
+        }
+        
+        .sched-sidebar__cta {
+            padding: 0;
+            width: 40px;
+            font-size: 0;
+        }
+        
+        .sched-page__main {
+            padding: 20px 16px;
+        }
+        
+        .sched-page__utility {
+            padding: 0 16px 32px;
+        }
+        
+        .sched-calendar__day-label {
+            font-size: 9px;
+        }
+        
+        .sched-calendar__date-cell {
+            max-width: 40px;
+            max-height: 40px;
+            font-size: 12px;
+        }
+    }
 }
