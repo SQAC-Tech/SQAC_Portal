@@ -267,7 +267,7 @@ export default function Login() {
         localStorage.setItem("user", JSON.stringify(data.user));
         console.log("Login successful");
         // Redirect to dashboard or home page
-        window.location.href = "/dashboard"; // Adjust as needed
+        window.location.href = "/admin/members"; // Adjust as needed
       } else {
         setError(data.message || data.error || "Login failed");
       }
