@@ -112,8 +112,8 @@ const rejectmember = async (req, res) => {
     }
     try {
         const { id } = req.params;
-        await User.findByIdAndUpdate(id, { approved: false });
-        res.json({ message: "Member rejected successfully" });
+        await User.findByIdAndDelete(id);
+        res.json({ message: "Member rejected and removed successfully" });
     } catch (error) {
         res.status(500).json({ message: "Server Error" });
     }
