@@ -1,39 +1,44 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import DashboardLayout from "../../components/common/layout/DashboardLayout";
-import Sidebar from "../../components/common/layout/Sidebar";
 import MainContent from "../../components/common/layout/MainContent";
 import RightPanel from "../../components/common/layout/RightPanel";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import { fetchWithAuth } from "../../api/fetchWithAuth";
 
+const API_BASE_URL = "http://localhost:3000";
+
 export default function Notice() {
     const [notices, setNotices] = useState([]);
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [image, setImage] = useState("");
     const [loading, setLoading] = useState(false);
     const [role, setRole] = useState(null);
 
+    const navigate = useNavigate();
 
+    // ---------- LOGOUT ----------
     const handleLogout = async () => {
         try {
             await fetch(`${API_BASE_URL}/logout`, {
                 method: "POST",
                 credentials: "include",
             });
-        } catch (logoutError) {
-            console.error("Logout failed:", logoutError);
+        } catch (err) {
+            console.error("Logout failed:", err);
         } finally {
             localStorage.removeItem("user");
-            window.location.href = "/login";
+            navigate("/login"); // ✅ smoother navigation
         }
     };
-    
-    // ---------- GET USER ROLE (from cookie session) ----------
+
+    // ---------- GET USER ROLE ----------
     async function fetchUser() {
         try {
-            const data = await fetchWithAuth("http://localhost:3000/user/role");
+            const data = await fetchWithAuth(`${API_BASE_URL}/user/role`);
             setRole(data.role);
         } catch (err) {
             console.error(err);
@@ -47,7 +52,7 @@ export default function Notice() {
     // ---------- GET NOTICES ----------
     async function fetchNotices() {
         try {
-            const data = await fetchWithAuth("http://localhost:3000/notices");
+            const data = await fetchWithAuth(`${API_BASE_URL}/notices`);
             setNotices(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error(err);
@@ -56,16 +61,22 @@ export default function Notice() {
         }
     }
 
+    // ---------- INITIAL LOAD ----------
     useEffect(() => {
-        fetchUser();     // 🔥 get role from backend
-        fetchNotices();
+        async function init() {
+            await fetchUser();
+            await fetchNotices();
+        }
+        init();
     }, []);
 
     // ---------- CREATE NOTICE ----------
-    async function handleCreateNotice() {
+    async function handleCreateNotice({ domain, subdomain }) {
         const trimmedTitle = title.trim();
         const trimmedContent = content.trim();
+        const trimmedImage = image.trim();
 
+        // 🔥 Validation
         if (!trimmedTitle || !trimmedContent) {
             toast.error("Title and description cannot be empty");
             return;
@@ -81,25 +92,33 @@ export default function Notice() {
             return;
         }
 
+        if (trimmedImage && !trimmedImage.startsWith("http")) {
+            toast.error("Image must be a valid URL");
+            return;
+        }
+
         setLoading(true);
 
         try {
-            await fetchWithAuth("http://localhost:3000/notices/create", {
+            await fetchWithAuth(`${API_BASE_URL}/notices/create`, {
                 method: "POST",
                 body: JSON.stringify({
                     title: trimmedTitle,
                     description: trimmedContent,
-                    domain: "general",
-                    subdomain: "all",
-                    image: "",
+                    domain: domain || "Board",
+                    subdomain: subdomain || null,
+                    image: trimmedImage,
                     link: ""
                 })
             });
 
             toast.success("Notice created 🚀");
 
+            // reset form
             setTitle("");
             setContent("");
+            setImage("");
+
             fetchNotices();
 
         } catch (err) {
@@ -112,8 +131,13 @@ export default function Notice() {
 
     // ---------- DELETE ----------
     async function handleDelete(id) {
+        // ✅ ADD THIS HERE
+        if (!confirm("Delete this notice?")) return;
+
+        if (!id) return;
+
         try {
-            await fetchWithAuth(`http://localhost:3000/notices/${id}`, {
+            await fetchWithAuth(`${API_BASE_URL}/notices/${id}`, {
                 method: "DELETE"
             });
 
@@ -128,7 +152,6 @@ export default function Notice() {
 
     return (
         <DashboardLayout>
-            {/* <Sidebar /> */}
             <AdminSidebar onLogout={handleLogout} />
 
             <MainContent
@@ -143,6 +166,8 @@ export default function Notice() {
                     content={content}
                     setTitle={setTitle}
                     setContent={setContent}
+                    image={image}
+                    setImage={setImage}
                     handleCreate={handleCreateNotice}
                     loading={loading}
                 />
