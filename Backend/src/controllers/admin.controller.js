@@ -148,9 +148,9 @@ const createnotice = async (req, res) => {
         return res.status(403).json({ message: 'Not authorised' });
     }
     try {
-        const { title, description, domain, subdomain, image, link } = req.body;
+        const { title,description, domain, subdomain, image, link } = req.body;
         const author = req.user.name;
-        const notice = new Notice({ title, description, domain, subdomain, image, link, author });
+        const notice = new Notice({ title, desc:description, domain, subdomain, image, link, author });
         await notice.save();
         res.json({ message: "Notice created successfully" });
     } catch (error) {
