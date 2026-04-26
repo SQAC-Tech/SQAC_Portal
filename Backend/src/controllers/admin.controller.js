@@ -113,7 +113,11 @@ const rejectmember = async (req, res) => {
     try {
         const { id } = req.params;
         await User.findByIdAndDelete(id);
+<<<<<<< HEAD:Backend/Controller/admin.controller.js
         res.json({ message: "Member rejected successfully" });
+=======
+        res.json({ message: "Member rejected and removed successfully" });
+>>>>>>> dd5aee6765472b7f147f4d7d52850ea7dc6b2b2c:Backend/src/controllers/admin.controller.js
     } catch (error) {
         res.status(500).json({ message: "Server Error" });
     }
