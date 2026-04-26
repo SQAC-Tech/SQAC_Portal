@@ -7,6 +7,11 @@ export const navItems = [
   { icon: "calendar_month", label: "Schedule", href: "#" },
   { icon: "campaign", label: "Noticeboard", href: "#" },
   { icon: "forum", label: "Chats", href: "#" },
+  {
+    icon: "license",
+    label: "Certificate Generator",
+    href: "/dashboard/certificates",
+  },
 ];
 
 export const editableRoles = ["user", "lead", "subadmin", "admin"];
