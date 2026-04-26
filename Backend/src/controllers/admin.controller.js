@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import Notice from "../models/Notice.js";
+import Meeting from "../models/Meeting.js";
 
 const getmembers = async (req, res) => {
     if (req.user.role !== "admin") {
@@ -174,4 +175,23 @@ const deletenotice = async (req, res) => {
     }
 }
 
-export { getmembers, getSubAdmins, deleteUser, deleteSubAdmin, changeposition, changerole, allowmember, showstatus, rejectmember, getpendingmembers, getnotices, createnotice, deletenotice };
+const createMeet = async(req,res)=>{
+    if(!admin || !subadmin || !lead){
+        return res.error(401).json({message:"Not authorised"});
+    }
+    try {
+        const {title, startdate, starttime , link, description} = req.body;
+        if(!title || !startdate || !starttime || !link){
+            return res.error(401).json({message:"Fill important fields"});
+        }
+        const meet = new Meeting({title,startDate,startTime, meetlink,description});
+        await meet.save();
+        res.status(200).json({message:"Meeting Created successfully"});
+
+    } catch (error) {
+        return res.error(500).json({error});
+
+    }
+}
+
+export { getmembers, getSubAdmins, deleteUser, deleteSubAdmin, changeposition, changerole, allowmember, showstatus, rejectmember, getpendingmembers, getnotices, createnotice, deletenotice, createMeet };

@@ -35,7 +35,8 @@ import {
     getnotices,
     createnotice,
     deletenotice,
-    noticeusers
+    noticeusers,
+    createMeet
 } from './src/controllers/admin.controller.js';
 
 import certificateRoutes from './src/routes/certificate.routes.js';
@@ -84,6 +85,9 @@ app.post("/admin/approve/:id", allowmember);
 app.get("/admin/status/:id", showstatus);
 app.post("/admin/reject/:id", rejectmember);
 app.get("/admin/pending", getpendingmembers);
+
+//Meetings
+app.post("/meet/create", createMeet);
 
 // Notices
 app.get("/notices", getnotices);
