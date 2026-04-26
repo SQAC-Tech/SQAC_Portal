@@ -4,8 +4,6 @@ dotenv.config();
 
 const mailUser = process.env.EMAIL_USER || process.env.USER_EMAIL;
 const mailPass = process.env.EMAIL_PASS || process.env.USER_PASS;
-// const mailUser = "mahikrocket@gmail.com";
-// const mailPass = "jipboxgdvmkphhde";
 console.log(process.env.USER_EMAIL);
 console.log(process.env.USER_PASS);
 
