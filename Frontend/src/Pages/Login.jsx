@@ -265,8 +265,9 @@ export default function Login() {
 
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
-        window.location.href =
-          data.user?.role === "admin" ? "/admin/members" : "/";
+        console.log("Login successful");
+        // Redirect to dashboard or home page
+        window.location.href = "/dashboard"; // Adjust as needed
       } else {
         setError(data.message || data.error || "Login failed");
       }
@@ -443,9 +444,7 @@ export default function Login() {
                     <div
                       key={step}
                       className={`h-1 flex-1 rounded-full transition-colors ${
-                        isActive || isCompleted
-                          ? "bg-primary"
-                          : "bg-white/10"
+                        isActive || isCompleted ? "bg-primary" : "bg-white/10"
                       }`}
                     ></div>
                   );
