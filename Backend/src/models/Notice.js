@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const noticeSchema = new mongoose.Schema({
+    id,
     title:{type: String, required: true},
     desc:{type: String, required: true},
     Timestamp: {
