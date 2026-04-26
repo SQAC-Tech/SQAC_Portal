@@ -5,7 +5,7 @@ import DashboardLayout from "../../components/common/layout/DashboardLayout";
 import Sidebar from "../../components/common/layout/Sidebar";
 import MainContent from "../../components/common/layout/MainContent";
 import RightPanel from "../../components/common/layout/RightPanel";
-
+import AdminSidebar from "../../components/admin/AdminSidebar";
 import { fetchWithAuth } from "../../api/fetchWithAuth";
 
 export default function Notice() {
@@ -15,6 +15,21 @@ export default function Notice() {
     const [loading, setLoading] = useState(false);
     const [role, setRole] = useState(null);
 
+
+    const handleLogout = async () => {
+        try {
+            await fetch(`${API_BASE_URL}/logout`, {
+                method: "POST",
+                credentials: "include",
+            });
+        } catch (logoutError) {
+            console.error("Logout failed:", logoutError);
+        } finally {
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+        }
+    };
+    
     // ---------- GET USER ROLE (from cookie session) ----------
     async function fetchUser() {
         try {
@@ -113,7 +128,8 @@ export default function Notice() {
 
     return (
         <DashboardLayout>
-            <Sidebar />
+            {/* <Sidebar /> */}
+            <AdminSidebar onLogout={handleLogout} />
 
             <MainContent
                 notices={notices}

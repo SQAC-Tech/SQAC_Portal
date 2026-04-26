@@ -22,11 +22,7 @@
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-<<<<<<< HEAD
     "react-hot-toast": "^2.6.0",
-=======
-    "react-draggable": "^4.5.0",
->>>>>>> 770d6eaf53725142af0858b4cdb3368db0853323
     "react-router-dom": "^7.12.0",
     "react-toastify": "^11.0.5",
     "styled-components": "^6.3.6",

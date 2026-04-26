@@ -124,6 +124,7 @@ const loginUser = async (req, res) => {
         email: user.email,
         regNum: user.regNum,
         coreDomain: user.coreDomain,
+        role: user.role,
       },
     });
   } catch (err) {
