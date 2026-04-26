@@ -59,7 +59,7 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/dashboard/certificates" element={<CertGenerator />} />
       <Route path="/verify/:credentialId" element={<Verify />} />
-      <Route path='/notice' element={<Notice />} />
+      <Route path='/admin/notice' element={<Notice />} />
 
       {/* Redirect all other routes to login for now */}
       <Route path="*" element={<Navigate to="/login" replace />} />

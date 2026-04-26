@@ -5,7 +5,7 @@ export const navItems = [
   { icon: "dashboard", label: "Dashboard", href: "#" },
   { icon: "group", label: "Members", href: "/admin/members" },
   { icon: "calendar_month", label: "Schedule", href: "#" },
-  { icon: "campaign", label: "Noticeboard", href: "/notice" },
+  { icon: "campaign", label: "Noticeboard", href: "/admin/notice" },
   { icon: "forum", label: "Chats", href: "#" },
 ];
 
