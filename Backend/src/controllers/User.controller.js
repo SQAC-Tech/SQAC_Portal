@@ -106,6 +106,9 @@ const loginUser = async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
+    if(user.approved != true){
+        return res.error(402).json({error:"Not authorised"});
+    }
 
     const token = generateToken(user._id);
 
