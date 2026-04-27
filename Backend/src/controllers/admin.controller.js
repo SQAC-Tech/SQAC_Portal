@@ -12,7 +12,9 @@ const getmembers = async (req, res) => {
     return res.status(403).json({ message: "Not authorized" });
   }
   try {
-    const members = await User.find({ role: "user" });
+    const members = await User.find({
+      role: { $in: ["user", "lead", "subadmin"] },
+    }).sort({ createdAt: -1 });
     res.json(members);
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
