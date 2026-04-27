@@ -176,7 +176,7 @@ const deletenotice = async (req, res) => {
 }
 
 const createMeet = async(req,res)=>{
-    if(!admin || !subadmin || !lead){
+    if(req.user.role!='admin' || req.user.role!='subadmin' || req.user.role!='lead'){
         return res.error(401).json({message:"Not authorised"});
     }
     try {
@@ -194,4 +194,46 @@ const createMeet = async(req,res)=>{
     }
 }
 
-export { getmembers, getSubAdmins, deleteUser, deleteSubAdmin, changeposition, changerole, allowmember, showstatus, rejectmember, getpendingmembers, getnotices, createnotice, deletenotice, createMeet };
+const deleteMeet = async(req,res)=>{
+    if(req.user.role!='admin' || req.user.role !='subadmin' || req.user.role !='lead'){
+        return res.error(401).json({message:"Not authorised"});
+    }
+
+    try {
+        const {id} = req.params;
+        await Meet.findByIdAndDelete(id);
+        res.json({message:'Meeting successfully deleted'});
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+
+const editMeet = async(req,res)=>{
+    if(req.user.role !='admin' && req.user.role !='subadmin' && req.user.role !='lead'){
+        res.status(401).json({message:"Not authorised"});
+    }
+
+    try {
+        const {id} = req.params;
+        const {title, startdate, starttime , link, description } = req.body;
+
+        await Meet.findByIdAndUpdate(id,{title, startDate:startdate, startTime:starttime, link, description});
+        res.status(200).json({message:"Meet details updated successfully"});
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+const getMeet = async(req,res)=>{
+    try {
+        await Meet.find();
+        res.status(200).json({message:"Meets loaded successfully"});
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+
+
+
+
+
+export { getmembers, getSubAdmins, deleteUser, deleteSubAdmin, changeposition, changerole, allowmember, showstatus, rejectmember, getpendingmembers, getnotices, createnotice, deletenotice, createMeet, deleteMeet,editMeet,getMeet};

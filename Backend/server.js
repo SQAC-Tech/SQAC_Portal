@@ -36,7 +36,10 @@ import {
     createnotice,
     deletenotice,
     noticeusers,
-    createMeet
+    createMeet,
+    editMeet,
+    deleteMeet,
+    getMeet
 } from './src/controllers/admin.controller.js';
 
 import certificateRoutes from './src/routes/certificate.routes.js';
@@ -88,6 +91,10 @@ app.get("/admin/pending", getpendingmembers);
 
 //Meetings
 app.post("/meet/create", createMeet);
+app.put("/meet/edit", editMeet);
+app.delete("/meet/delete", deleteMeet);
+app.get("/meet/getmeet", getMeet);
+
 
 // Notices
 app.get("/notices", getnotices);
