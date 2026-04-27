@@ -1,4 +1,4 @@
-const getMeetingEmailTemplate = (meeting, calendarLink) => {
+export const getMeetingEmailTemplate = (meeting, calendarLink) => {
   return `
     <!DOCTYPE html>
     <html>
@@ -134,12 +134,16 @@ const getMeetingEmailTemplate = (meeting, calendarLink) => {
               <div class="detail-value">${meeting.startTime}</div>
             </div>
 
-            ${meeting.description ? `
+            ${
+              meeting.description
+                ? `
             <div class="detail-row">
               <div class="detail-label">📝 Description</div>
               <div class="detail-value">${meeting.description}</div>
             </div>
-            ` : ''}
+            `
+                : ""
+            }
 
             <div class="detail-row">
               <div class="detail-label">🔗 Meeting Link</div>
@@ -171,7 +175,7 @@ const getMeetingEmailTemplate = (meeting, calendarLink) => {
   `;
 };
 
-const getPlainTextTemplate = (meeting, calendarLink) => {
+export const getPlainTextTemplate = (meeting, calendarLink) => {
   return `
 MEETING INVITATION
 
@@ -179,7 +183,7 @@ Title: ${meeting.title}
 Date: ${meeting.startDate}
 Time: ${meeting.startTime}
 Meeting Link: ${meeting.meetlink}
-${meeting.description ? `Description: ${meeting.description}` : ''}
+${meeting.description ? `Description: ${meeting.description}` : ""}
 
 Add to Google Calendar: ${calendarLink}
 
@@ -188,5 +192,3 @@ After adding to calendar, Google will send you reminders.
 This is an automated message. Please do not reply.
   `;
 };
-
-module.exports = { getMeetingEmailTemplate, getPlainTextTemplate };
