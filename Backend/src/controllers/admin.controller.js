@@ -1,6 +1,9 @@
 import User from "../models/User.js";
 import Notice from "../models/Notice.js";
-
+import Meeting from "../models/Meeting.js";
+import { sendMail } from "./mail.controller.js";
+import { getMeetingEmailTemplate,getPlainTextTemplate } from "../lib/MeetMail.js";
+import { generateGoogleCalendarLink } from "../lib/calender.service.js";
 const getmembers = async (req, res) => {
     if (req.user.role !== "admin") {
         return res.status(403).json({ message: "Not authorized" });
@@ -113,7 +116,7 @@ const rejectmember = async (req, res) => {
     try {
         const { id } = req.params;
         await User.findByIdAndDelete(id);
-        res.json({ message: "Member rejected and removed successfully" });
+        res.json({ message: "Member rejected successfully" });
     } catch (error) {
         res.status(500).json({ message: "Server Error" });
     }
@@ -150,8 +153,21 @@ const createnotice = async (req, res) => {
     try {
         const { title, description, domain, subdomain, image, link } = req.body;
         const author = req.user.name;
+
         const notice = new Notice({ title, description, domain, subdomain, image, link, author });
         await notice.save();
+        const calendarLink = generateCalendarLink(meeting);
+        if (attendees && attendees.length > 0) {
+        for (const email of attendees) {
+        const htmlTemplate = getMeetingEmailTemplate(meeting, calendarLink);
+
+        await sendMail({
+          to: email,
+          subject: `📅 Meeting Invitation: ${meeting.title}`,
+          html: htmlTemplate
+        });
+      }
+    }
         res.json({ message: "Notice created successfully" });
     } catch (error) {
         console.error("CREATE NOTICE ERROR:", error);
@@ -172,4 +188,67 @@ const deletenotice = async (req, res) => {
     }
 }
 
-export { getmembers, getSubAdmins, deleteUser, deleteSubAdmin, changeposition, changerole, allowmember, showstatus, rejectmember, getpendingmembers, getnotices, createnotice, deletenotice };
+const createMeet = async(req,res)=>{
+    if(req.user.role!='admin' || req.user.role!='subadmin' || req.user.role!='lead'){
+        return res.error(401).json({message:"Not authorised"});
+    }
+    try {
+        const {title, startdate, starttime , link, description} = req.body;
+        if(!title || !startdate || !starttime || !link){
+            return res.error(401).json({message:"Fill important fields"});
+        }
+        const meet = new Meeting({title,startDate,startTime, meetlink,description});
+        await meet.save();
+        res.status(200).json({message:"Meeting Created successfully"});
+
+    } catch (error) {
+        return res.error(500).json({error});
+
+    }
+}
+
+const deleteMeet = async(req,res)=>{
+    if(req.user.role!='admin' || req.user.role !='subadmin' || req.user.role !='lead'){
+        return res.error(401).json({message:"Not authorised"});
+    }
+
+    try {
+        const {id} = req.params;
+        await Meet.findByIdAndDelete(id);
+        res.json({message:'Meeting successfully deleted'});
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+
+const editMeet = async(req,res)=>{
+    if(req.user.role !='admin' && req.user.role !='subadmin' && req.user.role !='lead'){
+        res.status(401).json({message:"Not authorised"});
+    }
+
+    try {
+        const {id} = req.params;
+        const {title, startdate, starttime , link, description } = req.body;
+
+        await Meet.findByIdAndUpdate(id,{title, startDate:startdate, startTime:starttime, link, description});
+        res.status(200).json({message:"Meet details updated successfully"});
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+const getMeet = async(req,res)=>{
+    try {
+        await Meet.find();
+        res.status(200).json({message:"Meets loaded successfully"});
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+const sendMeetCalenderMail = async(req,res)=>{
+
+}
+
+
+
+
+export { getmembers, getSubAdmins, deleteUser, deleteSubAdmin, changeposition, changerole, allowmember, showstatus, rejectmember, getpendingmembers, getnotices, createnotice, deletenotice, createMeet, deleteMeet,editMeet,getMeet};
