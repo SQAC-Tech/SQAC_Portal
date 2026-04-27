@@ -141,9 +141,16 @@ export const resetpassword = async (req, res) => {
 
 export const editprofile = async (req, res) => {
   try {
-    const { image, socials } = req.body;
+    const { image, socials, bio } = req.body;
 
-    const forbiddenFields = ["role", "position", "password", "email", "name"];
+    const forbiddenFields = [
+      "role",
+      "position",
+      "password",
+      "email",
+      "name",
+      "attendance",
+    ];
     const invalidUpdates = Object.keys(req.body).filter((key) =>
       forbiddenFields.includes(key),
     );
@@ -154,9 +161,9 @@ export const editprofile = async (req, res) => {
       });
     }
 
-    if (!image && !socials) {
+    if (image === undefined && socials === undefined && bio === undefined) {
       return res.status(400).json({
-        message: "Provide image or socials to update",
+        message: "Provide image, bio, or socials to update",
       });
     }
 
@@ -165,6 +172,7 @@ export const editprofile = async (req, res) => {
 
     if (image !== undefined) user.image = image;
     if (socials !== undefined) user.socials = socials;
+    if (bio !== undefined) user.bio = bio;
 
     await user.save();
 
