@@ -5,36 +5,41 @@ import cookieParser from 'cookie-parser';
 import connectDB from './src/lib/db.js';
 
 // Controllers
-import { 
-    createUser, 
-    loginUser, 
-    logoutUser, 
-    authenticateToken, 
-    getrole 
+import {
+    createUser,
+    loginUser,
+    logoutUser,
+    authenticateToken,
+    getrole
 } from './src/controllers/User.controller.js';
 
-import { 
-    getprofile, 
-    getotp, 
-    verifyotp, 
-    resetpassword, 
-    editprofile 
+import {
+    getprofile,
+    getotp,
+    verifyotp,
+    resetpassword,
+    editprofile
 } from './src/controllers/role.user.controller.js';
 
-import { 
-    getmembers, 
-    getSubAdmins, 
-    deleteUser, 
-    deleteSubAdmin, 
-    changeposition, 
-    changerole, 
-    allowmember, 
-    showstatus, 
-    rejectmember, 
-    getpendingmembers, 
-    getnotices, 
-    createnotice, 
-    deletenotice 
+import {
+    getmembers,
+    getSubAdmins,
+    deleteUser,
+    deleteSubAdmin,
+    changeposition,
+    changerole,
+    allowmember,
+    showstatus,
+    rejectmember,
+    getpendingmembers,
+    getnotices,
+    createnotice,
+    deletenotice,
+    noticeusers,
+    createMeet,
+    editMeet,
+    deleteMeet,
+    getMeet
 } from './src/controllers/admin.controller.js';
 
 import certificateRoutes from './src/routes/certificate.routes.js';
@@ -84,10 +89,18 @@ app.get("/admin/status/:id", showstatus);
 app.post("/admin/reject/:id", rejectmember);
 app.get("/admin/pending", getpendingmembers);
 
+//Meetings
+app.post("/meet/create", createMeet);
+app.put("/meet/edit", editMeet);
+app.delete("/meet/delete", deleteMeet);
+app.get("/meet/getmeet", getMeet);
+
+
 // Notices
 app.get("/notices", getnotices);
 app.post("/notices/create", createnotice);
 app.delete("/notices/:id", deletenotice);
+app.get("/usernotice/:id",noticeusers)
 
 // Database Connection and Server Start
 const PORT = process.env.PORT || 3000;

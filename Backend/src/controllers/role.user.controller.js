@@ -187,3 +187,21 @@ export const editprofile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const noticeusers = async (req, res) => {
+  const userId = req.params.userId;
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const notices = await Notice.findAll({
+    where: {
+      domain: user.coreDomain,
+      [Op.or]: [{ subdomain: null }, { subdomain: user.subdomain }],
+    },
+  });
+
+  res.json(notices);
+};

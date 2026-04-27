@@ -15,9 +15,9 @@ const authenticateToken = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.userId);
         if (!user) return res.status(404).json({ error: "User not found" });
-        
+
         req.userId = decoded.userId;
-        req.user = user; 
+        req.user = user;
         next();
     } catch (err) {
         res.status(401).json({ error: "Invalid session" });
@@ -97,7 +97,7 @@ const createUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    let { email, password } = req.body;
+    let { email, password} = req.body;
 
     email = email?.trim().toLowerCase();
 
@@ -105,6 +105,9 @@ const loginUser = async (req, res) => {
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: "Invalid credentials" });
+    }
+    if(user.approved != true){
+        return res.error(402).json({error:"Not authorised"});
     }
 
     const token = generateToken(user._id);
