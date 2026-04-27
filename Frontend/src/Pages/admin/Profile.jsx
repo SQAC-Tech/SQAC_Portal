@@ -12,6 +12,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const emptyProfile = {
   image: "",
   bio: "",
+  imageFile: null,
+  imageFileName: "",
   socials: {
     linkedin: "",
     github: "",
@@ -67,6 +69,8 @@ const Profile = () => {
       setForm({
         image: user?.image || "",
         bio: user?.bio || "",
+        imageFile: null,
+        imageFileName: "",
         socials: {
           linkedin: user?.socials?.linkedin || "",
           github: user?.socials?.github || "",
@@ -192,6 +196,30 @@ const Profile = () => {
     }));
   };
 
+  const handleImageSelect = (event) => {
+    const file = event.target.files?.[0];
+    setSuccessMessage("");
+
+    if (!file) {
+      setForm((current) => ({
+        ...current,
+        imageFile: null,
+        imageFileName: "",
+      }));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((current) => ({
+        ...current,
+        imageFile: typeof reader.result === "string" ? reader.result : null,
+        imageFileName: file.name,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSocialChange = (field, value) => {
     setSuccessMessage("");
     setForm((current) => ({
@@ -211,7 +239,6 @@ const Profile = () => {
 
     try {
       const payload = {
-        image: form.image.trim(),
         bio: form.bio.trim(),
         socials: {
           linkedin: form.socials.linkedin.trim(),
@@ -219,6 +246,10 @@ const Profile = () => {
           instagram: form.socials.instagram.trim(),
         },
       };
+
+      if (form.imageFile) {
+        payload.imageFile = form.imageFile;
+      }
 
       const response = await fetch(`${API_BASE_URL}/user/update`, {
         method: "PUT",
@@ -244,6 +275,8 @@ const Profile = () => {
       setForm({
         image: updatedUser?.image || "",
         bio: updatedUser?.bio || "",
+        imageFile: null,
+        imageFileName: "",
         socials: {
           linkedin: updatedUser?.socials?.linkedin || "",
           github: updatedUser?.socials?.github || "",
@@ -534,8 +567,7 @@ const Profile = () => {
                   Profile Actions
                 </p>
                 <p className="mt-2 text-sm text-white/60">
-                  Open the editor to update your image and social links.
-                  Open the editor to update your image, bio, and social links.
+                  Open the editor to update your photo, bio, and social links.
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -552,6 +584,8 @@ const Profile = () => {
                     setForm({
                       image: profile.image || "",
                       bio: profile.bio || "",
+                      imageFile: null,
+                      imageFileName: "",
                       socials: {
                         linkedin: profile.socials?.linkedin || "",
                         github: profile.socials?.github || "",
@@ -585,7 +619,7 @@ const Profile = () => {
                   Public details
                 </h3>
                 <p className="mt-1 text-sm text-white/55">
-                  This route currently updates your image, bio, and social links.
+                  Upload a new profile photo and update your bio or social links.
                 </p>
               </div>
               <button
@@ -603,17 +637,32 @@ const Profile = () => {
             <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
               <label className="block">
                 <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
-                  Profile image URL
+                  Profile photo
                 </span>
-                <input
-                  className="w-full rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-primary/60"
-                  onChange={(event) =>
-                    handleFieldChange("image", event.target.value)
-                  }
-                  placeholder="https://your-image-link"
-                  type="url"
-                  value={form.image}
-                />
+                <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-dashed border-white/12 bg-white/6 px-4 py-3 text-sm text-white/85 transition-all hover:border-primary/45 hover:bg-white/8">
+                  <div className="min-w-0">
+                    <p className="font-medium text-white">
+                      {form.imageFileName || "Choose an image to upload"}
+                    </p>
+                    <p className="mt-1 text-xs text-white/45">
+                      JPG, PNG, or WEBP
+                    </p>
+                  </div>
+                  <span className="material-symbols-outlined text-lg text-primary">
+                    upload
+                  </span>
+                  <input
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageSelect}
+                    type="file"
+                  />
+                </label>
+                {profile.image ? (
+                  <p className="mt-2 text-xs text-white/35">
+                    Current photo is already set on your profile.
+                  </p>
+                ) : null}
               </label>
 
               <label className="block">
@@ -685,34 +734,6 @@ const Profile = () => {
                 </div>
               ) : null}
 
-              <div className="grid grid-cols-1 gap-3 rounded-[1.6rem] border border-white/8 bg-white/[0.03] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-white/40">
-                      Preview
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-white/75">
-                      How your current editable profile fields look.
-                    </p>
-                  </div>
-                  <div className="member-avatar-shell rounded-[1.25rem] p-1">
-                    <div className="h-16 w-16 overflow-hidden rounded-[1rem] border border-white/10 bg-white/5">
-                      <img
-                        alt={profile.name}
-                        className="h-full w-full object-cover"
-                        src={form.image || DEFAULT_AVATAR}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="grid gap-2 text-sm text-white/70">
-                  <p>{form.bio || "No bio added yet."}</p>
-                  <p>{form.socials.linkedin || "No LinkedIn link set"}</p>
-                  <p>{form.socials.github || "No GitHub link set"}</p>
-                  <p>{form.socials.instagram || "No Instagram link set"}</p>
-                </div>
-              </div>
-
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white/75 transition-all hover:bg-white/10 hover:text-white"
@@ -720,6 +741,8 @@ const Profile = () => {
                     setForm({
                       image: profile.image || "",
                       bio: profile.bio || "",
+                      imageFile: null,
+                      imageFileName: "",
                       socials: {
                         linkedin: profile.socials?.linkedin || "",
                         github: profile.socials?.github || "",
