@@ -9,6 +9,7 @@ import Login from "./Pages/Login";
 import LandingPage from "./Pages/landing";
 import Members from "./Pages/admin/Members";
 import CertGenerator from "./Pages/admin/CertGenerator";
+import Profile from "./Pages/admin/Profile";
 import Verify from "./Pages/Verify";
 
 import Dashboard from "./Pages/Dashboard";
@@ -19,6 +20,7 @@ function App() {
       <Route path="/onboarding" element={<OnboardingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/admin/members" element={<Members />} />
+      <Route path="/user/profile" element={<Profile />} />
       <Route path="/" element={<LandingPage />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/dashboard/certificates" element={<CertGenerator />} />
