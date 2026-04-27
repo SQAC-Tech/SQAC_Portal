@@ -1,7 +1,9 @@
 import User from "../models/User.js";
 import Notice from "../models/Notice.js";
 import Meeting from "../models/Meeting.js";
-
+import { sendMail } from "./mail.controller.js";
+import { getMeetingEmailTemplate,getPlainTextTemplate } from "../lib/MeetMail.js";
+import { generateGoogleCalendarLink } from "../lib/calender.service.js";
 const getmembers = async (req, res) => {
     if (req.user.role !== "admin") {
         return res.status(403).json({ message: "Not authorized" });
@@ -144,8 +146,6 @@ const getnotices = async (req, res) => {
     }
 }
 
-
-
 const createnotice = async (req, res) => {
     if (req.user.role !== 'admin' && req.user.role !== 'subadmin' && req.user.role !== 'lead') {
         return res.status(403).json({ message: 'Not authorised' });
@@ -153,8 +153,21 @@ const createnotice = async (req, res) => {
     try {
         const { title, description, domain, subdomain, image, link } = req.body;
         const author = req.user.name;
+
         const notice = new Notice({ title, description, domain, subdomain, image, link, author });
         await notice.save();
+        const calendarLink = generateCalendarLink(meeting);
+        if (attendees && attendees.length > 0) {
+        for (const email of attendees) {
+        const htmlTemplate = getMeetingEmailTemplate(meeting, calendarLink);
+
+        await sendMail({
+          to: email,
+          subject: `📅 Meeting Invitation: ${meeting.title}`,
+          html: htmlTemplate
+        });
+      }
+    }
         res.json({ message: "Notice created successfully" });
     } catch (error) {
         console.error("CREATE NOTICE ERROR:", error);
@@ -231,7 +244,9 @@ const getMeet = async(req,res)=>{
         res.status(500).json(error);
     }
 }
+const sendMeetCalenderMail = async(req,res)=>{
 
+}
 
 
 
