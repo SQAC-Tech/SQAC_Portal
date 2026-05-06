@@ -5,6 +5,7 @@ export const navItems = [
   { icon: "dashboard", label: "Dashboard", href: "#" },
   { icon: "Manage_Accounts", label: "Profile", href: "/user/profile" },
   { icon: "group", label: "Members", href: "/admin/members" },
+  { icon: "rocket_launch", label: "Projects", href: "/admin/projects" },
   { icon: "calendar_month", label: "Schedule", href: "#" },
   { icon: "campaign", label: "Noticeboard", href: "#" },
   {

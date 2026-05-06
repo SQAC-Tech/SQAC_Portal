@@ -31,16 +31,53 @@ function StepOne({ formData, setFormData }) {
 }
 
 function StepTwo({ formData, setFormData }) {
+  const isCorporate = formData.coreDomain === "Corporate";
+  
   return (
     <div className="space-y-5">
-      <FormInput icon="category" label="Core Domain" placeholder="Core Domain*" value={formData.coreDomain}
-        onChange={(val) => setFormData({ ...formData, coreDomain: val })} />
+      <FormSelect 
+        icon="category" 
+        label="Core Domain" 
+        value={formData.coreDomain}
+        options={[
+          { label: "Select Domain", value: "" },
+          { label: "Technical", value: "Technical" },
+          { label: "Corporate", value: "Corporate" }
+        ]}
+        onChange={(val) => setFormData({ ...formData, coreDomain: val, subDomain: "" })} 
+      />
 
-      <FormInput icon="hub" label="Sub Domain" placeholder="Sub Domain*" value={formData.subDomain}
-        onChange={(val) => setFormData({ ...formData, subDomain: val })} />
+      <FormSelect 
+        icon="hub" 
+        label="Sub Domain" 
+        value={formData.subDomain}
+        options={isCorporate ? [
+          { label: "Select Sub Domain", value: "" },
+          { label: "Events", value: "Events" },
+          { label: "Media", value: "Media" },
+          { label: "Public Relations", value: "Public Relations" },
+          { label: "Sponsorships", value: "Sponsorships" },
+          { label: "Creatives", value: "Creatives" }
+        ] : [
+          { label: "Select Sub Domain", value: "" },
+          { label: "Web Development", value: "Web Development" },
+          { label: "AI/ML", value: "AI/ML" },
+          { label: "Cross-Domain", value: "Cross-Domain" }
+        ]}
+        onChange={(val) => setFormData({ ...formData, subDomain: val })} 
+      />
 
-      <FormInput icon="work" label="Position" placeholder="Position*" value={formData.position}
-        onChange={(val) => setFormData({ ...formData, position: val })} />
+      <FormSelect 
+        icon="work" 
+        label="Position" 
+        value={formData.position}
+        options={[
+          { label: "Select Position", value: "" },
+          { label: "Member", value: "member" },
+          { label: "Associate", value: "associate" }
+        ]}
+        onChange={(val) => setFormData({ ...formData, position: val })} 
+      />
     </div>
   );
 }
@@ -457,6 +494,35 @@ function FormTextArea({ icon, label, placeholder, rows, value, onChange }) {
           onChange={(e) => onChange(e.target.value)}
           className="w-full bg-surface-container-highest border border-outline-variant/15 rounded-xl py-4 pl-12 pr-4 font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline/50 resize-none"
         />
+      </div>
+    </div>
+  );
+}
+
+function FormSelect({ icon, label, value, onChange, options }) {
+  return (
+    <div className="space-y-2">
+      <label className="block text-xs font-label uppercase tracking-widest text-on-surface-variant ml-1">
+        {label}
+      </label>
+      <div className="relative group">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-xl group-focus-within:text-primary transition-colors">
+          {icon}
+        </span>
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-surface-container-highest border border-outline-variant/15 rounded-xl py-4 pl-12 pr-4 font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none text-on-surface"
+        >
+          {options.map((opt, i) => (
+            <option key={i} value={opt.value} className="bg-surface-container-highest">
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline pointer-events-none">
+          expand_more
+        </span>
       </div>
     </div>
   );
