@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import SkillsEditorModal from "../../components/admin/SkillsEditorModal";
 import {
   DEFAULT_AVATAR,
   formatDate,
@@ -23,11 +24,13 @@ const emptyProfile = {
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
+  const [memberProfile, setMemberProfile] = useState(null);
   const [form, setForm] = useState(emptyProfile);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSkillsOpen, setIsSkillsOpen] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const sceneRef = useRef(null);
@@ -66,6 +69,21 @@ const Profile = () => {
 
       const user = data?.user || null;
       setProfile(user);
+
+      if (user?.email) {
+        try {
+          const mResponse = await fetch(`${API_BASE_URL}/api/projects/members/email/${user.email}`);
+          if (mResponse.ok) {
+            const mData = await mResponse.json();
+            setMemberProfile(mData);
+          } else {
+            setMemberProfile(null);
+          }
+        } catch(e) {
+          console.error("Failed to fetch member profile", e);
+        }
+      }
+
       setForm({
         image: user?.image || "",
         bio: user?.bio || "",
@@ -301,7 +319,7 @@ const Profile = () => {
       return [];
     }
 
-    return [
+    const stats = [
       {
         label: "Role",
         value: roleLabel(profile),
@@ -321,7 +339,20 @@ const Profile = () => {
         value: profile.approved ? "Approved" : "Pending",
       },
     ];
-  }, [profile]);
+
+    if (memberProfile) {
+      stats.push({
+        label: "System Rank",
+        value: memberProfile.coreDomain === "Corporate" ? memberProfile.corpTier?.toUpperCase() : memberProfile.overallScore >= 55 ? "SENIOR" : memberProfile.overallScore >= 30 ? "MID" : "ROOKIE",
+      });
+      stats.push({
+        label: "Skill Score",
+        value: `${memberProfile.overallScore || 0}%`,
+      });
+    }
+
+    return stats;
+  }, [profile, memberProfile]);
 
   return (
     <div
@@ -577,6 +608,16 @@ const Profile = () => {
                   </span>
                 ) : null}
                 <button
+                  className="inline-flex items-center gap-2 rounded-full border border-primary/50 text-primary hover:bg-primary/10 px-6 py-3 text-sm font-bold transition-all hover:-translate-y-0.5"
+                  onClick={() => setIsSkillsOpen(true)}
+                  type="button"
+                >
+                  <span className="material-symbols-outlined text-lg">
+                    psychology
+                  </span>
+                  Update Skills
+                </button>
+                <button
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-secondary px-6 py-3 text-sm font-bold text-black transition-all hover:-translate-y-0.5"
                   onClick={() => {
                     setError("");
@@ -765,6 +806,19 @@ const Profile = () => {
             </form>
           </div>
         </div>
+      ) : null}
+
+      {isSkillsOpen && profile ? (
+        <SkillsEditorModal
+          user={profile}
+          memberProfile={memberProfile}
+          onClose={() => setIsSkillsOpen(false)}
+          onSave={(newMemberProfile) => {
+            setMemberProfile(newMemberProfile);
+            setSuccessMessage("Skills updated successfully.");
+            setIsSkillsOpen(false);
+          }}
+        />
       ) : null}
     </div>
   );
