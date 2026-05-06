@@ -43,6 +43,7 @@ import {
 } from "./src/controllers/admin.controller.js";
 
 import certificateRoutes from "./src/routes/certificate.routes.js";
+import projectRoutes from "./src/routes/project.routes.js";
 
 dotenv.config();
 
@@ -102,6 +103,9 @@ app.get("/notices", getnotices);
 app.post("/notices/create", createnotice);
 app.delete("/notices/:id", deletenotice);
 app.get("/usernotice/:id", noticeusers);
+
+// Projects & Recommendation Engine
+app.use("/api/projects", projectRoutes);
 
 // Database Connection and Server Start
 const PORT = process.env.PORT || 3000;
