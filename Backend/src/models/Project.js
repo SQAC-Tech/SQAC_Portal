@@ -89,6 +89,20 @@ const projectSchema = new mongoose.Schema(
       },
     ],
 
+    // Live review thread
+    threads: [
+      {
+        senderId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        senderName: String,
+        senderRole: String, // "admin", "lead", "member"
+        message: String,
+        timestamp: { type: Date, default: Date.now },
+      }
+    ],
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

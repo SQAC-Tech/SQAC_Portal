@@ -16,6 +16,11 @@ export default function CertGenerator() {
   const [manualName, setManualName] = useState("");
   const [manualEmail, setManualEmail] = useState("");
   const [manualId, setManualId] = useState("");
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "", type: "info" });
+
+  const showAlert = (message, type = "info") => {
+    setAlertModal({ isOpen: true, message, type });
+  };
 
   const [textPosition, setTextPosition] = useState({ x: 400, y: 300 });
   const [qrPosition, setQrPosition] = useState({ x: 50, y: 50 });
@@ -176,8 +181,9 @@ export default function CertGenerator() {
       (inputType === "manual" && (!manualName || !manualEmail));
 
     if (!templateImage || hasNoData) {
-      alert(
+      showAlert(
         "Please upload a template and provide recipient data (CSV or Manual Entry).",
+        "info"
       );
       return;
     }
@@ -187,7 +193,7 @@ export default function CertGenerator() {
 
     if (inputType === "manual") {
       if (!manualName || !manualEmail) {
-        alert("Please provide both name and email for manual entry.");
+        showAlert("Please provide both name and email for manual entry.", "info");
         setIsGenerating(false);
         return;
       }
@@ -195,7 +201,7 @@ export default function CertGenerator() {
     }
 
     if (dataToProcess.length === 0) {
-      alert("No data found. Please upload a CSV or fill manual fields.");
+      showAlert("No data found. Please upload a CSV or fill manual fields.", "info");
       setIsGenerating(false);
       return;
     }
@@ -293,10 +299,10 @@ export default function CertGenerator() {
         throw new Error(errorData.error || "Failed to upload to server");
       }
 
-      alert("Generation and Email Sending Completed Successfully!");
+      showAlert("Generation and Email Sending Completed Successfully!", "success");
     } catch (error) {
       console.error(error);
-      alert("Error generating certificates: " + error.message);
+      showAlert("Error generating certificates: " + error.message, "error");
     } finally {
       setIsGenerating(false);
     }
@@ -599,6 +605,33 @@ export default function CertGenerator() {
           </div>
         </div>
       </div>
+
+      {/* Generic Alert Modal */}
+      {alertModal.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="bg-[#0d1220] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up text-center">
+            <div className={`mx-auto w-12 h-12 rounded-full mb-4 flex items-center justify-center ${
+              alertModal.type === 'error' ? 'bg-red-500/20 text-red-400' :
+              alertModal.type === 'success' ? 'bg-emerald-500/20 text-emerald-400' :
+              'bg-[#f183ff]/20 text-[#f183ff]'
+            }`}>
+              <span className="material-symbols-outlined text-2xl">
+                {alertModal.type === 'error' ? 'error' : alertModal.type === 'success' ? 'check_circle' : 'info'}
+              </span>
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">
+              {alertModal.type === 'error' ? 'Error' : alertModal.type === 'success' ? 'Success' : 'Notice'}
+            </h3>
+            <p className="text-white/60 text-sm mb-6">{alertModal.message}</p>
+            <button 
+              onClick={() => setAlertModal({ isOpen: false, message: "", type: "info" })}
+              className="w-full py-3 rounded-xl bg-white/5 text-white/90 hover:bg-white/10 transition-all text-sm font-bold"
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
