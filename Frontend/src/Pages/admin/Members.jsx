@@ -22,6 +22,12 @@ const Members = () => {
   const [editForm, setEditForm] = useState({ role: "user", position: "" });
   const [savingEdit, setSavingEdit] = useState(false);
   const [statusUpdatingId, setStatusUpdatingId] = useState("");
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "", type: "info" });
+
+  const showAlert = (message, type = "info") => {
+    setAlertModal({ isOpen: true, message, type });
+  };
   const sceneRef = useRef(null);
   const pointerRef = useRef({ x: 0.5, y: 0.5 });
   const dotFieldRef = useRef({ x: 0.5, y: 0.5 });
@@ -190,12 +196,6 @@ const Members = () => {
   };
 
   const handleDeleteMember = async (member) => {
-    const confirmed = window.confirm(
-      `Delete ${member.name}? This action cannot be undone.`,
-    );
-
-    if (!confirmed) return;
-
     try {
       const response = await fetch(`${API_BASE_URL}/admin/user/${member._id}`, {
         method: "DELETE",
@@ -214,10 +214,22 @@ const Members = () => {
         currentMembers.filter((current) => current._id !== member._id),
       );
     } catch (deleteError) {
-      window.alert(
+      showAlert(
         deleteError.message || "Failed to delete member. Please try again.",
+        "error"
       );
     }
+  };
+
+  const deleteMemberWrapper = (member) => {
+    setConfirmModal({
+      isOpen: true,
+      message: `Delete ${member.name}? This action cannot be undone.`,
+      onConfirm: async () => {
+        setConfirmModal({ isOpen: false, message: "", onConfirm: null });
+        await handleDeleteMember(member);
+      }
+    });
   };
 
   const handleOpenEdit = (member) => {
@@ -309,26 +321,29 @@ const Members = () => {
       );
       setEditingMember(null);
     } catch (saveError) {
-      window.alert(
+      showAlert(
         saveError.message || "Failed to update member. Please try again.",
+        "error"
       );
     } finally {
       setSavingEdit(false);
     }
   };
 
+  const handleStatusChangeWrapper = (member, nextStatus) => {
+    const actionLabel = nextStatus ? "approve" : "reject";
+    setConfirmModal({
+      isOpen: true,
+      message: `${actionLabel.charAt(0).toUpperCase() + actionLabel.slice(1)} ${member.name}?`,
+      onConfirm: async () => {
+        setConfirmModal({ isOpen: false, message: "", onConfirm: null });
+        await handleStatusChange(member, nextStatus);
+      }
+    });
+  };
+
   const handleStatusChange = async (member, nextStatus) => {
     if (!member?._id) return;
-
-    const actionLabel = nextStatus ? "approve" : "reject";
-    const confirmed = window.confirm(
-      `${actionLabel.charAt(0).toUpperCase() + actionLabel.slice(1)} ${
-        member.name
-      }?`,
-    );
-
-    if (!confirmed) return;
-
     setStatusUpdatingId(member._id);
 
     try {
@@ -373,9 +388,10 @@ const Members = () => {
         );
       }
     } catch (statusError) {
-      window.alert(
+      showAlert(
         statusError.message ||
           "Failed to change member status. Please try again.",
+        "error"
       );
     } finally {
       setStatusUpdatingId("");
@@ -613,12 +629,12 @@ const Members = () => {
                 key={member._id || `${member.email}-${index}`}
                 member={member}
                 onApprove={(currentMember) =>
-                  handleStatusChange(currentMember, true)
+                  handleStatusChangeWrapper(currentMember, true)
                 }
-                onDelete={handleDeleteMember}
+                onDelete={deleteMemberWrapper}
                 onEdit={handleOpenEdit}
                 onReject={(currentMember) =>
-                  handleStatusChange(currentMember, false)
+                  handleStatusChangeWrapper(currentMember, false)
                 }
                 statusUpdating={statusUpdatingId === member._id}
               />
