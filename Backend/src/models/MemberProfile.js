@@ -150,7 +150,7 @@ const memberProfileSchema = new mongoose.Schema(
 );
 
 // Compute scores before saving
-memberProfileSchema.pre("save", function (next) {
+memberProfileSchema.pre("save", function () {
   const s = this.skills || {};
   const c = this.corpSkills || {};
 
@@ -162,7 +162,7 @@ memberProfileSchema.pre("save", function (next) {
     s.apiDesign, s.systemDesign, s.sql, s.mongodb, s.redis,
   ];
   const wMax = wSkills.length * 5;
-  this.webdevScore = Math.round((wSkills.reduce((a, b) => a + (b || 0), 0) / wMax) * 100);
+  this.webdevScore = Math.round((wSkills.reduce((a, b) => a + (b || 0), 0) / wMax) * 100) || 0;
 
   // AIML score
   const aSkills = [
@@ -172,7 +172,7 @@ memberProfileSchema.pre("save", function (next) {
     s.langchain, s.huggingface, s.transformers, s.promptEngineering,
   ];
   const aMax = aSkills.length * 5;
-  this.aimlScore = Math.round((aSkills.reduce((a, b) => a + (b || 0), 0) / aMax) * 100);
+  this.aimlScore = Math.round((aSkills.reduce((a, b) => a + (b || 0), 0) / aMax) * 100) || 0;
 
   // Corporate score
   const cSkills = [
@@ -183,7 +183,7 @@ memberProfileSchema.pre("save", function (next) {
     c.graphicDesign, c.uiuxDesign, c.motionGraphics, c.branding, c.illustration,
   ];
   const cMax = cSkills.length * 5;
-  this.corpScore = Math.round((cSkills.reduce((a, b) => a + (b || 0), 0) / cMax) * 100);
+  this.corpScore = Math.round((cSkills.reduce((a, b) => a + (b || 0), 0) / cMax) * 100) || 0;
 
   // Overall = relevant domain score
   if (this.coreDomain === "Corporate") {
@@ -197,8 +197,6 @@ memberProfileSchema.pre("save", function (next) {
   this.webdevTier = tierOf(this.webdevScore);
   this.aimlTier = tierOf(this.aimlScore);
   this.corpTier = tierOf(this.corpScore);
-
-  next();
 });
 
 export default mongoose.model("MemberProfile", memberProfileSchema);
