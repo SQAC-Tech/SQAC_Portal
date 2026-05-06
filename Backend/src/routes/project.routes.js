@@ -16,6 +16,9 @@ import {
   addSubmission,
   reviewSubmission,
   getDashboardStats,
+  getMyProjects,
+  postThreadMessage,
+  completeProject,
 } from "../controllers/project.controller.js";
 
 const router = Router();
@@ -34,16 +37,19 @@ router.post("/members/upsert", upsertProfile);
 // Projects CRUD
 router.post("/", createProject);
 router.get("/", getAllProjects);
+router.get("/my-projects", getMyProjects);
 router.get("/:id", getProjectById);
 router.put("/:id", updateProject);
+router.put("/:id/complete", completeProject);
 router.delete("/:id", deleteProject);
 
 // Recommendation Engine
 router.post("/:projectId/recommend", recommendTeam);
 router.post("/:id/unassign", unassignTeam);
 
-// Submissions
+// Submissions & Threads
 router.post("/:id/submissions", addSubmission);
 router.put("/:id/submissions/:submissionId/review", reviewSubmission);
+router.post("/:id/threads", postThreadMessage);
 
 export default router;

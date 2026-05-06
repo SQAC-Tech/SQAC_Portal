@@ -492,3 +492,82 @@ export const upsertProfile = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+export const getMyProjects = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const memberProfile = await MemberProfile.findOne({ userId });
+    
+    let query = {};
+    if (memberProfile) {
+      query = { "teamMembers.memberId": memberProfile._id };
+    } else {
+      return res.status(404).json({ message: "Member profile not found." });
+    }
+
+    const projects = await Project.find(query).populate("teamMembers.memberId", "fullName email");
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+export const postThreadMessage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { message } = req.body;
+    const userId = req.user.id;
+    const role = req.user.role;
+    const name = req.user.name;
+
+    const project = await Project.findById(id);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    project.threads.push({
+      senderId: userId,
+      senderName: name,
+      senderRole: role,
+      message,
+    });
+
+    await project.save();
+    res.json(project);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+export const completeProject = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const project = await Project.findById(id);
+    if (!project) return res.status(404).json({ message: "Project not found" });
+
+    // Mark project as completed
+    project.status = "completed";
+    await project.save();
+
+    // Free up all assigned members
+    if (project.teamMembers && project.teamMembers.length > 0) {
+      for (const tm of project.teamMembers) {
+        await MemberProfile.findByIdAndUpdate(tm.memberId, {
+          status: "available",
+          currentProjectId: null,
+        });
+      }
+    }
+
+    if (project.projectLead) {
+      await MemberProfile.findByIdAndUpdate(project.projectLead, {
+        status: "available",
+        currentProjectId: null,
+      });
+    }
+
+    res.json({ message: "Project marked as completed", project });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};

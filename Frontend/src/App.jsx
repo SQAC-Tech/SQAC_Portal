@@ -11,6 +11,7 @@ import Members from "./Pages/admin/Members";
 import CertGenerator from "./Pages/admin/CertGenerator";
 import Profile from "./Pages/admin/Profile";
 import Projects from "./Pages/admin/Projects";
+import MyProjects from "./Pages/user/MyProjects";
 import Verify from "./Pages/Verify";
 
 import Dashboard from "./Pages/Dashboard";
@@ -22,6 +23,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/admin/members" element={<Members />} />
       <Route path="/admin/projects" element={<Projects />} />
+      <Route path="/user/projects" element={<MyProjects />} />
       <Route path="/user/profile" element={<Profile />} />
       <Route path="/" element={<LandingPage />} />
       <Route path="/dashboard" element={<Dashboard />} />
