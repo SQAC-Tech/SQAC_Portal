@@ -44,6 +44,7 @@ import {
 
 import certificateRoutes from "./src/routes/certificate.routes.js";
 import projectRoutes from "./src/routes/project.routes.js";
+import momRoutes from "./src/routes/mom.routes.js";
 
 dotenv.config();
 
@@ -106,6 +107,9 @@ app.get("/usernotice/:id", noticeusers);
 
 // Projects & Recommendation Engine
 app.use("/api/projects", projectRoutes);
+
+// Minutes of Meeting (MOM)
+app.use("/api/mom", momRoutes);
 
 // Database Connection and Server Start
 const PORT = process.env.PORT || 3000;

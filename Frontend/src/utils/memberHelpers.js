@@ -13,7 +13,18 @@ export const navItems = [
     label: "Certificate Generator",
     href: "/dashboard/certificates",
   },
+  {
+    icon: "description",
+    label: "Create MOM",
+    href: "/admin/mom/create",
+  },
+  {
+    icon: "history_edu",
+    label: "MOM History",
+    href: "/admin/mom/list",
+  },
 ];
+
 
 export const editableRoles = ["user", "lead", "subadmin", "admin"];
 
