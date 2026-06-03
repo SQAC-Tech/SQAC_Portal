@@ -125,9 +125,9 @@ export default function MOMGenerator() {
 
   const fetchMeetings = async () => {
     try {
-      const { data } = await axios.get(`${API}/meet/getmeet`, { 
+      const { data } = await axios.get(`${API}/meet/getmeet`, {
         headers: headers(),
-        withCredentials: true 
+        withCredentials: true
       });
       setMeetings(Array.isArray(data) ? data : []);
     } catch {
@@ -294,9 +294,9 @@ export default function MOMGenerator() {
         })),
       };
 
-      await axios.post(`${API}/api/mom/create`, payload, { 
+      await axios.post(`${API}/api/mom/create`, payload, {
         headers: headers(),
-        withCredentials: true 
+        withCredentials: true
       });
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
@@ -382,11 +382,10 @@ export default function MOMGenerator() {
           <button
             key={t}
             onClick={() => setActiveTab(t)}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
-              activeTab === t
+            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === t
                 ? "bg-gradient-to-r from-[#f183ff] to-[#ff6c95] text-white"
                 : "text-[#aea9b6]"
-            }`}
+              }`}
           >
             {t === "form" ? "📝 Form" : "✨ AI Assistant"}
           </button>
@@ -711,19 +710,19 @@ export default function MOMGenerator() {
 
           {/* Prompt area */}
           <div className="flex-1 flex flex-col px-5 pt-4 pb-5 gap-3">
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col min-h-0">
               <Label>Your Meeting Description</Label>
               <Textarea
                 rows={8}
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
                 placeholder="e.g. We had a weekly web dev team meeting on June 4th. Chirag presented the new socket integration, we decided to merge it after testing. Agrim will write unit tests by June 8th. Next meeting on June 11th, agenda: deployment pipeline…"
-                className="h-full min-h-[160px]"
+                className="flex-1 min-h-[160px] resize-none"
               />
             </div>
 
             {aiError && (
-              <div className="p-3 rounded-lg bg-[#ff6e84]/10 border border-[#ff6e84]/30 text-xs text-[#ff6e84]">
+              <div className="p-3 mt-2 rounded-lg bg-[#ff6e84]/10 border border-[#ff6e84]/30 text-xs text-[#ff6e84]">
                 ✗ {aiError}
               </div>
             )}
@@ -731,7 +730,7 @@ export default function MOMGenerator() {
             <button
               onClick={handleAIGenerate}
               disabled={aiLoading || aiPrompt.trim().length < 10}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#81ecff] via-[#f183ff] to-[#ff6c95]
+              className="w-full py-3 mt-2 rounded-xl bg-gradient-to-r from-[#81ecff] via-[#f183ff] to-[#ff6c95]
                 text-white font-semibold text-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed
                 transition-all flex items-center justify-center gap-2.5 relative overflow-hidden"
             >
@@ -748,9 +747,7 @@ export default function MOMGenerator() {
               )}
             </button>
 
-            <p className="text-[10px] text-center text-[#78737f]">
-              Powered by Groq · LLaMA 3.3 70B · Results auto-fill the form
-            </p>
+
           </div>
         </div>
       </div>
