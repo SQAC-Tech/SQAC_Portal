@@ -1,175 +1,285 @@
 import User from "../models/User.js";
 import Notice from "../models/Notice.js";
-
+import Meeting from "../models/Meeting.js";
+import sendMail from "../lib/mailer.js";
+import {
+  getMeetingEmailTemplate,
+  getPlainTextTemplate,
+} from "../lib/MeetMail.js";
+import { generateGoogleCalendarLink } from "../lib/calender.service.js";
 const getmembers = async (req, res) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "Not authorized" });
-    }
-    try {
-        const members = await User.find({ role: 'user' });
-        res.json(members);
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Not authorized" });
+  }
+  try {
+    const members = await User.find({
+      role: { $in: ["user", "lead", "subadmin"] },
+    }).sort({ createdAt: -1 });
+    res.json(members);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const getSubAdmins = async (req, res) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "Not authorized" });
-    }
-    try {
-        const subAdmins = await User.find({ role: 'subadmin' });
-        res.json(subAdmins);
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Not authorized" });
+  }
+  try {
+    const subAdmins = await User.find({ role: "subadmin" });
+    res.json(subAdmins);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const deleteUser = async (req, res) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "Not authorized" });
-    }
-    try {
-        const { id } = req.params;
-        await User.findByIdAndDelete(id);
-        res.json({ message: "User deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Not authorized" });
+  }
+  try {
+    const { id } = req.params;
+    await User.findByIdAndDelete(id);
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const deleteSubAdmin = async (req, res) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "Not authorized" });
-    }
-    try {
-        const { id } = req.params;
-        await User.findByIdAndDelete(id);
-        res.json({ message: "SubAdmin deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Not authorized" });
+  }
+  try {
+    const { id } = req.params;
+    await User.findByIdAndDelete(id);
+    res.json({ message: "SubAdmin deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const changeposition = async (req, res) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "Not authorized" });
-    }
-    try {
-        const { id } = req.params;
-        const { position } = req.body;
-        await User.findByIdAndUpdate(id, { position });
-        res.json({ message: "Position updated successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Not authorized" });
+  }
+  try {
+    const { id } = req.params;
+    const { position } = req.body;
+    await User.findByIdAndUpdate(id, { position });
+    res.json({ message: "Position updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const changerole = async (req, res) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "Not authorized" });
-    }
-    try {
-        const { id } = req.params;
-        const { role } = req.body;
-        await User.findByIdAndUpdate(id, { role });
-        res.json({ message: "Role updated successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Not authorized" });
+  }
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+    await User.findByIdAndUpdate(id, { role });
+    res.json({ message: "Role updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const allowmember = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Not authorised' });
-    }
-    try {
-        const { id } = req.params;
-        await User.findByIdAndUpdate(id, { approved: true });
-        res.json({ message: "Member approved successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Not authorised" });
+  }
+  try {
+    const { id } = req.params;
+    await User.findByIdAndUpdate(id, { approved: true });
+    res.json({ message: "Member approved successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const showstatus = async (req, res) => {
-    if (req.user.role !== 'admin' && req.user.role !== 'subadmin') {
-        return res.status(403).json({ message: 'Not authorised' });
-    }
-    try {
-        const { id } = req.params;
-        const user = await User.findById(id);
-        if (!user) return res.status(404).json({ message: "User not found" });
-        res.json({ approved: user.approved });
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin" && req.user.role !== "subadmin") {
+    return res.status(403).json({ message: "Not authorised" });
+  }
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ approved: user.approved });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const rejectmember = async (req, res) => {
-    if (req.user.role !== 'admin' && req.user.role !== 'subadmin') {
-        return res.status(403).json({ message: 'Not authorised' });
-    }
-    try {
-        const { id } = req.params;
-        await User.findByIdAndDelete(id);
-        res.json({ message: "Member rejected and removed successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin" && req.user.role !== "subadmin") {
+    return res.status(403).json({ message: "Not authorised" });
+  }
+  try {
+    const { id } = req.params;
+    await User.findByIdAndDelete(id);
+    res.json({ message: "Member rejected successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const getpendingmembers = async (req, res) => {
-    if (req.user.role !== 'admin' && req.user.role !== 'subadmin') {
-        return res.status(403).json({ message: 'Not authorised' });
-    }
-    try {
-        const pendingMembers = await User.find({ approved: false, role: 'user' });
-        res.json(pendingMembers);
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin" && req.user.role !== "subadmin") {
+    return res.status(403).json({ message: "Not authorised" });
+  }
+  try {
+    const pendingMembers = await User.find({ approved: false, role: "user" });
+    res.json(pendingMembers);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const getnotices = async (req, res) => {
-    if (req.user.role !== 'admin' && req.user.role !== 'subadmin') {
-        return res.status(403).json({ message: 'Not authorised' });
-    }
-    try {
-        const notices = await Notice.find();
-        res.json(notices);
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin" && req.user.role !== "subadmin") {
+    return res.status(403).json({ message: "Not authorised" });
+  }
+  try {
+    const notices = await Notice.find();
+    res.json(notices);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const createnotice = async (req, res) => {
-    if (req.user.role !== 'admin' && req.user.role !== 'subadmin' && req.user.role !== 'lead') {
-        return res.status(403).json({ message: 'Not authorised' });
-    }
-    try {
-        const { title,description, domain, subdomain, image, link } = req.body;
-        const author = req.user.name;
-        const notice = new Notice({ title, desc:description, domain, subdomain, image, link, author });
-        await notice.save();
-        res.json({ message: "Notice created successfully" });
-    } catch (error) {
-        console.error("CREATE NOTICE ERROR:", error);
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (
+    req.user.role !== "admin" &&
+    req.user.role !== "subadmin" &&
+    req.user.role !== "lead"
+  ) {
+    return res.status(403).json({ message: "Not authorised" });
+  }
+  try {
+    const { title,description, domain, subdomain, image, link } = req.body;
+    const author = req.user.name;
+    const notice = new Notice({ title, desc:description, domain, subdomain, image, link, author });
+    await notice.save();
+    res.json({ message: "Notice created successfully" });
+  } catch (error) {
+    console.error("CREATE NOTICE ERROR:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const deletenotice = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Not authorised' });
-    }
-    try {
-        const { id } = req.params;
-        await Notice.findByIdAndDelete(id);
-        res.json({ message: "Notice deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
-}
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Not authorised" });
+  }
+  try {
+    const { id } = req.params;
+    await Notice.findByIdAndDelete(id);
+    res.json({ message: "Notice deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
-export { getmembers, getSubAdmins, deleteUser, deleteSubAdmin, changeposition, changerole, allowmember, showstatus, rejectmember, getpendingmembers, getnotices, createnotice, deletenotice };
+const createMeet = async (req, res) => {
+  if (
+    req.user.role != "admin" ||
+    req.user.role != "subadmin" ||
+    req.user.role != "lead"
+  ) {
+    return res.error(401).json({ message: "Not authorised" });
+  }
+  try {
+    const { title, startdate, starttime, link, description } = req.body;
+    if (!title || !startdate || !starttime || !link) {
+      return res.error(401).json({ message: "Fill important fields" });
+    }
+    const meet = new Meeting({
+      title,
+      startDate,
+      startTime,
+      meetlink,
+      description,
+    });
+    await meet.save();
+    res.status(200).json({ message: "Meeting Created successfully" });
+  } catch (error) {
+    return res.error(500).json({ error });
+  }
+};
+
+const deleteMeet = async (req, res) => {
+  if (
+    req.user.role != "admin" ||
+    req.user.role != "subadmin" ||
+    req.user.role != "lead"
+  ) {
+    return res.error(401).json({ message: "Not authorised" });
+  }
+
+  try {
+    const { id } = req.params;
+    await Meet.findByIdAndDelete(id);
+    res.json({ message: "Meeting successfully deleted" });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+const editMeet = async (req, res) => {
+  if (
+    req.user.role != "admin" &&
+    req.user.role != "subadmin" &&
+    req.user.role != "lead"
+  ) {
+    res.status(401).json({ message: "Not authorised" });
+  }
+
+  try {
+    const { id } = req.params;
+    const { title, startdate, starttime, link, description } = req.body;
+
+    await Meet.findByIdAndUpdate(id, {
+      title,
+      startDate: startdate,
+      startTime: starttime,
+      link,
+      description,
+    });
+    res.status(200).json({ message: "Meet details updated successfully" });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+const getMeet = async (req, res) => {
+  try {
+    await Meet.find();
+    res.status(200).json({ message: "Meets loaded successfully" });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+const sendMeetCalenderMail = async (req, res) => {};
+
+export {
+  getmembers,
+  getSubAdmins,
+  deleteUser,
+  deleteSubAdmin,
+  changeposition,
+  changerole,
+  allowmember,
+  showstatus,
+  rejectmember,
+  getpendingmembers,
+  getnotices,
+  createnotice,
+  deletenotice,
+  createMeet,
+  deleteMeet,
+  editMeet,
+  getMeet,
+};

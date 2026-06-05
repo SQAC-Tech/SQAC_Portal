@@ -12,6 +12,7 @@ const RESET_STEPS = {
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isResetOpen, setIsResetOpen] = useState(false);
   const [resetStep, setResetStep] = useState(RESET_STEPS.email);
@@ -19,6 +20,8 @@ export default function Login() {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
   const [resetError, setResetError] = useState("");
   const [isSubmittingReset, setIsSubmittingReset] = useState(false);
@@ -116,6 +119,8 @@ export default function Login() {
     setResetMessage("");
     setResetError("");
     setResetStep(RESET_STEPS.email);
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
     setIsResetOpen(true);
   };
 
@@ -127,6 +132,8 @@ export default function Login() {
     setOtp("");
     setNewPassword("");
     setConfirmPassword("");
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
     setIsSubmittingReset(false);
   };
 
@@ -355,13 +362,22 @@ export default function Login() {
                   </span>
                   <input
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-surface-container-highest border border-outline-variant/15 rounded-xl py-4 pl-12 pr-4 font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline/50"
+                    className="w-full bg-surface-container-highest border border-outline-variant/15 rounded-xl py-4 pl-12 pr-14 font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline/50"
                     placeholder="........"
                     required
                   />
+                  <button
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-outline transition-colors hover:text-primary"
+                    onClick={() => setShowPassword((current) => !current)}
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                      {showPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
                 </div>
               </div>
 
@@ -537,29 +553,49 @@ export default function Login() {
                       New Password
                     </label>
                     <input
-                      type="password"
+                      type={showNewPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full bg-surface-container-highest border border-outline-variant/15 rounded-xl py-4 px-4 font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline/50"
+                      className="w-full bg-surface-container-highest border border-outline-variant/15 rounded-xl py-4 pl-4 pr-14 font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline/50"
                       placeholder="Minimum 8 characters"
                       minLength={8}
                       required
                     />
+                    <button
+                      className="absolute right-4 top-[38px] text-outline transition-colors hover:text-primary"
+                      onClick={() => setShowNewPassword((current) => !current)}
+                      type="button"
+                    >
+                      <span className="material-symbols-outlined text-xl">
+                        {showNewPassword ? "visibility_off" : "visibility"}
+                      </span>
+                    </button>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 relative">
                     <label className="block text-xs font-label uppercase tracking-widest text-on-surface-variant">
                       Confirm Password
                     </label>
                     <input
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full bg-surface-container-highest border border-outline-variant/15 rounded-xl py-4 px-4 font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline/50"
+                      className="w-full bg-surface-container-highest border border-outline-variant/15 rounded-xl py-4 pl-4 pr-14 font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline/50"
                       placeholder="Re-enter password"
                       minLength={8}
                       required
                     />
+                    <button
+                      className="absolute right-4 top-[38px] text-outline transition-colors hover:text-primary"
+                      onClick={() =>
+                        setShowConfirmPassword((current) => !current)
+                      }
+                      type="button"
+                    >
+                      <span className="material-symbols-outlined text-xl">
+                        {showConfirmPassword ? "visibility_off" : "visibility"}
+                      </span>
+                    </button>
                   </div>
 
                   <button

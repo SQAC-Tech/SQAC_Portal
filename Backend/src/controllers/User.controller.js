@@ -9,20 +9,20 @@ const generateToken = (userId) =>
   jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
 const authenticateToken = async (req, res, next) => {
-    const token = req.cookies.session;
-    if (!token) return res.status(401).json({ error: "Not authenticated" });
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.userId);
-        if (!user) return res.status(404).json({ error: "User not found" });
-        
-        req.userId = decoded.userId;
-        req.user = user; 
-        next();
-    } catch (err) {
-        res.status(401).json({ error: "Invalid session" });
-    }
-}
+  const token = req.cookies.session;
+  if (!token) return res.status(401).json({ error: "Not authenticated" });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    req.userId = decoded.userId;
+    req.user = user;
+    next();
+  } catch (err) {
+    res.status(401).json({ error: "Invalid session" });
+  }
+};
 
 const createUser = async (req, res) => {
   try {
@@ -77,7 +77,6 @@ const createUser = async (req, res) => {
       socials,
       bio,
     });
-
 
     res.status(201).json({
       message: "User registered successfully",
@@ -139,16 +138,15 @@ const logoutUser = (req, res) => {
 };
 
 const getrole = async (req, res) => {
-    try {
-        if (!req.user) {
-            return res.status(401).json({ message: "Not authenticated" });
-        }
-        res.json({ role: req.user.role });
-    } catch (error) {
-        console.error("GET ROLE ERROR:", error);
-        res.status(500).json({ message: "Server error" });
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authenticated" });
     }
+    res.json({ role: req.user.role });
+  } catch (error) {
+    console.error("GET ROLE ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
-
-export { createUser, loginUser, logoutUser, authenticateToken, getrole};
+export { createUser, loginUser, logoutUser, authenticateToken, getrole };
