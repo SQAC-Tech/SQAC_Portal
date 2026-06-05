@@ -140,9 +140,8 @@ const getpendingmembers = async (req, res) => {
 };
 
 const getnotices = async (req, res) => {
-  if (req.user.role !== "admin" && req.user.role !== "subadmin") {
-    return res.status(403).json({ message: "Not authorised" });
-  }
+  // Removed strict role check so that all authenticated members can fetch notices. 
+  // Filtering is handled on the frontend based on the user's domain/subdomain.
   try {
     const notices = await Notice.find();
     res.json(notices);
@@ -162,7 +161,8 @@ const createnotice = async (req, res) => {
   try {
     const { title,description, domain, subdomain, image, link } = req.body;
     const author = req.user.name;
-    const notice = new Notice({ title, desc:description, domain, subdomain, image, link, author });
+    // Map 'subdomain' from frontend to 'subDomain' for Mongoose schema
+    const notice = new Notice({ title, desc:description, domain, subDomain: subdomain, image, link, author });
     await notice.save();
     res.json({ message: "Notice created successfully" });
   } catch (error) {

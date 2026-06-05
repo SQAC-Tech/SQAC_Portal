@@ -17,6 +17,9 @@ export default function Notice() {
     const [image, setImage] = useState("");
     const [loading, setLoading] = useState(false);
     const [role, setRole] = useState(null);
+    const [editId, setEditId] = useState(null);
+
+    const [currentUser, setCurrentUser] = useState(null);
 
     const navigate = useNavigate();
 
@@ -31,23 +34,26 @@ export default function Notice() {
             console.error("Logout failed:", err);
         } finally {
             localStorage.removeItem("user");
-            navigate("/login"); // ✅ smoother navigation
+            navigate("/login");
         }
     };
 
-    // ---------- GET USER ROLE ----------
+    // ---------- GET USER PROFILE ----------
     async function fetchUser() {
         try {
-            const data = await fetchWithAuth(`${API_BASE_URL}/user/role`);
-            setRole(data.role);
+            const data = await fetchWithAuth(`${API_BASE_URL}/user/profile`);
+            if (data && data.user) {
+                setCurrentUser(data.user);
+                setRole(data.user.role);
+            }
         } catch (err) {
             console.error(err);
             setRole(null);
         }
     }
 
-    const isAdmin =
-        role === "admin" || role === "subadmin" || role === "lead";
+    const canCreate = role === "admin" || role === "subadmin" || role === "lead";
+    const canManage = role === "admin"; // Admin can Edit and Delete
 
     // ---------- GET NOTICES ----------
     async function fetchNotices() {
@@ -56,27 +62,55 @@ export default function Notice() {
             setNotices(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error(err);
-            toast.error(err.message || "Failed to load notices");
+            // Hide error for regular users who just don't have access
+            if (role !== "user") {
+                toast.error(err.message || "Failed to load notices");
+            }
             setNotices([]);
         }
     }
+
+    // ---------- FILTER NOTICES ----------
+    const filteredNotices = notices.filter(notice => {
+        if (canManage) return true; // Admin sees all notices to manage them
+
+        const nDomain = notice.domain;
+        const nSub = notice.subDomain || notice.subdomain;
+
+        const uDomain = currentUser?.coreDomain;
+        const uSub = currentUser?.subDomain || currentUser?.subdomain;
+
+        // "Board" is treated as global announcements for everyone
+        if (nDomain === "Board") return true;
+
+        if (nDomain !== uDomain) return false;
+
+        // If notice has a specific subdomain (and it's not "No subdomain"), it must match user's subdomain
+        if (nSub && nSub !== "No subdomain" && nSub !== uSub) return false;
+
+        return true;
+    });
 
     // ---------- INITIAL LOAD ----------
     useEffect(() => {
         async function init() {
             await fetchUser();
-            await fetchNotices();
         }
         init();
     }, []);
 
-    // ---------- CREATE NOTICE ----------
-    async function handleCreateNotice({ domain, subdomain }) {
+    useEffect(() => {
+        if (role) {
+            fetchNotices();
+        }
+    }, [role]);
+
+    // ---------- CREATE / EDIT NOTICE ----------
+    async function handleSaveNotice({ domain, subdomain }) {
         const trimmedTitle = title.trim();
         const trimmedContent = content.trim();
         const trimmedImage = image.trim();
 
-        // 🔥 Validation
         if (!trimmedTitle || !trimmedContent) {
             toast.error("Title and description cannot be empty");
             return;
@@ -100,6 +134,13 @@ export default function Notice() {
         setLoading(true);
 
         try {
+            // If editing, we simulate by deleting the old notice first
+            if (editId) {
+                await fetchWithAuth(`${API_BASE_URL}/notices/${editId}`, {
+                    method: "DELETE"
+                });
+            }
+
             await fetchWithAuth(`${API_BASE_URL}/notices/create`, {
                 method: "POST",
                 body: JSON.stringify({
@@ -112,28 +153,42 @@ export default function Notice() {
                 })
             });
 
-            toast.success("Notice created 🚀");
+            toast.success(editId ? "Notice updated 🚀" : "Notice created 🚀");
 
             // reset form
             setTitle("");
             setContent("");
             setImage("");
+            setEditId(null);
 
             fetchNotices();
 
         } catch (err) {
             console.error(err);
-            toast.error(err.message || "Create failed");
+            toast.error(err.message || "Save failed");
         } finally {
             setLoading(false);
         }
     }
 
+    // ---------- PREPARE EDIT ----------
+    function handleEditClick(notice) {
+        setEditId(notice._id);
+        setTitle(notice.title || "");
+        setContent(notice.desc || "");
+        setImage(notice.image || "");
+    }
+
+    function handleCancelEdit() {
+        setEditId(null);
+        setTitle("");
+        setContent("");
+        setImage("");
+    }
+
     // ---------- DELETE ----------
     async function handleDelete(id) {
-        // ✅ ADD THIS HERE
         if (!confirm("Delete this notice?")) return;
-
         if (!id) return;
 
         try {
@@ -155,12 +210,13 @@ export default function Notice() {
             <AdminSidebar onLogout={handleLogout} />
 
             <MainContent
-                notices={notices}
+                notices={filteredNotices}
                 onDelete={handleDelete}
-                isAdmin={isAdmin}
+                onEdit={handleEditClick}
+                canManage={canManage}
             />
 
-            {isAdmin && (
+            {canCreate && (
                 <RightPanel
                     title={title}
                     content={content}
@@ -168,8 +224,10 @@ export default function Notice() {
                     setContent={setContent}
                     image={image}
                     setImage={setImage}
-                    handleCreate={handleCreateNotice}
+                    handleCreate={handleSaveNotice}
                     loading={loading}
+                    isEditing={!!editId}
+                    onCancelEdit={handleCancelEdit}
                 />
             )}
         </DashboardLayout>

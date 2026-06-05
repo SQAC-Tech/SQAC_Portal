@@ -1,15 +1,16 @@
 import NoticeCard from "./NoticeCard";
 
-export default function MainContent({ notices, onDelete, isAdmin }) {
+export default function MainContent({ notices, onDelete, onEdit, canManage }) {
     const safeNotices = Array.isArray(notices) ? notices : [];
 
     return (
         <div className="flex-1 overflow-y-auto">
-            <div className="max-w-6xl mx-auto px-10 pt-10 pb-8">
+
+            <div className="max-w-6xl px-8 lg:px-16 pt-10 pb-8">
 
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight">
+                    <h1 className="text-3xl font-bold tracking-tight text-white">
                         Noticeboard
                     </h1>
                 </div>
@@ -22,7 +23,8 @@ export default function MainContent({ notices, onDelete, isAdmin }) {
                                 key={notice._id}
                                 notice={notice}
                                 onDelete={onDelete}
-                                isAdmin={isAdmin}
+                                onEdit={onEdit}
+                                canManage={canManage}
                             />
                         ))
                     ) : (
