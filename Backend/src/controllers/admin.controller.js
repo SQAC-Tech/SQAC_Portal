@@ -140,9 +140,8 @@ const getpendingmembers = async (req, res) => {
 };
 
 const getnotices = async (req, res) => {
-  if (req.user.role !== "admin" && req.user.role !== "subadmin") {
-    return res.status(403).json({ message: "Not authorised" });
-  }
+  // Removed strict role check so that all authenticated members can fetch notices. 
+  // Filtering is handled on the frontend based on the user's domain/subdomain.
   try {
     const notices = await Notice.find();
     res.json(notices);
@@ -160,31 +159,11 @@ const createnotice = async (req, res) => {
     return res.status(403).json({ message: "Not authorised" });
   }
   try {
-    const { title, description, domain, subdomain, image, link } = req.body;
+    const { title,description, domain, subdomain, image, link } = req.body;
     const author = req.user.name;
-
-    const notice = new Notice({
-      title,
-      description,
-      domain,
-      subdomain,
-      image,
-      link,
-      author,
-    });
+    // Map 'subdomain' from frontend to 'subDomain' for Mongoose schema
+    const notice = new Notice({ title, desc:description, domain, subDomain: subdomain, image, link, author });
     await notice.save();
-    const calendarLink = generateCalendarLink(meeting);
-    if (attendees && attendees.length > 0) {
-      for (const email of attendees) {
-        const htmlTemplate = getMeetingEmailTemplate(meeting, calendarLink);
-
-        await sendMail({
-          to: email,
-          subject: `📅 Meeting Invitation: ${meeting.title}`,
-          html: htmlTemplate,
-        });
-      }
-    }
     res.json({ message: "Notice created successfully" });
   } catch (error) {
     console.error("CREATE NOTICE ERROR:", error);
