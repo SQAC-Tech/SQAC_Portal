@@ -3,11 +3,29 @@ export const DEFAULT_AVATAR =
 
 export const navItems = [
   { icon: "dashboard", label: "Dashboard", href: "#" },
+  { icon: "Manage_Accounts", label: "Profile", href: "/user/profile" },
   { icon: "group", label: "Members", href: "/admin/members" },
+  { icon: "rocket_launch", label: "Projects", href: "/admin/projects" },
   { icon: "calendar_month", label: "Schedule", href: "#" },
   { icon: "campaign", label: "Noticeboard", href: "/admin/notice" },
   { icon: "forum", label: "Chats", href: "#" },
+  {
+    icon: "license",
+    label: "Certificate Generator",
+    href: "/dashboard/certificates",
+  },
+  {
+    icon: "description",
+    label: "Create MOM",
+    href: "/admin/mom/create",
+  },
+  {
+    icon: "history_edu",
+    label: "MOM History",
+    href: "/admin/mom/list",
+  },
 ];
+
 
 export const editableRoles = ["user", "lead", "subadmin", "admin"];
 

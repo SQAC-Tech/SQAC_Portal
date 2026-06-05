@@ -1,51 +1,72 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Papa from 'papaparse';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
-import QRCode from 'qrcode';
+import React, { useState, useRef, useEffect } from "react";
+import Papa from "papaparse";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+import QRCode from "qrcode";
+import AdminSidebar from "../../components/admin/AdminSidebar";
 
 export default function CertGenerator() {
   const [templateImage, setTemplateImage] = useState(null);
   const [csvData, setCsvData] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [templateType, setTemplateType] = useState('participation');
-  const [templateTitle, setTemplateTitle] = useState('');
-  const [templateDescription, setTemplateDescription] = useState('');
-  const [inputType, setInputType] = useState('csv'); // 'csv' or 'manual'
-  const [manualName, setManualName] = useState('');
-  const [manualEmail, setManualEmail] = useState('');
-  const [manualId, setManualId] = useState('');
-  
+  const [templateType, setTemplateType] = useState("participation");
+  const [templateTitle, setTemplateTitle] = useState("");
+  const [templateDescription, setTemplateDescription] = useState("");
+  const [inputType, setInputType] = useState("csv"); // 'csv' or 'manual'
+  const [manualName, setManualName] = useState("");
+  const [manualEmail, setManualEmail] = useState("");
+  const [manualId, setManualId] = useState("");
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "", type: "info" });
+
+  const showAlert = (message, type = "info") => {
+    setAlertModal({ isOpen: true, message, type });
+  };
+
   const [textPosition, setTextPosition] = useState({ x: 400, y: 300 });
   const [qrPosition, setQrPosition] = useState({ x: 50, y: 50 });
   const [credPosition, setCredPosition] = useState({ x: 50, y: 150 });
-  
-  const [fontFamily, setFontFamily] = useState('Inter');
+
+  const [fontFamily, setFontFamily] = useState("Inter");
   const [fontSize, setFontSize] = useState(48);
-  const [fontWeight, setFontWeight] = useState('normal');
-  const [fontStyle, setFontStyle] = useState('normal');
-  const [fontColor, setFontColor] = useState('#000000');
-  
+  const [fontWeight, setFontWeight] = useState("normal");
+  const [fontStyle, setFontStyle] = useState("normal");
+  const [fontColor, setFontColor] = useState("#000000");
+
   const [qrSize, setQrSize] = useState(100);
   const [credSize, setCredSize] = useState(14);
-  const [qrPreviewUrl, setQrPreviewUrl] = useState('');
+  const [qrPreviewUrl, setQrPreviewUrl] = useState("");
   const [showCredential, setShowCredential] = useState(true);
-  const [placeMode, setPlaceMode] = useState('text');
+  const [placeMode, setPlaceMode] = useState("text");
 
   const canvasRef = useRef(null);
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (logoutError) {
+      console.error("Logout failed:", logoutError);
+    } finally {
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    }
+  };
 
-  const centerElement = (type, axis = 'x') => {
+  const centerElement = (type, axis = "x") => {
     if (!templateImage) return;
-    if (axis === 'x') {
+    if (axis === "x") {
       const centerX = templateImage.width / 2;
-      if (type === 'text') setTextPosition(prev => ({ ...prev, x: centerX }));
-      if (type === 'qr') setQrPosition(prev => ({ ...prev, x: centerX - qrSize / 2 }));
-      if (type === 'cred') setCredPosition(prev => ({ ...prev, x: centerX }));
+      if (type === "text") setTextPosition((prev) => ({ ...prev, x: centerX }));
+      if (type === "qr")
+        setQrPosition((prev) => ({ ...prev, x: centerX - qrSize / 2 }));
+      if (type === "cred") setCredPosition((prev) => ({ ...prev, x: centerX }));
     } else {
       const centerY = templateImage.height / 2;
-      if (type === 'text') setTextPosition(prev => ({ ...prev, y: centerY }));
-      if (type === 'qr') setQrPosition(prev => ({ ...prev, y: centerY - qrSize / 2 }));
-      if (type === 'cred') setCredPosition(prev => ({ ...prev, y: centerY }));
+      if (type === "text") setTextPosition((prev) => ({ ...prev, y: centerY }));
+      if (type === "qr")
+        setQrPosition((prev) => ({ ...prev, y: centerY - qrSize / 2 }));
+      if (type === "cred") setCredPosition((prev) => ({ ...prev, y: centerY }));
     }
   };
 
@@ -69,7 +90,10 @@ export default function CertGenerator() {
   useEffect(() => {
     const generatePreviewQR = async () => {
       try {
-        const url = await QRCode.toDataURL('SAMPLE_VERIFICATION_URL', { width: qrSize, margin: 1 });
+        const url = await QRCode.toDataURL("SAMPLE_VERIFICATION_URL", {
+          width: qrSize,
+          margin: 1,
+        });
         setQrPreviewUrl(url);
       } catch (err) {
         console.error("QR Generation Error", err);
@@ -96,8 +120,8 @@ export default function CertGenerator() {
   useEffect(() => {
     if (templateImage && canvasRef.current) {
       const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      
+      const ctx = canvas.getContext("2d");
+
       canvas.width = templateImage.width;
       canvas.height = templateImage.height;
 
@@ -106,9 +130,10 @@ export default function CertGenerator() {
       // Draw sample text
       ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px "${fontFamily}"`;
       ctx.fillStyle = fontColor;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      const displayName = (inputType === 'manual' && manualName) ? manualName : 'Sample Name';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const displayName =
+        inputType === "manual" && manualName ? manualName : "Sample Name";
       ctx.fillText(displayName, textPosition.x, textPosition.y);
 
       // Draw QR Code
@@ -119,7 +144,7 @@ export default function CertGenerator() {
         };
         qrImg.src = qrPreviewUrl;
       } else {
-        ctx.fillStyle = '#f0f0f0';
+        ctx.fillStyle = "#f0f0f0";
         ctx.fillRect(qrPosition.x, qrPosition.y, qrSize, qrSize);
       }
 
@@ -127,27 +152,48 @@ export default function CertGenerator() {
       if (showCredential) {
         ctx.fillStyle = fontColor;
         ctx.font = `${credSize}px monospace`;
-        ctx.textAlign = 'left';
-        ctx.fillText('Cred: SAMPLE-ID-1234', credPosition.x, credPosition.y);
+        ctx.textAlign = "left";
+        ctx.fillText("Cred: SAMPLE-ID-1234", credPosition.x, credPosition.y);
       }
     }
-  }, [templateImage, textPosition, qrPosition, credPosition, fontFamily, fontSize, fontWeight, fontStyle, fontColor, qrSize, credSize, qrPreviewUrl, inputType, manualName, showCredential]);
+  }, [
+    templateImage,
+    textPosition,
+    qrPosition,
+    credPosition,
+    fontFamily,
+    fontSize,
+    fontWeight,
+    fontStyle,
+    fontColor,
+    qrSize,
+    credSize,
+    qrPreviewUrl,
+    inputType,
+    manualName,
+    showCredential,
+  ]);
 
   // Generate for all users
   const handleGenerate = async () => {
-    const hasNoData = (inputType === 'csv' && csvData.length === 0) || (inputType === 'manual' && (!manualName || !manualEmail));
-    
+    const hasNoData =
+      (inputType === "csv" && csvData.length === 0) ||
+      (inputType === "manual" && (!manualName || !manualEmail));
+
     if (!templateImage || hasNoData) {
-      alert("Please upload a template and provide recipient data (CSV or Manual Entry).");
+      showAlert(
+        "Please upload a template and provide recipient data (CSV or Manual Entry).",
+        "info"
+      );
       return;
     }
 
     setIsGenerating(true);
     let dataToProcess = csvData;
 
-    if (inputType === 'manual') {
+    if (inputType === "manual") {
       if (!manualName || !manualEmail) {
-        alert("Please provide both name and email for manual entry.");
+        showAlert("Please provide both name and email for manual entry.", "info");
         setIsGenerating(false);
         return;
       }
@@ -155,7 +201,7 @@ export default function CertGenerator() {
     }
 
     if (dataToProcess.length === 0) {
-      alert("No data found. Please upload a CSV or fill manual fields.");
+      showAlert("No data found. Please upload a CSV or fill manual fields.", "info");
       setIsGenerating(false);
       return;
     }
@@ -171,8 +217,8 @@ export default function CertGenerator() {
         const credentialId = id || crypto.randomUUID();
 
         // Create an offscreen canvas
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
         canvas.width = templateImage.width;
         canvas.height = templateImage.height;
 
@@ -182,15 +228,15 @@ export default function CertGenerator() {
         // Draw Text
         ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px "${fontFamily}"`;
         ctx.fillStyle = fontColor;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         ctx.fillText(name, textPosition.x, textPosition.y);
 
         // Draw Credential ID
         if (showCredential) {
           ctx.fillStyle = fontColor;
           ctx.font = `${credSize}px monospace`;
-          ctx.textAlign = 'left';
+          ctx.textAlign = "left";
           ctx.fillText(`ID: ${credentialId}`, credPosition.x, credPosition.y);
         }
 
@@ -198,7 +244,7 @@ export default function CertGenerator() {
 
         const qrDataUrl = await QRCode.toDataURL(
           `${window.location.origin}/verify/${credentialId}`,
-          { width: qrSize, margin: 1 }
+          { width: qrSize, margin: 1 },
         );
 
         // Draw QR Code
@@ -210,11 +256,13 @@ export default function CertGenerator() {
         ctx.drawImage(qrImage, qrPosition.x, qrPosition.y, qrSize, qrSize);
 
         // Get Base64
-        const dataUrl = canvas.toDataURL('image/png');
-        
+        const dataUrl = canvas.toDataURL("image/png");
+
         // Add to Zip
         const base64Data = dataUrl.replace(/^data:image\/\w+;base64,/, "");
-        zip.file(`${name.replace(/\s+/g, '_')}_Certificate.png`, base64Data, { base64: true });
+        zip.file(`${name.replace(/\s+/g, "_")}_Certificate.png`, base64Data, {
+          base64: true,
+        });
 
         // Add to batch for backend
         generatedCerts.push({
@@ -226,17 +274,17 @@ export default function CertGenerator() {
       }
 
       // Download ZIP
-      const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, 'Certificates.zip');
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, "Certificates.zip");
 
       // Upload to Backend (Firebase + Email)
-      const token = localStorage.getItem('token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const token = localStorage.getItem("token");
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const res = await fetch(`${apiUrl}/api/certificate/upload-generated`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           certificates: generatedCerts,
@@ -248,13 +296,13 @@ export default function CertGenerator() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to upload to server');
+        throw new Error(errorData.error || "Failed to upload to server");
       }
 
-      alert("Generation and Email Sending Completed Successfully!");
+      showAlert("Generation and Email Sending Completed Successfully!", "success");
     } catch (error) {
       console.error(error);
-      alert("Error generating certificates: " + error.message);
+      showAlert("Error generating certificates: " + error.message, "error");
     } finally {
       setIsGenerating(false);
     }
@@ -269,11 +317,11 @@ export default function CertGenerator() {
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
-    if (placeMode === 'text') {
+    if (placeMode === "text") {
       setTextPosition({ x, y });
-    } else if (placeMode === 'qr') {
+    } else if (placeMode === "qr") {
       setQrPosition({ x, y });
-    } else if (placeMode === 'cred') {
+    } else if (placeMode === "cred") {
       setCredPosition({ x, y });
     }
   };
@@ -284,56 +332,113 @@ export default function CertGenerator() {
         <h1 className="text-4xl font-headline font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#f183ff] to-[#ff6c95] mb-8">
           Certificate Generator Canvas
         </h1>
-
+        <AdminSidebar onLogout={handleLogout} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Controls Panel */}
           <div className="bg-[#1a1625] p-6 rounded-2xl border border-white/10 space-y-6">
-            
             <div>
-              <label className="block text-sm font-label text-slate-400 mb-2">1. Upload Base Template (Image)</label>
-              <input type="file" accept="image/*" onChange={handleTemplateUpload} className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-[#f183ff] hover:file:bg-primary/30"/>
+              <label className="block text-sm font-label text-slate-400 mb-2">
+                1. Upload Base Template (Image)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleTemplateUpload}
+                className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-[#f183ff] hover:file:bg-primary/30"
+              />
             </div>
 
             <div className="bg-[#0f0d16] p-1 rounded-xl flex mb-4">
-              <button 
-                onClick={() => setInputType('csv')}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${inputType === 'csv' ? 'bg-[#f183ff] text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              <button
+                onClick={() => setInputType("csv")}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${inputType === "csv" ? "bg-[#f183ff] text-white" : "text-slate-400 hover:text-slate-200"}`}
               >
                 CSV Upload
               </button>
-              <button 
-                onClick={() => setInputType('manual')}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${inputType === 'manual' ? 'bg-[#f183ff] text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              <button
+                onClick={() => setInputType("manual")}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${inputType === "manual" ? "bg-[#f183ff] text-white" : "text-slate-400 hover:text-slate-200"}`}
               >
                 Manual Entry
               </button>
             </div>
 
-            {inputType === 'csv' ? (
+            {inputType === "csv" ? (
               <div>
-                <label className="block text-sm font-label text-slate-400 mb-2">2. Upload CSV (id, name, email)</label>
-                <input type="file" accept=".csv" onChange={handleCsvUpload} className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-[#f183ff] hover:file:bg-primary/30"/>
-                {csvData.length > 0 && <p className="text-xs text-green-400 mt-2">Loaded {csvData.length} records</p>}
+                <label className="block text-sm font-label text-slate-400 mb-2">
+                  2. Upload CSV (id, name, email)
+                </label>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleCsvUpload}
+                  className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-[#f183ff] hover:file:bg-primary/30"
+                />
+                {csvData.length > 0 && (
+                  <p className="text-xs text-green-400 mt-2">
+                    Loaded {csvData.length} records
+                  </p>
+                )}
               </div>
             ) : (
               <div className="space-y-3">
-                <label className="block text-sm font-label text-slate-400 mb-1">2. Recipient Details</label>
-                <input type="text" placeholder="Full Name" value={manualName} onChange={e => setManualName(e.target.value)} className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none" />
-                <input type="email" placeholder="Email Address" value={manualEmail} onChange={e => setManualEmail(e.target.value)} className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none" />
-                <input type="text" placeholder="Custom ID (Optional)" value={manualId} onChange={e => setManualId(e.target.value)} className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none" />
+                <label className="block text-sm font-label text-slate-400 mb-1">
+                  2. Recipient Details
+                </label>
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={manualName}
+                  onChange={(e) => setManualName(e.target.value)}
+                  className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  value={manualEmail}
+                  onChange={(e) => setManualEmail(e.target.value)}
+                  className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                />
+                <input
+                  type="text"
+                  placeholder="Custom ID (Optional)"
+                  value={manualId}
+                  onChange={(e) => setManualId(e.target.value)}
+                  className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                />
               </div>
             )}
 
             <div className="space-y-4">
-              <label className="block text-sm font-label text-slate-400">3. Certificate Details</label>
-              <input type="text" placeholder="Title (e.g. Hackathon Winner)" value={templateTitle} onChange={e => setTemplateTitle(e.target.value)} className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none" />
-              <input type="text" placeholder="Description" value={templateDescription} onChange={e => setTemplateDescription(e.target.value)} className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none" />
+              <label className="block text-sm font-label text-slate-400">
+                3. Certificate Details
+              </label>
+              <input
+                type="text"
+                placeholder="Title (e.g. Hackathon Winner)"
+                value={templateTitle}
+                onChange={(e) => setTemplateTitle(e.target.value)}
+                className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Description"
+                value={templateDescription}
+                onChange={(e) => setTemplateDescription(e.target.value)}
+                className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+              />
             </div>
 
             <div className="space-y-4">
-              <label className="block text-sm font-label text-slate-400">4. Font Styling</label>
+              <label className="block text-sm font-label text-slate-400">
+                4. Font Styling
+              </label>
               <div className="grid grid-cols-2 gap-4">
-                <select value={fontFamily} onChange={e => setFontFamily(e.target.value)} className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none">
+                <select
+                  value={fontFamily}
+                  onChange={(e) => setFontFamily(e.target.value)}
+                  className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                >
                   <option value="Inter">Inter</option>
                   <option value="Roboto">Roboto</option>
                   <option value="Arial">Arial</option>
@@ -341,51 +446,126 @@ export default function CertGenerator() {
                   <option value="Georgia">Georgia</option>
                   <option value="Courier New">Courier New</option>
                 </select>
-                <input type="number" placeholder="Size" value={fontSize} onChange={e => setFontSize(Number(e.target.value))} className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none" />
+                <input
+                  type="number"
+                  placeholder="Size"
+                  value={fontSize}
+                  onChange={(e) => setFontSize(Number(e.target.value))}
+                  className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                />
               </div>
               <div className="flex gap-2">
-                <button onClick={() => setFontWeight(prev => prev === 'bold' ? 'normal' : 'bold')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${fontWeight === 'bold' ? 'bg-[#f183ff] text-white' : 'bg-[#0f0d16] text-slate-400'}`}>Bold</button>
-                <button onClick={() => setFontStyle(prev => prev === 'italic' ? 'normal' : 'italic')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${fontStyle === 'italic' ? 'bg-[#f183ff] text-white' : 'bg-[#0f0d16] text-slate-400'}`}>Italic</button>
-                <input type="color" value={fontColor} onChange={e => setFontColor(e.target.value)} className="w-12 h-10 bg-transparent rounded cursor-pointer border-none" />
+                <button
+                  onClick={() =>
+                    setFontWeight((prev) =>
+                      prev === "bold" ? "normal" : "bold",
+                    )
+                  }
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${fontWeight === "bold" ? "bg-[#f183ff] text-white" : "bg-[#0f0d16] text-slate-400"}`}
+                >
+                  Bold
+                </button>
+                <button
+                  onClick={() =>
+                    setFontStyle((prev) =>
+                      prev === "italic" ? "normal" : "italic",
+                    )
+                  }
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${fontStyle === "italic" ? "bg-[#f183ff] text-white" : "bg-[#0f0d16] text-slate-400"}`}
+                >
+                  Italic
+                </button>
+                <input
+                  type="color"
+                  value={fontColor}
+                  onChange={(e) => setFontColor(e.target.value)}
+                  className="w-12 h-10 bg-transparent rounded cursor-pointer border-none"
+                />
               </div>
             </div>
 
             <div className="space-y-4">
-              <label className="block text-sm font-label text-slate-400">5. Placement & Sizing</label>
+              <label className="block text-sm font-label text-slate-400">
+                5. Placement & Sizing
+              </label>
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => setPlaceMode('text')} className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === 'text' ? 'border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]' : 'border-white/5 bg-[#0f0d16]'}`}>
-                   Name
+                <button
+                  onClick={() => setPlaceMode("text")}
+                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === "text" ? "border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]" : "border-white/5 bg-[#0f0d16]"}`}
+                >
+                  Name
                 </button>
-                <button onClick={() => setPlaceMode('qr')} className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === 'qr' ? 'border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]' : 'border-white/5 bg-[#0f0d16]'}`}>
-                   QR Code
+                <button
+                  onClick={() => setPlaceMode("qr")}
+                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === "qr" ? "border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]" : "border-white/5 bg-[#0f0d16]"}`}
+                >
+                  QR Code
                 </button>
-                <button onClick={() => setPlaceMode('cred')} className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === 'cred' ? 'border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]' : 'border-white/5 bg-[#0f0d16]'}`}>
-                   Cred ID
+                <button
+                  onClick={() => setPlaceMode("cred")}
+                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === "cred" ? "border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]" : "border-white/5 bg-[#0f0d16]"}`}
+                >
+                  Cred ID
                 </button>
-                <button onClick={() => setShowCredential(!showCredential)} className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${showCredential ? 'border-green-500 bg-green-500/10 text-green-500' : 'border-white/5 bg-[#0f0d16]'}`}>
-                   {showCredential ? 'Show ID' : 'Hide ID'}
+                <button
+                  onClick={() => setShowCredential(!showCredential)}
+                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${showCredential ? "border-green-500 bg-green-500/10 text-green-500" : "border-white/5 bg-[#0f0d16]"}`}
+                >
+                  {showCredential ? "Show ID" : "Hide ID"}
                 </button>
               </div>
 
               {/* Dynamic Sizing Control */}
               <div className="bg-[#0f0d16] p-3 rounded-xl border border-white/5 space-y-3">
-                {placeMode === 'qr' && (
+                {placeMode === "qr" && (
                   <div>
-                    <div className="flex justify-between mb-1"><span className="text-[10px] text-slate-400">QR Size</span><span className="text-[10px] font-bold">{qrSize}px</span></div>
-                    <input type="range" min="50" max="400" value={qrSize} onChange={e => setQrSize(Number(e.target.value))} className="w-full h-1 accent-[#f183ff]" />
+                    <div className="flex justify-between mb-1">
+                      <span className="text-[10px] text-slate-400">
+                        QR Size
+                      </span>
+                      <span className="text-[10px] font-bold">{qrSize}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="50"
+                      max="400"
+                      value={qrSize}
+                      onChange={(e) => setQrSize(Number(e.target.value))}
+                      className="w-full h-1 accent-[#f183ff]"
+                    />
                   </div>
                 )}
-                {placeMode === 'cred' && (
+                {placeMode === "cred" && (
                   <div>
-                    <div className="flex justify-between mb-1"><span className="text-[10px] text-slate-400">ID Size</span><span className="text-[10px] font-bold">{credSize}px</span></div>
-                    <input type="range" min="8" max="48" value={credSize} onChange={e => setCredSize(Number(e.target.value))} className="w-full h-1 accent-[#f183ff]" />
+                    <div className="flex justify-between mb-1">
+                      <span className="text-[10px] text-slate-400">
+                        ID Size
+                      </span>
+                      <span className="text-[10px] font-bold">
+                        {credSize}px
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="8"
+                      max="48"
+                      value={credSize}
+                      onChange={(e) => setCredSize(Number(e.target.value))}
+                      className="w-full h-1 accent-[#f183ff]"
+                    />
                   </div>
                 )}
                 <div className="flex gap-2">
-                  <button onClick={() => centerElement(placeMode, 'x')} className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 rounded text-[10px] font-bold transition-colors">
+                  <button
+                    onClick={() => centerElement(placeMode, "x")}
+                    className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 rounded text-[10px] font-bold transition-colors"
+                  >
                     Center X
                   </button>
-                  <button onClick={() => centerElement(placeMode, 'y')} className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 rounded text-[10px] font-bold transition-colors">
+                  <button
+                    onClick={() => centerElement(placeMode, "y")}
+                    className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 rounded text-[10px] font-bold transition-colors"
+                  >
                     Center Y
                   </button>
                 </div>
@@ -394,10 +574,15 @@ export default function CertGenerator() {
 
             <button
               onClick={handleGenerate}
-              disabled={isGenerating || !templateImage || (inputType === 'csv' && csvData.length === 0) || (inputType === 'manual' && !manualName)}
+              disabled={
+                isGenerating ||
+                !templateImage ||
+                (inputType === "csv" && csvData.length === 0) ||
+                (inputType === "manual" && !manualName)
+              }
               className="w-full py-4 rounded-xl bg-gradient-to-r from-[#f183ff] to-[#ff6c95] text-white font-bold disabled:opacity-50 hover:scale-105 transition-transform"
             >
-              {isGenerating ? 'Generating...' : 'Generate & Send Emails'}
+              {isGenerating ? "Generating..." : "Generate & Send Emails"}
             </button>
           </div>
 
@@ -405,7 +590,9 @@ export default function CertGenerator() {
           <div className="lg:col-span-2 bg-[#1a1625] p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center overflow-auto">
             {!templateImage ? (
               <div className="text-slate-500 text-center">
-                <span className="material-symbols-outlined text-4xl mb-2 block">image</span>
+                <span className="material-symbols-outlined text-4xl mb-2 block">
+                  image
+                </span>
                 <p>Upload a template to start</p>
               </div>
             ) : (
@@ -418,6 +605,33 @@ export default function CertGenerator() {
           </div>
         </div>
       </div>
+
+      {/* Generic Alert Modal */}
+      {alertModal.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="bg-[#0d1220] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up text-center">
+            <div className={`mx-auto w-12 h-12 rounded-full mb-4 flex items-center justify-center ${
+              alertModal.type === 'error' ? 'bg-red-500/20 text-red-400' :
+              alertModal.type === 'success' ? 'bg-emerald-500/20 text-emerald-400' :
+              'bg-[#f183ff]/20 text-[#f183ff]'
+            }`}>
+              <span className="material-symbols-outlined text-2xl">
+                {alertModal.type === 'error' ? 'error' : alertModal.type === 'success' ? 'check_circle' : 'info'}
+              </span>
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">
+              {alertModal.type === 'error' ? 'Error' : alertModal.type === 'success' ? 'Success' : 'Notice'}
+            </h3>
+            <p className="text-white/60 text-sm mb-6">{alertModal.message}</p>
+            <button 
+              onClick={() => setAlertModal({ isOpen: false, message: "", type: "info" })}
+              className="w-full py-3 rounded-xl bg-white/5 text-white/90 hover:bg-white/10 transition-all text-sm font-bold"
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

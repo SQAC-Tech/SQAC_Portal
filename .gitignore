@@ -5,3 +5,5 @@
 /Frontend/dist/
 .DS_Store
 *.log
+
+*.csv
