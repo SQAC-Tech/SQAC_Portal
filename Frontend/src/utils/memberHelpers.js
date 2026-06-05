@@ -7,7 +7,8 @@ export const navItems = [
   { icon: "group", label: "Members", href: "/admin/members" },
   { icon: "rocket_launch", label: "Projects", href: "/admin/projects" },
   { icon: "calendar_month", label: "Schedule", href: "#" },
-  { icon: "campaign", label: "Noticeboard", href: "#" },
+  { icon: "campaign", label: "Noticeboard", href: "/admin/notice" },
+  { icon: "forum", label: "Chats", href: "#" },
   {
     icon: "license",
     label: "Certificate Generator",
