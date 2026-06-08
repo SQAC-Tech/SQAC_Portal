@@ -44,6 +44,7 @@ import {
 
 import certificateRoutes from "./src/routes/certificate.routes.js";
 import projectRoutes from "./src/routes/project.routes.js";
+import dashboardRoutes from "./src/routes/dashboard.routes.js";
 
 dotenv.config();
 
@@ -58,6 +59,8 @@ app.use(
     credentials: true,
   }),
 );
+
+// --- Dashboard API moved to Protected Routes ---
 
 // --- Public Routes ---
 app.post("/user/create", createUser);
@@ -74,6 +77,9 @@ app.use("/api/certificate", certificateRoutes);
 
 // --- Protected Routes ---
 app.use(authenticateToken); // Apply to all routes below
+
+// Dashboard API
+app.use("/api", dashboardRoutes);
 
 // User Profile
 app.get("/user/profile", getprofile);
@@ -107,8 +113,16 @@ app.get("/usernotice/:id", noticeusers);
 // Projects & Recommendation Engine
 app.use("/api/projects", projectRoutes);
 
+// --- Error-handling middleware ---
+app.use((err, _req, res, _next) => {
+  console.error("Unhandled error:", err);
+  res.status(err.status || 500).json({
+    error: err.message || "Internal Server Error",
+  });
+});
+
 // Database Connection and Server Start
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 connectDB()
   .then(() => {

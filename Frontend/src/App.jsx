@@ -16,6 +16,14 @@ import Verify from "./Pages/Verify";
 
 import Dashboard from "./Pages/Dashboard";
 
+const ProtectedRoute = ({ children }) => {
+  const user = localStorage.getItem("user");
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
 function App() {
   return (
     <Routes>
@@ -26,7 +34,14 @@ function App() {
       <Route path="/user/projects" element={<MyProjects />} />
       <Route path="/user/profile" element={<Profile />} />
       <Route path="/" element={<LandingPage />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
       <Route path="/dashboard/certificates" element={<CertGenerator />} />
       <Route path="/verify/:credentialId" element={<Verify />} />
 
