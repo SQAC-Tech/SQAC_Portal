@@ -340,7 +340,7 @@ export default function OnboardingPage() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/user/create`,
-        payload, { withCredentials: true }
+        payload
       );
 
       // Trigger the success overlay animation instead of instant redirect
