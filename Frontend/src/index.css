@@ -335,6 +335,13 @@
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.08),
             0 18px 60px rgba(0, 0, 0, 0.38);
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox */
+    }
+
+    .member-sidebar-shell::-webkit-scrollbar {
+        display: none; /* Safari and Chrome */
     }
 
     .member-sidebar-link {
@@ -342,8 +349,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 3.35rem;
-        height: 3.35rem;
+        width: 2.75rem;
+        height: 2.75rem;
         border-radius: 999px;
         color: rgba(245, 238, 252, 0.7);
         background: rgba(255, 255, 255, 0.04);

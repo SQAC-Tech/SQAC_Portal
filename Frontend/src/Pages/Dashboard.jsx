@@ -1,39 +1,97 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-const quickLinks = [
-  {
-    to: '/admin/mom/create',
-    label: 'Create MOM',
-    sub: 'Minutes of Meeting Generator',
-    icon: '📝',
-    gradient: 'from-[#f183ff] to-[#ff6c95]',
-    border: 'border-[#f183ff]/20',
-    glow: 'hover:shadow-[0_0_30px_rgba(241,131,255,0.15)]',
-  },
-  {
-    to: '/admin/mom/list',
-    label: 'MOM History',
-    sub: 'Browse past meetings',
-    icon: '📋',
-    gradient: 'from-[#81ecff] to-[#f183ff]',
-    border: 'border-[#81ecff]/20',
-    glow: 'hover:shadow-[0_0_30px_rgba(129,236,255,0.15)]',
-  },
-  {
-    to: '/dashboard/certificates',
-    label: 'Certificate Generator',
-    sub: 'Issue & manage certificates',
-    icon: '🏆',
-    gradient: 'from-[#ff6c95] to-[#f183ff]',
-    border: 'border-[#ff6c95]/20',
-    glow: 'hover:shadow-[0_0_30px_rgba(255,108,149,0.15)]',
-  },
-];
+import Navbar from '../components/common/layout/Navbar';
+import AdminSidebar from '../components/admin/AdminSidebar';
 
 export default function Dashboard() {
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        setCurrentUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+  };
+
+  const role = currentUser?.role || "user";
+  const isAdmin = role === "admin" || role === "subadmin" || role === "lead";
+
+  const adminLinks = [
+    {
+      to: '/admin/mom/create',
+      label: 'Create MOM',
+      sub: 'Minutes of Meeting Generator',
+      icon: '📝',
+      gradient: 'from-[#f183ff] to-[#ff6c95]',
+      border: 'border-[#f183ff]/20',
+      glow: 'hover:shadow-[0_0_30px_rgba(241,131,255,0.15)]',
+    },
+    {
+      to: '/admin/mom/list',
+      label: 'MOM History',
+      sub: 'Browse past meetings',
+      icon: '📋',
+      gradient: 'from-[#81ecff] to-[#f183ff]',
+      border: 'border-[#81ecff]/20',
+      glow: 'hover:shadow-[0_0_30px_rgba(129,236,255,0.15)]',
+    },
+    {
+      to: '/dashboard/certificates',
+      label: 'Certificate Generator',
+      sub: 'Issue & manage certificates',
+      icon: '🏆',
+      gradient: 'from-[#ff6c95] to-[#f183ff]',
+      border: 'border-[#ff6c95]/20',
+      glow: 'hover:shadow-[0_0_30px_rgba(255,108,149,0.15)]',
+    },
+  ];
+
+  const userLinks = [
+    {
+      to: '/user/profile',
+      label: 'Profile Update',
+      sub: 'Manage personal details',
+      icon: '👤',
+      gradient: 'from-[#81ecff] to-[#f183ff]',
+      border: 'border-[#81ecff]/20',
+      glow: 'hover:shadow-[0_0_30px_rgba(129,236,255,0.15)]',
+    },
+    {
+      to: '/admin/notice',
+      label: 'Noticeboard',
+      sub: 'View announcements',
+      icon: '📢',
+      gradient: 'from-[#f183ff] to-[#ff6c95]',
+      border: 'border-[#f183ff]/20',
+      glow: 'hover:shadow-[0_0_30px_rgba(241,131,255,0.15)]',
+    },
+    {
+      to: '/meet',
+      label: 'Meeting Schedule',
+      sub: 'View and join meetings',
+      icon: '📅',
+      gradient: 'from-[#ff6c95] to-[#f183ff]',
+      border: 'border-[#ff6c95]/20',
+      glow: 'hover:shadow-[0_0_30px_rgba(255,108,149,0.15)]',
+    },
+  ];
+
+  const displayLinks = isAdmin ? adminLinks : userLinks;
+
   return (
-    <div className="min-h-screen bg-[#0f0d16] text-slate-200 flex flex-col items-center justify-center p-8 font-body relative overflow-hidden">
+    <div className="min-h-screen bg-[#0f0d16] text-slate-200 flex flex-col items-center justify-center p-8 font-body relative overflow-hidden pt-16 lg:pl-24">
+      <Navbar />
+      <AdminSidebar onLogout={handleLogout} />
+      
       {/* Background glow orbs */}
       <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#f183ff]/5 blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full bg-[#81ecff]/5 blur-3xl pointer-events-none" />
@@ -47,12 +105,12 @@ export default function Dashboard() {
             SQAC Portal
           </h1>
           <p className="text-[#aea9b6] text-lg max-w-md mx-auto">
-            We're building something amazing. Access features below while we get everything ready.
+            {isAdmin ? "We're building something amazing. Access features below while we get everything ready." : "Welcome to your user dashboard. Access your key features below."}
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {quickLinks.map((link) => (
+          {displayLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}

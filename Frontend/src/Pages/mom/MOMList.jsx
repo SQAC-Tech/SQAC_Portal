@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { exportMOMtoPDF, loadLogoBase64 } from "../../utils/momPdfExport";
+import Navbar from "../../components/common/layout/Navbar";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -100,9 +101,10 @@ export default function MOMList() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0d16] text-[#f5eefc]">
+    <div className="min-h-screen bg-[#0f0d16] text-[#f5eefc] pt-16">
+      <Navbar />
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-[#0f0d16]/90 backdrop-blur-md border-b border-[#494651]/40 px-6 py-4">
+      <div className="sticky top-16 z-40 bg-[#0f0d16]/90 backdrop-blur-md border-b border-[#494651]/40 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button

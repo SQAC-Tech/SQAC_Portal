@@ -60,10 +60,7 @@ const userSchema = new mongoose.Schema(
         enum:['user','admin','subadmin','lead'],
         default:'user'
     },
-    attendance:{
-        type:Number,
-        default:0
-    },
+
     approved:{
         type:Boolean,
         default:false

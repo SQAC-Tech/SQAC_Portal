@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { exportMOMtoPDF, loadLogoBase64 } from "../../utils/momPdfExport";
+import Navbar from "../../components/common/layout/Navbar";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -322,9 +323,10 @@ export default function MOMGenerator() {
 
   /* ─────────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-[#0f0d16] text-[#f5eefc] font-sans">
+    <div className="min-h-screen bg-[#0f0d16] text-[#f5eefc] font-sans pt-16">
+      <Navbar />
       {/* Top bar */}
-      <div className="sticky top-0 z-50 bg-[#0f0d16]/90 backdrop-blur-md border-b border-[#494651]/40 px-6 py-4 flex items-center justify-between">
+      <div className="sticky top-16 z-50 bg-[#0f0d16]/90 backdrop-blur-md border-b border-[#494651]/40 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f183ff] to-[#ff6c95] flex items-center justify-center text-white font-bold text-sm">
             M

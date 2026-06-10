@@ -1,11 +1,7 @@
-/**
- * AdminMOMList.jsx
- * Admin-layout wrapper for MOM History — adds AdminSidebar and
- * matches the admin section's visual style.
- */
 import React from "react";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import MOMList from "../mom/MOMList";
+import Navbar from "../../components/common/layout/Navbar";
 
 const AdminMOMList = () => {
   const handleLogout = async () => {
@@ -23,7 +19,8 @@ const AdminMOMList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070910] text-[#f5eefc] relative overflow-hidden">
+    <div className="min-h-screen bg-[#070910] text-[#f5eefc] relative overflow-hidden pt-16">
+      <Navbar />
       {/* Background — matches admin aesthetic */}
       <div className="pointer-events-none fixed inset-0 -z-40 bg-[radial-gradient(circle_at_top_left,rgba(241,131,255,0.18),transparent_30%),radial-gradient(circle_at_top_right,rgba(129,236,255,0.14),transparent_28%),linear-gradient(180deg,#070910_0%,#0b1020_44%,#070910_100%)]" />
       <div className="bg-grid pointer-events-none fixed inset-0 -z-30 opacity-70" />

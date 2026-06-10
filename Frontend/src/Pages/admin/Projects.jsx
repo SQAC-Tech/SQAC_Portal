@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import Navbar from "../../components/common/layout/Navbar";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -149,7 +150,8 @@ const Projects = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070910] text-[#f5eefc] overflow-hidden relative">
+    <div className="min-h-screen bg-[#070910] text-[#f5eefc] overflow-hidden relative pt-16">
+      <Navbar />
       <div className="pointer-events-none fixed inset-0 -z-40 bg-[radial-gradient(circle_at_top_left,rgba(241,131,255,0.18),transparent_30%),radial-gradient(circle_at_top_right,rgba(129,236,255,0.14),transparent_28%),linear-gradient(180deg,#070910_0%,#0b1020_44%,#070910_100%)]" />
       <div className="pointer-events-none fixed inset-0 -z-30 opacity-70 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
 
@@ -158,7 +160,7 @@ const Projects = () => {
         window.location.href = "/login";
       }} />
 
-      <header className="sticky top-0 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl">
+      <header className="sticky top-16 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-6 px-5 py-4 md:px-8 lg:pl-28">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">Project Database</p>

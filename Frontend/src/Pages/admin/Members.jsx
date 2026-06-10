@@ -2,26 +2,19 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import MemberCard from "../../components/admin/MemberCard";
 import MemberEditModal from "../../components/admin/MemberEditModal";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import Navbar from "../../components/common/layout/Navbar";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-const STATUS_FILTERS = {
-  all: "all",
-  approved: "approved",
-  pending: "pending",
-};
 
 const Members = () => {
   const [members, setMembers] = useState([]);
-  const [pendingMembers, setPendingMembers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState(STATUS_FILTERS.all);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
   const [editForm, setEditForm] = useState({ role: "user", position: "" });
   const [savingEdit, setSavingEdit] = useState(false);
-  const [statusUpdatingId, setStatusUpdatingId] = useState("");
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: "", type: "info" });
 
@@ -44,29 +37,17 @@ const Members = () => {
     setError("");
 
     try {
-      const [membersResponse, pendingResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/admin/members`, {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }),
-        fetch(`${API_BASE_URL}/admin/pending`, {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }),
-      ]);
+      const response = await fetch(`${API_BASE_URL}/admin/members`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-      const [membersData, pendingData] = await Promise.all([
-        membersResponse.json().catch(() => null),
-        pendingResponse.json().catch(() => null),
-      ]);
+      const membersData = await response.json().catch(() => null);
 
-      if (!membersResponse.ok) {
+      if (!response.ok) {
         throw new Error(
           membersData?.message ||
             membersData?.error ||
@@ -74,23 +55,13 @@ const Members = () => {
         );
       }
 
-      if (!pendingResponse.ok) {
-        throw new Error(
-          pendingData?.message ||
-            pendingData?.error ||
-            "Unable to fetch pending members.",
-        );
-      }
-
       setMembers(Array.isArray(membersData) ? membersData : []);
-      setPendingMembers(Array.isArray(pendingData) ? pendingData : []);
     } catch (fetchError) {
       setError(
         fetchError.message ||
           "Unable to load members right now. Please try again.",
       );
       setMembers([]);
-      setPendingMembers([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -330,86 +301,12 @@ const Members = () => {
     }
   };
 
-  const handleStatusChangeWrapper = (member, nextStatus) => {
-    const actionLabel = nextStatus ? "approve" : "reject";
-    setConfirmModal({
-      isOpen: true,
-      message: `${actionLabel.charAt(0).toUpperCase() + actionLabel.slice(1)} ${member.name}?`,
-      onConfirm: async () => {
-        setConfirmModal({ isOpen: false, message: "", onConfirm: null });
-        await handleStatusChange(member, nextStatus);
-      }
-    });
-  };
-
-  const handleStatusChange = async (member, nextStatus) => {
-    if (!member?._id) return;
-    setStatusUpdatingId(member._id);
-
-    try {
-      const endpoint = nextStatus
-        ? `${API_BASE_URL}/admin/approve/${member._id}`
-        : `${API_BASE_URL}/admin/reject/${member._id}`;
-      const response = await fetch(endpoint, {
-        method: "POST",
-        credentials: "include",
-      });
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        throw new Error(
-          data?.message || data?.error || "Unable to update member status.",
-        );
-      }
-
-      setMembers((currentMembers) =>
-        nextStatus
-          ? currentMembers.map((currentMember) =>
-              currentMember._id === member._id
-                ? { ...currentMember, approved: true }
-                : currentMember,
-            )
-          : currentMembers.filter(
-              (currentMember) => currentMember._id !== member._id,
-            ),
-      );
-
-      if (nextStatus) {
-        setPendingMembers((currentMembers) =>
-          currentMembers.filter(
-            (currentMember) => currentMember._id !== member._id,
-          ),
-        );
-      } else {
-        setPendingMembers((currentMembers) =>
-          currentMembers.filter(
-            (currentMember) => currentMember._id !== member._id,
-          ),
-        );
-      }
-    } catch (statusError) {
-      showAlert(
-        statusError.message ||
-          "Failed to change member status. Please try again.",
-        "error"
-      );
-    } finally {
-      setStatusUpdatingId("");
-    }
-  };
-
   const filteredMembers = useMemo(() => {
-    const sourceMembers =
-      statusFilter === STATUS_FILTERS.pending
-        ? pendingMembers
-        : statusFilter === STATUS_FILTERS.approved
-          ? members.filter((member) => member.approved)
-          : members;
     const query = searchTerm.trim().toLowerCase();
 
-    if (!query) return sourceMembers;
+    if (!query) return members;
 
-    return sourceMembers.filter((member) =>
+    return members.filter((member) =>
       [
         member.name,
         member.email,
@@ -422,11 +319,9 @@ const Members = () => {
         .filter(Boolean)
         .some((value) => value.toLowerCase().includes(query)),
     );
-  }, [members, pendingMembers, searchTerm, statusFilter]);
+  }, [members, searchTerm]);
 
   const stats = useMemo(() => {
-    const approvedMembers = members.filter((member) => member.approved).length;
-    const pendingMembers = members.length - approvedMembers;
     const domainCount = new Set(
       members.map((member) => member.coreDomain).filter(Boolean),
     ).size;
@@ -436,8 +331,6 @@ const Members = () => {
 
     return {
       total: members.length,
-      approved: approvedMembers,
-      pending: pendingMembers,
       domains: domainCount,
       leads: leadCount,
     };
@@ -446,10 +339,11 @@ const Members = () => {
   return (
     <div
       ref={sceneRef}
-      className="member-directory-page interactive-login-scene min-h-screen overflow-hidden bg-[#070910] text-[#f5eefc] selection:bg-primary/30 selection:text-black"
+      className="member-directory-page interactive-login-scene min-h-screen overflow-hidden bg-[#070910] text-[#f5eefc] selection:bg-primary/30 selection:text-black pt-16"
       onPointerLeave={handlePointerLeave}
       onPointerMove={handlePointerMove}
     >
+      <Navbar />
       <div className="pointer-events-none fixed inset-0 -z-40 bg-[radial-gradient(circle_at_top_left,rgba(241,131,255,0.18),transparent_30%),radial-gradient(circle_at_top_right,rgba(129,236,255,0.14),transparent_28%),linear-gradient(180deg,#070910_0%,#0b1020_44%,#070910_100%)]" />
       <div className="bg-grid pointer-events-none fixed inset-0 -z-30 opacity-70" />
       <div className="member-orb member-orb-a fixed -left-24 top-10 -z-20 h-72 w-72 rounded-full bg-primary/20 blur-[120px]" />
@@ -460,7 +354,7 @@ const Members = () => {
 
       <AdminSidebar onLogout={handleLogout} />
 
-      <header className="sticky top-0 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl">
+      <header className="sticky top-16 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-6 px-5 py-4 md:px-8 lg:pl-28">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">
@@ -525,49 +419,13 @@ const Members = () => {
               Member IDs
             </h3>
             <p className="mt-1 text-sm text-white/55">
-              Showing {filteredMembers.length} of{" "}
-              {statusFilter === STATUS_FILTERS.pending
-                ? pendingMembers.length
-                : members.length}{" "}
-              members
+              Showing {filteredMembers.length} of {members.length} members
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex flex-wrap items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1">
-              <button
-                className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition-colors ${
-                  statusFilter === STATUS_FILTERS.all
-                    ? "bg-white text-black"
-                    : "text-white/65 hover:text-white"
-                }`}
-                onClick={() => setStatusFilter(STATUS_FILTERS.all)}
-                type="button"
-              >
-                All {stats.total}
-              </button>
-              <button
-                className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition-colors ${
-                  statusFilter === STATUS_FILTERS.approved
-                    ? "bg-emerald-200 text-black"
-                    : "text-white/65 hover:text-white"
-                }`}
-                onClick={() => setStatusFilter(STATUS_FILTERS.approved)}
-                type="button"
-              >
-                Approved {stats.approved}
-              </button>
-              <button
-                className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition-colors ${
-                  statusFilter === STATUS_FILTERS.pending
-                    ? "bg-amber-200 text-black"
-                    : "text-white/65 hover:text-white"
-                }`}
-                onClick={() => setStatusFilter(STATUS_FILTERS.pending)}
-                type="button"
-              >
-                Pending {stats.pending}
-              </button>
+            <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/60">
+              Total Members: {stats.total}
             </div>
             <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/60">
               Leads / positions: {stats.leads}
@@ -622,21 +480,14 @@ const Members = () => {
         ) : null}
 
         {!loading && !error && filteredMembers.length > 0 ? (
-          <section className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <section className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredMembers.map((member, index) => (
               <MemberCard
                 index={index}
                 key={member._id || `${member.email}-${index}`}
                 member={member}
-                onApprove={(currentMember) =>
-                  handleStatusChangeWrapper(currentMember, true)
-                }
                 onDelete={deleteMemberWrapper}
                 onEdit={handleOpenEdit}
-                onReject={(currentMember) =>
-                  handleStatusChangeWrapper(currentMember, false)
-                }
-                statusUpdating={statusUpdatingId === member._id}
               />
             ))}
           </section>
@@ -651,6 +502,30 @@ const Members = () => {
         onSave={handleSaveEdit}
         savingEdit={savingEdit}
       />
+
+      {/* Generic Confirmation Modal */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0c0a15] p-6 shadow-2xl">
+            <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">Confirm Action</h3>
+            <p className="text-white/60 text-sm mb-6">{confirmModal.message}</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: null })}
+                className="px-4 py-2 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => confirmModal.onConfirm && confirmModal.onConfirm()}
+                className="px-4 py-2 rounded-xl bg-red-500/20 text-red-500 font-bold hover:bg-red-500/30 transition-colors"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

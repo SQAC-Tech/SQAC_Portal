@@ -106,6 +106,12 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    const debugInfo = { email: user.email, approved: user.approved, isFalse: user.approved === false };
+
+    if (user.approved === false || user.approved === undefined || !user.approved) {
+      return res.status(403).json({ error: "Your account is pending approval by an admin.", debugInfo });
+    }
+
     const token = generateToken(user._id);
 
     res.cookie("session", token, {
@@ -117,6 +123,7 @@ const loginUser = async (req, res) => {
 
     res.json({
       message: "Login successful",
+      debugInfo,
       user: {
         id: user._id,
         name: user.name,
