@@ -8,7 +8,7 @@ import RightPanel from "../../components/common/layout/RightPanel";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import { fetchWithAuth } from "../../api/fetchWithAuth";
 
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function Notice() {
     const [notices, setNotices] = useState([]);

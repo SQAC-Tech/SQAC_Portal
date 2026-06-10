@@ -339,7 +339,7 @@ export default function OnboardingPage() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/user/create",
+        `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/user/create`,
         payload, { withCredentials: true }
       );
 
