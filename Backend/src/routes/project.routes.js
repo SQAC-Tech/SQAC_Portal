@@ -20,6 +20,7 @@ import {
   postThreadMessage,
   completeProject,
 } from "../controllers/project.controller.js";
+import { requireRole } from "../middleware/role.middleware.js";
 
 const router = Router();
 
@@ -29,23 +30,23 @@ router.get("/stats", getDashboardStats);
 // Member Profiles
 router.get("/members", getAllProfiles);
 router.get("/members/status/:status", getMembersByStatus);
-router.put("/members/:id/status", updateMemberStatus);
-router.put("/members/:id/skills", updateMemberSkills);
+router.put("/members/:id/status", requireRole("admin", "subadmin"), updateMemberStatus);
+router.put("/members/:id/skills", requireRole("admin", "subadmin"), updateMemberSkills);
 router.get("/members/email/:email", getProfileByEmail);
-router.post("/members/upsert", upsertProfile);
+router.post("/members/upsert", requireRole("admin", "subadmin"), upsertProfile);
 
 // Projects CRUD
-router.post("/", createProject);
+router.post("/", requireRole("admin", "subadmin"), createProject);
 router.get("/", getAllProjects);
 router.get("/my-projects", getMyProjects);
 router.get("/:id", getProjectById);
-router.put("/:id", updateProject);
-router.put("/:id/complete", completeProject);
-router.delete("/:id", deleteProject);
+router.put("/:id", requireRole("admin", "subadmin"), updateProject);
+router.put("/:id/complete", requireRole("admin", "subadmin"), completeProject);
+router.delete("/:id", requireRole("admin", "subadmin"), deleteProject);
 
 // Recommendation Engine
-router.post("/:projectId/recommend", recommendTeam);
-router.post("/:id/unassign", unassignTeam);
+router.post("/:projectId/recommend", requireRole("admin", "subadmin"), recommendTeam);
+router.post("/:id/unassign", requireRole("admin", "subadmin"), unassignTeam);
 
 // Submissions & Threads
 router.post("/:id/submissions", addSubmission);

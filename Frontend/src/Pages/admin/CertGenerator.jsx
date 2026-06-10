@@ -4,6 +4,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import QRCode from "qrcode";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import Navbar from "../../components/common/layout/Navbar";
 
 export default function CertGenerator() {
   const [templateImage, setTemplateImage] = useState(null);
@@ -327,8 +328,9 @@ export default function CertGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0d16] text-slate-200 p-8 font-body">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-[#0f0d16] text-slate-200 p-8 font-body pt-16 flex flex-col">
+      <Navbar />
+      <div className="max-w-7xl w-full mx-auto lg:pl-24">
         <h1 className="text-4xl font-headline font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#f183ff] to-[#ff6c95] mb-8">
           Certificate Generator Canvas
         </h1>

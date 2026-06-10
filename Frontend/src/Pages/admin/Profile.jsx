@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import SkillsEditorModal from "../../components/admin/SkillsEditorModal";
+import Navbar from "../../components/common/layout/Navbar";
 import {
   DEFAULT_AVATAR,
   formatDate,
@@ -357,10 +358,11 @@ const Profile = () => {
   return (
     <div
       ref={sceneRef}
-      className="member-directory-page interactive-login-scene min-h-screen overflow-hidden bg-[#070910] text-[#f5eefc] selection:bg-primary/30 selection:text-black"
+      className="member-directory-page interactive-login-scene min-h-screen overflow-hidden bg-[#070910] text-[#f5eefc] selection:bg-primary/30 selection:text-black pt-16"
       onPointerLeave={handlePointerLeave}
       onPointerMove={handlePointerMove}
     >
+      <Navbar />
       <div className="pointer-events-none fixed inset-0 -z-40 bg-[radial-gradient(circle_at_top_left,rgba(241,131,255,0.18),transparent_30%),radial-gradient(circle_at_top_right,rgba(129,236,255,0.14),transparent_28%),linear-gradient(180deg,#070910_0%,#0b1020_44%,#070910_100%)]" />
       <div className="bg-grid pointer-events-none fixed inset-0 -z-30 opacity-70" />
       <div className="member-orb member-orb-a fixed -left-24 top-10 -z-20 h-72 w-72 rounded-full bg-primary/20 blur-[120px]" />
@@ -371,7 +373,7 @@ const Profile = () => {
 
       <AdminSidebar onLogout={handleLogout} />
 
-      <header className="sticky top-0 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl">
+      <header className="sticky top-16 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-6 px-5 py-4 md:px-8 lg:pl-28">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">

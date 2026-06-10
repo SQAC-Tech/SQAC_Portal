@@ -53,6 +53,9 @@ import AdminMOMGenerator from "./Pages/admin/AdminMOMGenerator";
 import AdminMOMList from "./Pages/admin/AdminMOMList";
 
 import Dashboard from "./Pages/Dashboard";
+import Meet from "./Pages/Meet";
+import AttendancePage from "./Pages/admin/Attendance";
+import { ProtectedRoute, AdminRoute } from "./components/common/guards/AuthGuards";
 
 function App() {
   return (
@@ -61,25 +64,31 @@ function App() {
     <Routes>
       <Route path="/onboarding" element={<OnboardingPage />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/admin/members" element={<Members />} />
-      <Route path="/admin/projects" element={<Projects />} />
-      <Route path="/user/projects" element={<MyProjects />} />
-      <Route path="/user/profile" element={<Profile />} />
+      
+      {/* Admin Deck Routes (Admin / Subadmin / Lead only) */}
+      <Route path="/admin/members" element={<AdminRoute><Members /></AdminRoute>} />
+      <Route path="/admin/projects" element={<AdminRoute><Projects /></AdminRoute>} />
+      <Route path="/admin/attendance" element={<AdminRoute><AttendancePage /></AdminRoute>} />
+      <Route path="/admin/notice" element={<ProtectedRoute><Notice /></ProtectedRoute>} />
+      <Route path="/dashboard/certificates" element={<AdminRoute><CertGenerator /></AdminRoute>} />
+      <Route path="/admin/mom/create" element={<AdminRoute><AdminMOMGenerator /></AdminRoute>} />
+      <Route path="/admin/mom/list" element={<AdminRoute><AdminMOMList /></AdminRoute>} />
+
+      {/* Protected General Routes (Any Logged In User) */}
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/user/projects" element={<ProtectedRoute><MyProjects /></ProtectedRoute>} />
+      <Route path="/user/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/meet" element={<ProtectedRoute><Meet /></ProtectedRoute>} />
+      
+      {/* MOM Standalone Routes (Any Logged In User) */}
+      <Route path="/mom/create" element={<ProtectedRoute><MOMGenerator /></ProtectedRoute>} />
+      <Route path="/mom/list" element={<ProtectedRoute><MOMList /></ProtectedRoute>} />
+
+      {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/dashboard/certificates" element={<CertGenerator />} />
       <Route path="/verify/:credentialId" element={<Verify />} />
-      <Route path='/admin/notice' element={<Notice />} />
 
-      {/* MOM — admin routes (with sidebar) */}
-      <Route path="/admin/mom/create" element={<AdminMOMGenerator />} />
-      <Route path="/admin/mom/list" element={<AdminMOMList />} />
-
-      {/* MOM — standalone routes (no sidebar, accessible to all logged-in users) */}
-      <Route path="/mom/create" element={<MOMGenerator />} />
-      <Route path="/mom/list" element={<MOMList />} />
-
-      {/* Redirect all other routes to login for now */}
+      {/* Redirect all other routes to login */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
     </>

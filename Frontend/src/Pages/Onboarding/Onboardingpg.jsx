@@ -168,6 +168,55 @@ export default function OnboardingPage() {
     const next = direction === "next" ? step + 1 : step - 1;
     if (next < 0 || next >= steps.length) return;
 
+    if (direction === "next") {
+      if (step === 0) {
+        if (!formData.name.trim()) {
+          toast.error("Full Name is required.");
+          return;
+        }
+        if (!formData.regno.trim()) {
+          toast.error("Register Number is required.");
+          return;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
+          toast.error("Please enter a valid Email address.");
+          return;
+        }
+        const phoneRegex = /^\+?[0-9]{10,15}$/;
+        if (!formData.phone.trim() || !phoneRegex.test(formData.phone.trim().replace(/[\s-]/g, ""))) {
+          toast.error("Please enter a valid Phone Number (10 to 15 digits).");
+          return;
+        }
+        if (formData.password.length < 8) {
+          toast.error("Password must be at least 8 characters long.");
+          return;
+        }
+      } else if (step === 1) {
+        if (!formData.coreDomain) {
+          toast.error("Core Domain is required.");
+          return;
+        }
+        if (!formData.subDomain) {
+          toast.error("Sub Domain is required.");
+          return;
+        }
+        if (!formData.position) {
+          toast.error("Position is required.");
+          return;
+        }
+      } else if (step === 2) {
+        if (!formData.linkedin.trim() || !formData.linkedin.includes("linkedin.com")) {
+          toast.error("A valid LinkedIn profile URL is required.");
+          return;
+        }
+        if (!formData.github.trim() || !formData.github.includes("github.com")) {
+          toast.error("A valid GitHub profile URL is required.");
+          return;
+        }
+      }
+    }
+
     pendingStepRef.current = next;
     setFlipDir(direction === "next" ? 1 : -1);
     setFlipPhase("out"); // starts the flip-out transition
@@ -263,9 +312,8 @@ export default function OnboardingPage() {
   const submitForm = async () => {
     if (isSubmitting) return;
 
-    // Check basic validation fields locally first to avoid unnecessary API calls
-    if (!formData.name || !formData.regno || !formData.email || !formData.phone || !formData.password || !formData.coreDomain) {
-      toast.error("Please fill in all required fields marked with *");
+    if (!formData.address.trim()) {
+      toast.error("Address is required.");
       return;
     }
 

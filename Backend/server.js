@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import connectDB from "./src/lib/db.js";
+import { requireRole } from "./src/middleware/role.middleware.js";
 
 // Controllers
 import {
@@ -40,6 +41,12 @@ import {
   editMeet,
   deleteMeet,
   getMeet,
+  addAttendance,
+  getAttendance,
+  getALlAttendace,
+  editAttendance,
+  getAttendanceByDomain,
+  getAttendanceByDomainSubdomain
 } from "./src/controllers/admin.controller.js";
 
 import certificateRoutes from "./src/routes/certificate.routes.js";
@@ -95,8 +102,8 @@ app.get("/admin/pending", getpendingmembers);
 
 //Meetings
 app.post("/meet/create", createMeet);
-app.put("/meet/edit", editMeet);
-app.delete("/meet/delete", deleteMeet);
+app.put("/meet/edit/:id", editMeet);
+app.delete("/meet/delete/:id", deleteMeet);
 app.get("/meet/getmeet", getMeet);
 
 // Notices
@@ -110,6 +117,14 @@ app.use("/api/projects", projectRoutes);
 
 // Minutes of Meeting (MOM)
 app.use("/api/mom", momRoutes);
+
+//Attendance
+app.post("/attendance/add", requireRole("admin", "subadmin", "lead"), addAttendance);
+app.get("/attendance/user/:userID", requireRole("admin", "subadmin", "lead", "user"), getAttendance);
+app.get("/attendance/all", requireRole("admin", "subadmin", "lead"), getALlAttendace);
+app.put("/attendance/edit/:id", requireRole("admin", "subadmin", "lead"), editAttendance);
+app.get("/attendance/domain", requireRole("admin", "subadmin", "lead"), getAttendanceByDomain);
+app.get("/attendance/by-domain-subdomain", requireRole("admin", "subadmin", "lead"), getAttendanceByDomainSubdomain);
 
 // Database Connection and Server Start
 const PORT = process.env.PORT || 3000;
