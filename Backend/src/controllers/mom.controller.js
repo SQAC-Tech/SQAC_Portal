@@ -33,6 +33,12 @@ export const createMOM = async (req, res) => {
       return res.status(400).json({ message: "Title and date are required." });
     }
 
+    const toValidDate = (val) => {
+      if (!val) return null;
+      const d = new Date(val);
+      return isNaN(d.getTime()) ? null : d;
+    };
+
     const mom = new MOM({
       title,
       description: description || "",
@@ -44,8 +50,8 @@ export const createMOM = async (req, res) => {
       teamScope: teamScope || "all",
       discussedPoints: discussedPoints || [],
       decisions: decisions || [],
-      actionItems: actionItems || [],
-      nextMeetDate: nextMeetDate || null,
+      actionItems: (actionItems || []).map((a) => ({ ...a, dueDate: toValidDate(a.dueDate) })),
+      nextMeetDate: toValidDate(nextMeetDate),
       nextMeetAgenda: nextMeetAgenda || "",
       aiGenerated: aiGenerated || false,
       rawPrompt: rawPrompt || "",
@@ -59,26 +65,25 @@ export const createMOM = async (req, res) => {
       await Meeting.findByIdAndUpdate(meetingRef, { momRef: mom._id, status: "completed" });
     }
 
-    // Fire-and-forget: email all attendees the published MOM
+    // Fire-and-forget: email creator + all attendees the published MOM
     (async () => {
       try {
-        const attendeeUserIds = (attendees || [])
-          .map((a) => a.userId)
-          .filter(Boolean);
+        const portalLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/mom/list`;
 
-        if (attendeeUserIds.length > 0) {
-          const users = await User.find({ _id: { $in: attendeeUserIds } }, "email name").lean();
-          const portalLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/mom/list`;
-          await Promise.allSettled(
-            users.map((u) =>
-              sendMail({
-                to: u.email,
-                subject: `SQAC Portal — MOM Published: ${title}`,
-                html: momCreatedEmail(mom, u.name, portalLink),
-              })
-            )
-          );
-        }
+        // Collect unique user IDs: attendees + the creator
+        const attendeeUserIds = (attendees || []).map((a) => a.userId).filter(Boolean);
+        const allUserIds = [...new Set([...attendeeUserIds, req.user._id.toString()])];
+
+        const users = await User.find({ _id: { $in: allUserIds } }, "email name").lean();
+        await Promise.allSettled(
+          users.map((u) =>
+            sendMail({
+              to: u.email,
+              subject: `SQAC Portal — MOM Published: ${title}`,
+              html: momCreatedEmail(mom, u.name, portalLink),
+            })
+          )
+        );
       } catch (e) {
         console.error("MOM notification emails failed:", e);
       }
