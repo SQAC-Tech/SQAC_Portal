@@ -2,10 +2,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { toast } from "react-hot-toast";
 import Navbar from "../../components/common/layout/Navbar";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import { usePermissions } from "../../utils/usePermissions";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function AttendancePage() {
+  const { canManageAttendance } = usePermissions();
   const [attendanceList, setAttendanceList] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -213,7 +215,9 @@ export default function AttendancePage() {
           </div>
           <button
             onClick={openNewModal}
-            className="bg-gradient-to-r from-primary to-secondary text-black font-headline font-bold px-6 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(241,131,255,0.25)] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
+            disabled={!canManageAttendance}
+            title={!canManageAttendance ? "You don't have permission to mark attendance" : undefined}
+            className="bg-gradient-to-r from-primary to-secondary text-black font-headline font-bold px-6 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(241,131,255,0.25)] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
           >
             <span className="material-symbols-outlined text-lg font-bold">add</span>
             Mark Attendance
@@ -387,8 +391,9 @@ export default function AttendancePage() {
                         <td className="px-6 py-4 text-center">
                           <button
                             onClick={() => openEditModal(record)}
-                            className="p-1.5 rounded-lg border border-white/10 hover:border-primary/40 text-[#aea9b6] hover:text-primary transition-colors flex items-center justify-center mx-auto"
-                            title="Edit Record"
+                            disabled={!canManageAttendance}
+                            className="p-1.5 rounded-lg border border-white/10 hover:border-primary/40 text-[#aea9b6] hover:text-primary transition-colors flex items-center justify-center mx-auto disabled:opacity-30 disabled:cursor-not-allowed"
+                            title={!canManageAttendance ? "You don't have permission to edit attendance" : "Edit Record"}
                           >
                             <span className="material-symbols-outlined text-lg">edit</span>
                           </button>

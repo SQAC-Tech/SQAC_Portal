@@ -16,6 +16,12 @@ export const navItems = [
     href: "/dashboard/certificates",
   },
   {
+    icon: "pending_actions",
+    label: "Approvals",
+    href: "/admin/approvals",
+    secretaryOnly: true,
+  },
+  {
     icon: "description",
     label: "Create MOM",
     href: "/admin/mom/create",
@@ -28,7 +34,16 @@ export const navItems = [
 ];
 
 
-export const editableRoles = ["user", "lead", "subadmin", "admin"];
+export const editableRoles = [
+  "member",
+  "associate_lead",
+  "domain_lead",
+  "corp_lead",
+  "project_lead",
+  "technical_lead",
+  "joint_secretary",
+  "secretary",
+];
 
 export const formatDate = (value) => {
   if (!value) return "Recently joined";
@@ -51,11 +66,17 @@ export const initialsFromName = (name = "") =>
     .map((part) => part[0]?.toUpperCase() || "")
     .join("") || "SQ";
 
-export const roleLabel = (member) => {
-  if (member.role === "admin") return "Administrator";
-  if (member.role === "subadmin") return "Sub Admin";
-  if (member.role === "lead") return "Domain Lead";
-  return "Member";
+const ROLE_LABELS = {
+  secretary:       "Secretary",
+  joint_secretary: "Joint Secretary",
+  technical_lead:  "Technical Lead",
+  project_lead:    "Project Lead",
+  corp_lead:       "Corporate Lead",
+  domain_lead:     "Domain Lead",
+  associate_lead:  "Associate Lead",
+  member:          "Member",
 };
+
+export const roleLabel = (member) => ROLE_LABELS[member.role] || "Member";
 
 export const buildMailLink = (email) => (email ? `mailto:${email}` : "#");

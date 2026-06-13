@@ -57,13 +57,33 @@ const userSchema = new mongoose.Schema(
     },
     role:{
         type:String,
-        enum:['user','admin','subadmin','lead'],
-        default:'user'
+        enum:['secretary','joint_secretary','technical_lead','project_lead','corp_lead','domain_lead','associate_lead','member'],
+        default:'member'
     },
 
     approved:{
         type:Boolean,
         default:false
+    },
+
+    isOnboarded:{
+        type:Boolean,
+        default:false
+    },
+
+    undertakingSigned:{
+        type:Boolean,
+        default:false
+    },
+
+    cocSigned:{
+        type:Boolean,
+        default:false
+    },
+
+    rejectionReason:{
+        type:String,
+        default:''
     }
   },
   { timestamps: true }

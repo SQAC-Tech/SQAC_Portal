@@ -1,29 +1,24 @@
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-dotenv.config();
-
-const mailUser = process.env.EMAIL_USER || process.env.USER_EMAIL;
-const mailPass = process.env.EMAIL_PASS || process.env.USER_PASS;
-console.log(process.env.USER_EMAIL);
-console.log(process.env.USER_PASS);
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT) || 465,
+  secure: parseInt(process.env.SMTP_PORT) == 465,
   auth: {
-    user: mailUser,
-    pass: mailPass,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
 
 const sendMail = async ({ to, subject, html }) => {
-  if (!mailUser || !mailPass) {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
     throw new Error(
-      "Email credentials are missing. Set EMAIL_USER/EMAIL_PASS or USER_EMAIL/USER_PASS.",
+      "SMTP credentials are missing. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in .env"
     );
   }
 
   await transporter.sendMail({
-    from: `"SQAC Portal Admin" <${mailUser}>`,
+    from: `"SQAC Portal" <${process.env.SMTP_USER}>`,
     to,
     subject,
     html,

@@ -2,6 +2,8 @@ import MOM from "../models/MOM.js";
 import Meeting from "../models/Meeting.js";
 import User from "../models/User.js";
 import { generateMOMFromPrompt } from "../lib/groq.js";
+import sendMail from "../lib/mailer.js";
+import { momCreatedEmail } from "../lib/email-templates.js";
 
 // ─── Helper: roles that can see all MOMs ─────────────────────────────────────
 const isPrivileged = (role) => ["admin", "subadmin", "lead"].includes(role);
@@ -56,6 +58,31 @@ export const createMOM = async (req, res) => {
     if (meetingRef) {
       await Meeting.findByIdAndUpdate(meetingRef, { momRef: mom._id, status: "completed" });
     }
+
+    // Fire-and-forget: email all attendees the published MOM
+    (async () => {
+      try {
+        const attendeeUserIds = (attendees || [])
+          .map((a) => a.userId)
+          .filter(Boolean);
+
+        if (attendeeUserIds.length > 0) {
+          const users = await User.find({ _id: { $in: attendeeUserIds } }, "email name").lean();
+          const portalLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/mom/list`;
+          await Promise.allSettled(
+            users.map((u) =>
+              sendMail({
+                to: u.email,
+                subject: `SQAC Portal — MOM Published: ${title}`,
+                html: momCreatedEmail(mom, u.name, portalLink),
+              })
+            )
+          );
+        }
+      } catch (e) {
+        console.error("MOM notification emails failed:", e);
+      }
+    })();
 
     res.status(201).json({ message: "MOM created successfully.", mom });
   } catch (error) {

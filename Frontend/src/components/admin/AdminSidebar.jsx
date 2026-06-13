@@ -2,6 +2,25 @@ import React, { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { navItems } from "../../utils/memberHelpers";
 
+// Roles that can access admin sections (everyone except member)
+const ROLES_WITH_ADMIN_ACCESS = [
+  "secretary",
+  "joint_secretary",
+  "technical_lead",
+  "project_lead",
+  "corp_lead",
+  "domain_lead",
+  "associate_lead",
+];
+
+const CERT_PERM_ROLES = [
+  "secretary",
+  "joint_secretary",
+  "technical_lead",
+  "project_lead",
+  "corp_lead",
+];
+
 const AdminSidebar = ({ onLogout }) => {
   const location = useLocation();
 
@@ -9,21 +28,17 @@ const AdminSidebar = ({ onLogout }) => {
     try {
       const userJson = localStorage.getItem("user");
       const user = userJson ? JSON.parse(userJson) : {};
-      const role = user.role || "user";
-      const isAdmin = role === "admin" || role === "subadmin" || role === "lead";
+      const role = user.role || "member";
+      const hasAdminAccess = ROLES_WITH_ADMIN_ACCESS.includes(role);
 
       return navItems.filter((item) => {
-        if (!isAdmin) {
-          const adminOnlyLabels = [
-            "Members",
-            "Attendance",
-            "Certificate Generator",
-            "Create MOM",
-            "MOM History",
-            "Projects",
-            "Chats",
-          ];
-          return !adminOnlyLabels.includes(item.label);
+        if (!hasAdminAccess) {
+          const memberOnlyLabels = ["Dashboard", "Profile", "Schedule", "Noticeboard"];
+          return memberOnlyLabels.includes(item.label);
+        }
+        if (item.secretaryOnly && role !== "secretary") return false;
+        if (item.label === "Certificate Generator" && !CERT_PERM_ROLES.includes(role)) {
+          return false;
         }
         return true;
       });
