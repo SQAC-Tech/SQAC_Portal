@@ -176,10 +176,6 @@ export const updateMOM = async (req, res) => {
 // ─── Delete MOM (admin only) ──────────────────────────────────────────────────
 export const deleteMOM = async (req, res) => {
   try {
-    if (!["admin", "subadmin"].includes(req.user.role)) {
-      return res.status(403).json({ message: "Not authorized." });
-    }
-
     const mom = await MOM.findByIdAndDelete(req.params.id);
     if (!mom) return res.status(404).json({ message: "MOM not found." });
 

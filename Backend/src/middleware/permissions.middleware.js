@@ -21,6 +21,7 @@ const PERMISSIONS = {
 
   // Everyone including member
   GENERATE_MOM:      ['secretary', 'joint_secretary', 'technical_lead', 'project_lead', 'corp_lead', 'domain_lead', 'associate_lead', 'member'],
+  DELETE_MOM:        ['secretary', 'joint_secretary'],
 
   // View members list — all except member
   VIEW_MEMBERS:      ['secretary', 'joint_secretary', 'technical_lead', 'project_lead', 'corp_lead', 'domain_lead', 'associate_lead'],
