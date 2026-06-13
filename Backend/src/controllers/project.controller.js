@@ -1,5 +1,7 @@
 import MemberProfile from "../models/MemberProfile.js";
 import Project from "../models/Project.js";
+import sendMail from "../lib/mailer.js";
+import { projectAssignedEmail } from "../lib/email-templates.js";
 
 // ─── GET ALL MEMBERS WITH PROFILES ─────────────────────────────────────────
 export const getAllProfiles = async (req, res) => {
@@ -288,6 +290,24 @@ export const recommendTeam = async (req, res) => {
     const updatedProject = await Project.findById(projectId)
       .populate("teamMembers.memberId", "fullName email domain webdevTier aimlTier webdevScore aimlScore")
       .populate("projectLead", "fullName email domain");
+
+    // Fire-and-forget: email each assigned member their project brief
+    (async () => {
+      try {
+        const portalLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/user/projects`;
+        await Promise.allSettled(
+          team.map((t) =>
+            sendMail({
+              to: t.member.email,
+              subject: `SQAC Portal — You've been assigned to "${project.title}"`,
+              html: projectAssignedEmail(t.member.fullName, project, t.role, portalLink),
+            })
+          )
+        );
+      } catch (e) {
+        console.error("Project assignment emails failed:", e);
+      }
+    })();
 
     res.json({
       message: "Team successfully assigned!",

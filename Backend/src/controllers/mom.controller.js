@@ -2,6 +2,8 @@ import MOM from "../models/MOM.js";
 import Meeting from "../models/Meeting.js";
 import User from "../models/User.js";
 import { generateMOMFromPrompt } from "../lib/groq.js";
+import sendMail from "../lib/mailer.js";
+import { momCreatedEmail } from "../lib/email-templates.js";
 
 // ─── Helper: roles that can see all MOMs ─────────────────────────────────────
 const isPrivileged = (role) => ["admin", "subadmin", "lead"].includes(role);
@@ -31,6 +33,12 @@ export const createMOM = async (req, res) => {
       return res.status(400).json({ message: "Title and date are required." });
     }
 
+    const toValidDate = (val) => {
+      if (!val) return null;
+      const d = new Date(val);
+      return isNaN(d.getTime()) ? null : d;
+    };
+
     const mom = new MOM({
       title,
       description: description || "",
@@ -42,8 +50,8 @@ export const createMOM = async (req, res) => {
       teamScope: teamScope || "all",
       discussedPoints: discussedPoints || [],
       decisions: decisions || [],
-      actionItems: actionItems || [],
-      nextMeetDate: nextMeetDate || null,
+      actionItems: (actionItems || []).map((a) => ({ ...a, dueDate: toValidDate(a.dueDate) })),
+      nextMeetDate: toValidDate(nextMeetDate),
       nextMeetAgenda: nextMeetAgenda || "",
       aiGenerated: aiGenerated || false,
       rawPrompt: rawPrompt || "",
@@ -56,6 +64,30 @@ export const createMOM = async (req, res) => {
     if (meetingRef) {
       await Meeting.findByIdAndUpdate(meetingRef, { momRef: mom._id, status: "completed" });
     }
+
+    // Fire-and-forget: email creator + all attendees the published MOM
+    (async () => {
+      try {
+        const portalLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/mom/list`;
+
+        // Collect unique user IDs: attendees + the creator
+        const attendeeUserIds = (attendees || []).map((a) => a.userId).filter(Boolean);
+        const allUserIds = [...new Set([...attendeeUserIds, req.user._id.toString()])];
+
+        const users = await User.find({ _id: { $in: allUserIds } }, "email name").lean();
+        await Promise.allSettled(
+          users.map((u) =>
+            sendMail({
+              to: u.email,
+              subject: `SQAC Portal — MOM Published: ${title}`,
+              html: momCreatedEmail(mom, u.name, portalLink),
+            })
+          )
+        );
+      } catch (e) {
+        console.error("MOM notification emails failed:", e);
+      }
+    })();
 
     res.status(201).json({ message: "MOM created successfully.", mom });
   } catch (error) {
@@ -149,10 +181,6 @@ export const updateMOM = async (req, res) => {
 // ─── Delete MOM (admin only) ──────────────────────────────────────────────────
 export const deleteMOM = async (req, res) => {
   try {
-    if (!["admin", "subadmin"].includes(req.user.role)) {
-      return res.status(403).json({ message: "Not authorized." });
-    }
-
     const mom = await MOM.findByIdAndDelete(req.params.id);
     if (!mom) return res.status(404).json({ message: "MOM not found." });
 

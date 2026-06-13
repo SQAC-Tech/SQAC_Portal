@@ -55,7 +55,8 @@ import AdminMOMList from "./Pages/admin/AdminMOMList";
 import Dashboard from "./Pages/Dashboard";
 import Meet from "./Pages/Meet";
 import AttendancePage from "./Pages/admin/Attendance";
-import { ProtectedRoute, AdminRoute } from "./components/common/guards/AuthGuards";
+import { ProtectedRoute, AdminRoute, SecretaryRoute } from "./components/common/guards/AuthGuards";
+import Approvals from "./Pages/admin/Approvals";
 
 function App() {
   return (
@@ -73,6 +74,7 @@ function App() {
       <Route path="/dashboard/certificates" element={<AdminRoute><CertGenerator /></AdminRoute>} />
       <Route path="/admin/mom/create" element={<AdminRoute><AdminMOMGenerator /></AdminRoute>} />
       <Route path="/admin/mom/list" element={<AdminRoute><AdminMOMList /></AdminRoute>} />
+      <Route path="/admin/approvals" element={<SecretaryRoute><Approvals /></SecretaryRoute>} />
 
       {/* Protected General Routes (Any Logged In User) */}
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

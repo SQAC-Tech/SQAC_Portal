@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import Navbar from "../../components/common/layout/Navbar";
+import { usePermissions } from "../../utils/usePermissions";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const Projects = () => {
+  const { canAssignProject } = usePermissions();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -219,10 +221,11 @@ const Projects = () => {
 
                 <div className="border-t border-white/10 pt-4 mt-auto">
                   {project.status === "unassigned" ? (
-                    <button 
+                    <button
                       onClick={() => handleAssignTeam(project._id)}
-                      disabled={assigningId === project._id}
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-all font-bold text-sm disabled:opacity-50"
+                      disabled={assigningId === project._id || !canAssignProject}
+                      title={!canAssignProject ? "Only leads and above can assign teams" : undefined}
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-all font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <span className="material-symbols-outlined text-lg">psychology</span>
                       {assigningId === project._id ? "Calculating..." : "Auto-Assign Team via AI Engine"}
@@ -264,9 +267,9 @@ const Projects = () => {
                 <h2 className="text-xl font-bold text-white mt-1 font-['Space_Grotesk']">{selectedProject.title}</h2>
               </div>
               <div className="flex items-center gap-3">
-                {selectedProject.status === "in_progress" && (
-                  <button 
-                    onClick={handleCompleteProject} 
+                {selectedProject.status === "in_progress" && canAssignProject && (
+                  <button
+                    onClick={handleCompleteProject}
                     className="px-4 py-2 rounded-xl bg-emerald-400/10 text-emerald-400 border border-emerald-400/30 hover:bg-emerald-400/20 text-sm font-bold flex items-center gap-2 transition-all"
                   >
                     <span className="material-symbols-outlined text-base">check_circle</span>

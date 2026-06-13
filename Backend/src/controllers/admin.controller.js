@@ -8,13 +8,21 @@ import {
 } from "../lib/MeetMail.js";
 import { generateGoogleCalendarLink } from "../lib/calender.service.js";
 import Attendance from "../models/Attendance.js";
+import { PERMISSIONS } from "../middleware/permissions.middleware.js";
+import {
+  approvalEmail,
+  rejectionEmail,
+  meetingScheduledEmail,
+  newNoticeEmail,
+  warningEmail,
+} from "../lib/email-templates.js";
 const getmembers = async (req, res) => {
-  if (!["admin", "subadmin", "lead"].includes(req.user.role)) {
+  if (!PERMISSIONS.VIEW_MEMBERS.includes(req.user.role)) {
     return res.status(403).json({ message: "Not authorized" });
   }
   try {
     const members = await User.find({
-      role: { $in: ["user", "lead", "subadmin"] },
+      role: { $ne: "secretary" },
       approved: true
     }).sort({ createdAt: -1 });
     res.json(members);
@@ -24,11 +32,11 @@ const getmembers = async (req, res) => {
 };
 
 const getSubAdmins = async (req, res) => {
-  if (req.user.role !== "admin") {
+  if (req.user.role !== "secretary") {
     return res.status(403).json({ message: "Not authorized" });
   }
   try {
-    const subAdmins = await User.find({ role: "subadmin" });
+    const subAdmins = await User.find({ role: "joint_secretary" });
     res.json(subAdmins);
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
@@ -36,7 +44,7 @@ const getSubAdmins = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-  if (req.user.role !== "admin") {
+  if (!PERMISSIONS.DELETE_MEMBER.includes(req.user.role)) {
     return res.status(403).json({ message: "Not authorized" });
   }
   try {
@@ -49,7 +57,7 @@ const deleteUser = async (req, res) => {
 };
 
 const deleteSubAdmin = async (req, res) => {
-  if (req.user.role !== "admin") {
+  if (!PERMISSIONS.DELETE_MEMBER.includes(req.user.role)) {
     return res.status(403).json({ message: "Not authorized" });
   }
   try {
@@ -62,7 +70,7 @@ const deleteSubAdmin = async (req, res) => {
 };
 
 const changeposition = async (req, res) => {
-  if (req.user.role !== "admin") {
+  if (!PERMISSIONS.CHANGE_ROLE.includes(req.user.role)) {
     return res.status(403).json({ message: "Not authorized" });
   }
   try {
@@ -76,7 +84,7 @@ const changeposition = async (req, res) => {
 };
 
 const changerole = async (req, res) => {
-  if (req.user.role !== "admin") {
+  if (!PERMISSIONS.CHANGE_ROLE.includes(req.user.role)) {
     return res.status(403).json({ message: "Not authorized" });
   }
   try {
@@ -90,7 +98,7 @@ const changerole = async (req, res) => {
 };
 
 const allowmember = async (req, res) => {
-  if (req.user.role !== "admin") {
+  if (!PERMISSIONS.APPROVE_MEMBER.includes(req.user.role)) {
     return res.status(403).json({ message: "Not authorised" });
   }
   try {
@@ -103,46 +111,15 @@ const allowmember = async (req, res) => {
     user.approved = true;
     await user.save();
 
-    // Send confirmation email
+    // Send confirmation email using centralized template
     try {
-      const loginLink = `${process.env.FRONTEND_URL || "http://localhost:5174"}/login`;
-      const emailHtml = `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #1f1a3a; border-radius: 16px; background-color: #0c0a15; color: #f5eefc;">
-          <div style="text-align: center; margin-bottom: 24px;">
-            <div style="display: inline-block; padding: 6px 16px; border-radius: 8px; background: linear-gradient(135deg, #f183ff, #ff6c95); color: #000; font-weight: bold; font-size: 20px;">
-              SQAC
-            </div>
-          </div>
-          <h2 style="color: #ff6c95; text-align: center; margin-bottom: 24px;">Registration Approved</h2>
-          <p>Dear <strong>${user.name}</strong>,</p>
-          <p>We are pleased to inform you that your registration for the SQAC Portal has been <strong>approved</strong> by the administrator.</p>
-          <p>You can now initialize your session, access your dashboard, and participate in meetings, notice threads, and projects.</p>
-          
-          <h3 style="color: #f183ff; border-b: 1px solid #332b56; padding-bottom: 8px; margin-top: 28px;">Terms & Portal Conduct:</h3>
-          <ul style="line-height: 1.6; padding-left: 20px;">
-            <li>All technical assignments and metrics will be monitored within the portal environment.</li>
-            <li>Maintain confidentiality of your login credentials and system assets.</li>
-            <li>Ensure active participation and timely updates on all assigned dashboard tasks.</li>
-          </ul>
-
-          <div style="text-align: center; margin: 36px 0;">
-            <a href="${loginLink}" style="background: linear-gradient(to right, #f183ff, #ff6c95); color: black; font-weight: bold; padding: 14px 36px; text-decoration: none; border-radius: 30px; display: inline-block; box-shadow: 0 4px 15px rgba(241, 131, 255, 0.4);">Login to Portal</a>
-          </div>
-
-          <p style="font-size: 13px; color: #aea9b6; line-height: 1.5;">If the button above does not work, copy and paste this link into your browser:</p>
-          <p style="font-size: 13px;"><a href="${loginLink}" style="color: #81ecff; text-decoration: none;">${loginLink}</a></p>
-          
-          <hr style="border: 0; border-top: 1px solid #221d3f; margin-top: 36px;" />
-          <p style="font-size: 11px; color: #6b6679; text-align: center;">This is an automated notification from the SQAC Portal. Please do not reply directly to this message.</p>
-        </div>
-      `;
-
+      const loginLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`;
       await sendMail({
         to: user.email,
-        subject: "SQAC Portal Registration Approved",
-        html: emailHtml,
+        subject: "SQAC Portal — Welcome! Your Account is Now Active",
+        html: approvalEmail(user, loginLink),
       });
-      console.log(`Confirmation email sent successfully to ${user.email}`);
+      console.log(`Approval email sent to ${user.email}`);
     } catch (mailErr) {
       console.error("Failed to send approval email:", mailErr);
     }
@@ -154,7 +131,7 @@ const allowmember = async (req, res) => {
 };
 
 const showstatus = async (req, res) => {
-  if (req.user.role !== "admin" && req.user.role !== "subadmin") {
+  if (req.user.role !== "secretary" && req.user.role !== "joint_secretary") {
     return res.status(403).json({ message: "Not authorised" });
   }
   try {
@@ -168,41 +145,25 @@ const showstatus = async (req, res) => {
 };
 
 const rejectmember = async (req, res) => {
-  if (req.user.role !== "admin" && req.user.role !== "subadmin") {
+  if (!PERMISSIONS.REJECT_MEMBER.includes(req.user.role)) {
     return res.status(403).json({ message: "Not authorised" });
   }
   try {
     const { id } = req.params;
+    const { rejectionReason } = req.body;
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Send rejection email
+    // Send rejection email with reason using centralized template
     try {
-      const emailHtml = `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #1f1a3a; border-radius: 16px; background-color: #0c0a15; color: #f5eefc;">
-          <div style="text-align: center; margin-bottom: 24px;">
-            <div style="display: inline-block; padding: 6px 16px; border-radius: 8px; background: linear-gradient(135deg, #f183ff, #ff6c95); color: #000; font-weight: bold; font-size: 20px;">
-              SQAC
-            </div>
-          </div>
-          <h2 style="color: #ff6c95; text-align: center; margin-bottom: 24px;">Application Status Update</h2>
-          <p>Dear <strong>${user.name}</strong>,</p>
-          <p>Thank you for your interest in joining the SQAC Portal. After reviewing your application details, we regret to inform you that your request for portal access has been <strong>declined</strong> by the administrator at this time.</p>
-          <p>This decision is typically based on incomplete credentials, matching requirements, or domain availability. If you believe this was in error, please reach out to your administrator to verify your credentials.</p>
-          
-          <hr style="border: 0; border-top: 1px solid #221d3f; margin-top: 36px;" />
-          <p style="font-size: 11px; color: #6b6679; text-align: center;">This is an automated notification from the SQAC Portal. Please do not reply directly to this message.</p>
-        </div>
-      `;
-
       await sendMail({
         to: user.email,
-        subject: "SQAC Portal Registration Status Update",
-        html: emailHtml,
+        subject: "SQAC Portal — Application Status Update",
+        html: rejectionEmail(user, rejectionReason || ''),
       });
-      console.log(`Rejection email sent successfully to ${user.email}`);
+      console.log(`Rejection email sent to ${user.email}`);
     } catch (mailErr) {
       console.error("Failed to send rejection email:", mailErr);
     }
@@ -215,11 +176,11 @@ const rejectmember = async (req, res) => {
 };
 
 const getpendingmembers = async (req, res) => {
-  if (req.user.role !== "admin" && req.user.role !== "subadmin") {
+  if (!PERMISSIONS.APPROVE_MEMBER.includes(req.user.role)) {
     return res.status(403).json({ message: "Not authorised" });
   }
   try {
-    const pendingMembers = await User.find({ approved: false, role: "user" });
+    const pendingMembers = await User.find({ approved: false });
     res.json(pendingMembers);
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
@@ -236,11 +197,7 @@ const getnotices = async (req, res) => {
 };
 
 const createnotice = async (req, res) => {
-  if (
-    req.user.role !== "admin" &&
-    req.user.role !== "subadmin" &&
-    req.user.role !== "lead"
-  ) {
+  if (!PERMISSIONS.SEND_NOTICE.includes(req.user.role)) {
     return res.status(403).json({ message: "Not authorised" });
   }
   try {
@@ -257,6 +214,32 @@ const createnotice = async (req, res) => {
       author,
     });
     await notice.save();
+
+    // Fire-and-forget: email relevant members about the new notice
+    (async () => {
+      try {
+        const d = domain || "Board";
+        let userFilter = { approved: true };
+        if (d === "Technical") userFilter.coreDomain = "Technical";
+        else if (d === "Corporate") userFilter.coreDomain = "Corporate";
+        else if (d !== "Board") userFilter.subDomain = d;
+
+        const portalLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/admin/notice`;
+        const recipients = await User.find(userFilter, "email name").lean();
+        await Promise.allSettled(
+          recipients.map((u) =>
+            sendMail({
+              to: u.email,
+              subject: `SQAC Portal — New Notice: ${title}`,
+              html: newNoticeEmail(notice, portalLink),
+            })
+          )
+        );
+      } catch (e) {
+        console.error("Notice notification emails failed:", e);
+      }
+    })();
+
     res.json({ message: "Notice created successfully" });
   } catch (error) {
     console.error("CREATE NOTICE ERROR:", error);
@@ -265,7 +248,7 @@ const createnotice = async (req, res) => {
 };
 
 const deletenotice = async (req, res) => {
-  if (req.user.role !== "admin") {
+  if (req.user.role !== "secretary") {
     return res.status(403).json({ message: "Not authorised" });
   }
   try {
@@ -278,12 +261,8 @@ const deletenotice = async (req, res) => {
 };
 
 const createMeet = async (req, res) => {
-  if (
-    req.user.role !== "admin" &&
-    req.user.role !== "subadmin" &&
-    req.user.role !== "lead"
-  ) {
-    return res.status(401).json({ message: "Not authorised" });
+  if (!PERMISSIONS.SCHEDULE_MEET.includes(req.user.role)) {
+    return res.status(403).json({ message: "Not authorised" });
   }
   try {
     const { title, startdate, starttime, link, description, teamScope } = req.body;
@@ -300,6 +279,32 @@ const createMeet = async (req, res) => {
       createdBy: req.userId,
     });
     await meet.save();
+
+    // Fire-and-forget: email relevant members about the new meeting
+    (async () => {
+      try {
+        const scope = (teamScope || "all").toLowerCase();
+        let userFilter = { approved: true };
+        if (scope === "technical") userFilter.coreDomain = "Technical";
+        else if (scope === "corporate") userFilter.coreDomain = "Corporate";
+        else if (scope !== "all") userFilter.subDomain = teamScope;
+
+        const calendarLink = generateGoogleCalendarLink(meet);
+        const recipients = await User.find(userFilter, "email name").lean();
+        await Promise.allSettled(
+          recipients.map((u) =>
+            sendMail({
+              to: u.email,
+              subject: `SQAC Portal — New Meeting: ${title}`,
+              html: meetingScheduledEmail(meet, calendarLink),
+            })
+          )
+        );
+      } catch (e) {
+        console.error("Meeting notification emails failed:", e);
+      }
+    })();
+
     res.status(200).json({ message: "Meeting Created successfully", meet });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -307,12 +312,8 @@ const createMeet = async (req, res) => {
 };
 
 const deleteMeet = async (req, res) => {
-  if (
-    req.user.role !== "admin" &&
-    req.user.role !== "subadmin" &&
-    req.user.role !== "lead"
-  ) {
-    return res.status(401).json({ message: "Not authorised" });
+  if (!PERMISSIONS.SCHEDULE_MEET.includes(req.user.role)) {
+    return res.status(403).json({ message: "Not authorised" });
   }
 
   try {
@@ -325,12 +326,8 @@ const deleteMeet = async (req, res) => {
 };
 
 const editMeet = async (req, res) => {
-  if (
-    req.user.role !== "admin" &&
-    req.user.role !== "subadmin" &&
-    req.user.role !== "lead"
-  ) {
-    return res.status(401).json({ message: "Not authorised" });
+  if (!PERMISSIONS.SCHEDULE_MEET.includes(req.user.role)) {
+    return res.status(403).json({ message: "Not authorised" });
   }
 
   try {
@@ -361,6 +358,32 @@ const getMeet = async (req, res) => {
 };
 
 const sendMeetCalenderMail = async (req, res) => {};
+
+const sendWarning = async (req, res) => {
+  if (!PERMISSIONS.ISSUE_WARNING.includes(req.user.role)) {
+    return res.status(403).json({ message: "Not authorised" });
+  }
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ message: "Warning reason is required" });
+    }
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    await sendMail({
+      to: user.email,
+      subject: "SQAC Portal — Official Warning Issued",
+      html: warningEmail(user, reason.trim(), req.user.name),
+    });
+
+    res.json({ message: `Warning sent to ${user.name}` });
+  } catch (error) {
+    console.error("SEND WARNING ERROR:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const addAttendance = async (req, res) => {
   try {
@@ -550,6 +573,7 @@ export {
   deleteMeet,
   editMeet,
   getMeet,
+  sendWarning,
   addAttendance,
   getAttendance,
   getALlAttendace,

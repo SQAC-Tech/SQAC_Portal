@@ -6,6 +6,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./src/lib/db.js";
 import { requireRole } from "./src/middleware/role.middleware.js";
+import { requirePermission, getPermissionsForRole, ALL_ADMIN_ROLES } from "./src/middleware/permissions.middleware.js";
 
 // Controllers
 import {
@@ -14,6 +15,7 @@ import {
   logoutUser,
   authenticateToken,
   getrole,
+  completeOnboarding,
 } from "./src/controllers/User.controller.js";
 
 import {
@@ -43,6 +45,7 @@ import {
   editMeet,
   deleteMeet,
   getMeet,
+  sendWarning,
   addAttendance,
   getAttendance,
   getALlAttendace,
@@ -83,6 +86,7 @@ app.use(cookieParser());
 app.post("/user/create", createUser);
 app.post("/user/login", loginUser);
 app.post("/logout", logoutUser);
+app.post("/api/auth/complete-onboarding", completeOnboarding);
 
 // OTP & Password Reset
 app.post("/otp/get", getotp);
@@ -100,6 +104,11 @@ app.get("/user/profile", getprofile);
 app.put("/user/update", editprofile);
 app.get("/user/role", getrole);
 
+// Permissions endpoint — returns role-based permission flags for the logged-in user
+app.get("/api/permissions/me", (req, res) => {
+  res.json(getPermissionsForRole(req.user.role));
+});
+
 // Admin Management
 app.get("/admin/members", getmembers);
 app.get("/admin/subadmins", getSubAdmins);
@@ -110,6 +119,7 @@ app.put("/admin/role/:id", changerole);
 app.post("/admin/approve/:id", allowmember);
 app.get("/admin/status/:id", showstatus);
 app.post("/admin/reject/:id", rejectmember);
+app.post("/admin/warn/:id", sendWarning);
 app.get("/admin/pending", getpendingmembers);
 
 //Meetings
@@ -131,12 +141,12 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/mom", momRoutes);
 
 //Attendance
-app.post("/attendance/add", requireRole("admin", "subadmin", "lead"), addAttendance);
-app.get("/attendance/user/:userID", requireRole("admin", "subadmin", "lead", "user"), getAttendance);
-app.get("/attendance/all", requireRole("admin", "subadmin", "lead"), getALlAttendace);
-app.put("/attendance/edit/:id", requireRole("admin", "subadmin", "lead"), editAttendance);
-app.get("/attendance/domain", requireRole("admin", "subadmin", "lead"), getAttendanceByDomain);
-app.get("/attendance/by-domain-subdomain", requireRole("admin", "subadmin", "lead"), getAttendanceByDomainSubdomain);
+app.post("/attendance/add", requirePermission("MANAGE_ATTENDANCE"), addAttendance);
+app.get("/attendance/user/:userID", getAttendance);
+app.get("/attendance/all", requirePermission("MANAGE_ATTENDANCE"), getALlAttendace);
+app.put("/attendance/edit/:id", requirePermission("MANAGE_ATTENDANCE"), editAttendance);
+app.get("/attendance/domain", requirePermission("MANAGE_ATTENDANCE"), getAttendanceByDomain);
+app.get("/attendance/by-domain-subdomain", requirePermission("MANAGE_ATTENDANCE"), getAttendanceByDomainSubdomain);
 
 // Database Connection and Server Start
 const PORT = process.env.PORT || 3000;

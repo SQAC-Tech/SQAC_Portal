@@ -9,6 +9,8 @@ const MemberCard = ({
   index,
   onDelete,
   onEdit,
+  canEdit = true,
+  canDelete = true,
 }) => {
   return (
     <article
@@ -57,15 +59,19 @@ const MemberCard = ({
         {/* Action Buttons */}
         <div className="flex w-full gap-2.5 pt-4 border-t border-white/8 justify-center">
           <button
-            className="flex-1 rounded-xl bg-gradient-to-r from-primary/80 to-secondary/80 py-2 text-xs font-bold text-black hover:scale-[1.02] active:scale-95 transition-all"
+            className="flex-1 rounded-xl bg-gradient-to-r from-primary/80 to-secondary/80 py-2 text-xs font-bold text-black hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
             onClick={() => onEdit(member)}
+            disabled={!canEdit}
+            title={!canEdit ? "Only Secretary can edit roles" : undefined}
             type="button"
           >
             Edit
           </button>
           <button
-            className="flex-1 rounded-xl border border-red-500/20 bg-red-500/10 py-2 text-xs font-bold text-red-200 hover:bg-red-500/20 hover:scale-[1.02] active:scale-95 transition-all"
+            className="flex-1 rounded-xl border border-red-500/20 bg-red-500/10 py-2 text-xs font-bold text-red-200 hover:bg-red-500/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
             onClick={() => onDelete(member)}
+            disabled={!canDelete}
+            title={!canDelete ? "Only Secretary can delete members" : undefined}
             type="button"
           >
             Delete

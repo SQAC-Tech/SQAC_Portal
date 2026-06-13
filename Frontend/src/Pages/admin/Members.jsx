@@ -3,10 +3,12 @@ import MemberCard from "../../components/admin/MemberCard";
 import MemberEditModal from "../../components/admin/MemberEditModal";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import Navbar from "../../components/common/layout/Navbar";
+import { usePermissions } from "../../utils/usePermissions";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const Members = () => {
+  const { canChangeRole, canDeleteMember } = usePermissions();
   const [members, setMembers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -488,6 +490,8 @@ const Members = () => {
                 member={member}
                 onDelete={deleteMemberWrapper}
                 onEdit={handleOpenEdit}
+                canEdit={canChangeRole}
+                canDelete={canDeleteMember}
               />
             ))}
           </section>

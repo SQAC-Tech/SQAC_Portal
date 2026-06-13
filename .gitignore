@@ -1,6 +1,7 @@
 /Audits/
 /Backend/.env
 /Backend/node_modules/
+/Backend/scripts/
 /Frontend/node_modules/
 /Frontend/dist/
 .DS_Store

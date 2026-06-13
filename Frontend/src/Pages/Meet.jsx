@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import Navbar from "../components/common/layout/Navbar";
 import AdminSidebar from "../components/admin/AdminSidebar";
+import { usePermissions } from "../utils/usePermissions";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function Meet() {
+  const { canScheduleMeet } = usePermissions();
   const [meetings, setMeetings] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
@@ -195,7 +197,7 @@ export default function Meet() {
     return mDate > today && !isToday(mDate);
   });
 
-  const isOrganizer = currentUser && (currentUser.role === "admin" || currentUser.role === "subadmin" || currentUser.role === "lead");
+  const isOrganizer = canScheduleMeet;
 
   return (
     <div className="min-h-screen bg-[#070910] text-[#f5eefc] pt-16 lg:pl-24 selection:bg-primary/30 flex flex-col font-body">

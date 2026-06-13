@@ -8,7 +8,7 @@ import {
   generateMOMWithAI,
   getApprovedMembers,
 } from "../controllers/mom.controller.js";
-import { requireRole } from "../middleware/role.middleware.js";
+import { requirePermission } from "../middleware/permissions.middleware.js";
 
 const router = express.Router();
 
@@ -16,13 +16,13 @@ const router = express.Router();
 router.get("/members/approved", getApprovedMembers);
 
 // AI generation
-router.post("/ai-generate", requireRole("admin", "subadmin", "lead"), generateMOMWithAI);
+router.post("/ai-generate", requirePermission("GENERATE_MOM"), generateMOMWithAI);
 
 // MOM CRUD
 router.get("/all", getAllMOMs);
-router.post("/create", requireRole("admin", "subadmin", "lead"), createMOM);
+router.post("/create", requirePermission("GENERATE_MOM"), createMOM);
 router.get("/:id", getMOMById);
-router.put("/:id", requireRole("admin", "subadmin", "lead"), updateMOM);
-router.delete("/:id", requireRole("admin", "subadmin", "lead"), deleteMOM);
+router.put("/:id", requirePermission("GENERATE_MOM"), updateMOM);
+router.delete("/:id", requirePermission("DELETE_MOM"), deleteMOM);
 
 export default router;

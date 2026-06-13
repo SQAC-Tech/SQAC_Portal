@@ -1,16 +1,35 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const ROLE_LABELS = {
+  secretary: "Secretary", joint_secretary: "Joint Secretary",
+  technical_lead: "Technical Lead", project_lead: "Project Lead",
+  corp_lead: "Corporate Lead", domain_lead: "Domain Lead",
+  associate_lead: "Associate Lead", member: "Member",
+};
+
+function timeAgo(date) {
+  const diff = Math.floor((Date.now() - new Date(date)) / 1000);
+  if (diff < 60)   return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return new Date(date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
 export default function Navbar() {
   const [notifications, setNotifications] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [activeTab, setActiveTab] = useState("feed");
   const [unreadCount, setUnreadCount] = useState(0);
   const [actionLoading, setActionLoading] = useState("");
   const [user, setUser] = useState(null);
+  const [rejectingId, setRejectingId] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState("");
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -26,7 +45,8 @@ export default function Navbar() {
       }
     }
 
-    const isAdmin = parsedUser && (parsedUser.role === "admin" || parsedUser.role === "subadmin" || parsedUser.role === "lead");
+    // Only Secretary sees pending approvals
+    const isAdmin = parsedUser && parsedUser.role === "secretary";
 
     // Fetch notices and meetings to construct notifications
     const fetchNotifications = async () => {
@@ -152,17 +172,25 @@ export default function Navbar() {
     }
   };
 
-  const handleReject = async (memberId) => {
-    setActionLoading(memberId);
+  const handleReject = (memberId) => {
+    setRejectingId(memberId);
+    setRejectionReason("");
+  };
+
+  const submitReject = async () => {
+    if (!rejectingId) return;
+    setActionLoading(rejectingId);
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/reject/${memberId}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/reject/${rejectingId}`, {
         method: "POST",
         credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rejectionReason }),
       });
       const data = await response.json().catch(() => null);
       if (response.ok) {
-        toast.success("Member rejected successfully!");
-        setPendingApprovals((prev) => prev.filter((m) => m._id !== memberId));
+        toast.success("Member rejected.");
+        setPendingApprovals((prev) => prev.filter((m) => m._id !== rejectingId));
         setUnreadCount((prev) => Math.max(0, prev - 1));
       } else {
         toast.error(data?.message || data?.error || "Rejection failed.");
@@ -172,6 +200,8 @@ export default function Navbar() {
       console.error(err);
     } finally {
       setActionLoading("");
+      setRejectingId(null);
+      setRejectionReason("");
     }
   };
 
@@ -189,10 +219,13 @@ export default function Navbar() {
     }
   };
 
+  const isSecretary = user?.role === "secretary";
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] h-16 border-b border-white/8 bg-[#070910]/82 backdrop-blur-2xl px-6 md:px-12 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-[100] h-16 border-b border-white/8 bg-[#070910]/90 backdrop-blur-2xl px-6 md:px-12 flex items-center justify-between">
+
+      {/* Brand */}
       <div className="flex items-center gap-3">
-        {/* Visual Brand Indicator */}
         <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[#f183ff] to-[#ff6c95] flex items-center justify-center font-headline font-bold text-black text-sm shadow-[0_0_15px_rgba(241,131,255,0.4)]">
           SQ
         </div>
@@ -201,138 +234,258 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-6">
-        {/* Notification Bell */}
+      <div className="flex items-center gap-4">
+
+        {/* ── Notification Bell ── */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={toggleDropdown}
-            className="relative p-2 rounded-xl border border-white/8 bg-white/4 text-white/80 hover:text-white hover:bg-white/8 transition-all hover:scale-[1.03] flex items-center justify-center"
+            className="relative p-2.5 rounded-xl border border-white/8 bg-white/4 text-white/70 hover:text-white hover:bg-white/8 transition-all flex items-center justify-center"
           >
-            <span className="material-symbols-outlined text-xl">notifications</span>
+            <span className="material-symbols-outlined text-[20px]">notifications</span>
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-[#ff6c95] ring-2 ring-[#070910] animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-[#ff6c95] text-[9px] font-black text-black flex items-center justify-center leading-none ring-2 ring-[#070910]">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
             )}
           </button>
 
           {showDropdown && (
-            <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl border border-white/10 bg-[#0c0a15]/95 backdrop-blur-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.6)] py-4 overflow-hidden z-[100]">
-              <div className="px-5 pb-3 border-b border-white/8 flex justify-between items-center">
-                <h3 className="font-headline font-bold text-white text-sm tracking-wide">Command Center Feed</h3>
-                {unreadCount > 0 && (
-                  <span className="text-[10px] bg-primary/10 border border-primary/20 text-primary px-2 py-0.5 rounded-full font-semibold">
-                    {unreadCount} NEW
-                  </span>
-                )}
+            <div className="absolute right-0 mt-2 w-[360px] rounded-2xl border border-white/10 bg-[#0d1117]/96 backdrop-blur-2xl shadow-[0_24px_60px_rgba(0,0,0,0.7)] overflow-hidden z-[110]">
+
+              {/* Panel Header */}
+              <div className="px-4 pt-4 pb-0">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-white tracking-wide">Notifications</h3>
+                  {unreadCount > 0 && (
+                    <span className="text-[10px] bg-[#ff6c95]/15 border border-[#ff6c95]/30 text-[#ff6c95] px-2 py-0.5 rounded-full font-bold">
+                      {unreadCount} unread
+                    </span>
+                  )}
+                </div>
+
+                {/* Tabs — only show Approvals tab for Secretary */}
+                <div className="flex gap-1 bg-white/4 rounded-xl p-1">
+                  <button
+                    onClick={() => setActiveTab("feed")}
+                    className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${
+                      activeTab === "feed"
+                        ? "bg-white/10 text-white shadow-sm"
+                        : "text-white/45 hover:text-white/70"
+                    }`}
+                  >
+                    Feed
+                  </button>
+                  {isSecretary && (
+                    <button
+                      onClick={() => setActiveTab("approvals")}
+                      className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all flex items-center justify-center gap-1 ${
+                        activeTab === "approvals"
+                          ? "bg-white/10 text-white shadow-sm"
+                          : "text-white/45 hover:text-white/70"
+                      }`}
+                    >
+                      Approvals
+                      {pendingApprovals.length > 0 && (
+                        <span className="bg-[#ff6c95] text-black text-[9px] font-black px-1.5 py-0.5 rounded-full leading-none">
+                          {pendingApprovals.length}
+                        </span>
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
 
-              {/* Pending Approvals Section */}
-              {pendingApprovals.length > 0 && (
-                <div className="border-b border-white/8 bg-white/[0.02] max-h-[220px] overflow-y-auto divide-y divide-white/4">
-                  <div className="px-5 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#ff6c95] sticky top-0 bg-[#0c0a15] z-10">
-                    Pending Approvals ({pendingApprovals.length})
-                  </div>
-                  {pendingApprovals.map((member) => (
-                    <div key={member._id} className="p-4 flex flex-col gap-2">
-                      <div className="flex gap-3 items-center">
-                        <div className="shrink-0 h-8 w-8 rounded-full overflow-hidden border border-white/10 bg-white/5">
-                          <img 
-                            src={member.image || "https://images.unsplash.com/photo-1680355466468-bd0a68b11fa0?q=80&w=715&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"} 
-                            alt={member.name} 
-                            className="h-full w-full object-cover" 
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white text-xs font-semibold truncate">{member.name}</p>
-                          <p className="text-[#aea9b6] text-[10px] truncate">{member.email}</p>
-                          <p className="text-slate-400 text-[10px] font-medium uppercase tracking-wider truncate">
-                            {member.coreDomain} {member.subDomain ? `/ ${member.subDomain}` : ""}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 justify-end mt-1">
-                        <button
-                          onClick={() => handleApprove(member._id)}
-                          disabled={actionLoading === member._id}
-                          className="px-3 py-1 text-[10px] font-bold rounded-lg border border-emerald-400/25 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50 transition-all cursor-pointer"
-                        >
-                          {actionLoading === member._id ? "Accepting..." : "Accept"}
-                        </button>
-                        <button
-                          onClick={() => handleReject(member._id)}
-                          disabled={actionLoading === member._id}
-                          className="px-3 py-1 text-[10px] font-bold rounded-lg border border-red-400/25 bg-red-500/10 text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-all cursor-pointer"
-                        >
-                          Reject
-                        </button>
-                      </div>
+              {/* ── Feed Tab ── */}
+              {activeTab === "feed" && (
+                <div className="mt-3 max-h-[340px] overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="py-12 flex flex-col items-center gap-2 text-white/30">
+                      <span className="material-symbols-outlined text-3xl">notifications_off</span>
+                      <p className="text-xs">Nothing new here</p>
                     </div>
-                  ))}
+                  ) : (
+                    <div className="divide-y divide-white/5">
+                      {notifications.map((item) => {
+                        const isMeet = item.type === "meet";
+                        return (
+                          <div key={item.id} className="flex gap-3 px-4 py-3.5 hover:bg-white/[0.03] transition-colors">
+                            <div className={`shrink-0 mt-0.5 h-8 w-8 rounded-xl flex items-center justify-center ${
+                              isMeet
+                                ? "bg-violet-500/15 border border-violet-400/20 text-violet-300"
+                                : "bg-cyan-500/15 border border-cyan-400/20 text-cyan-300"
+                            }`}>
+                              <span className="material-symbols-outlined text-[16px]">
+                                {isMeet ? "calendar_month" : "campaign"}
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="text-white text-xs font-semibold leading-snug">{item.title}</p>
+                                <span className={`shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${
+                                  isMeet
+                                    ? "bg-violet-500/15 text-violet-400"
+                                    : "bg-cyan-500/15 text-cyan-400"
+                                }`}>
+                                  {isMeet ? "Meet" : "Notice"}
+                                </span>
+                              </div>
+                              <p className="text-white/45 text-[11px] mt-0.5 leading-relaxed line-clamp-2">{item.description}</p>
+                              <p className="text-white/25 text-[10px] mt-1">{timeAgo(item.date)}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="px-4 py-3 border-t border-white/6">
+                    <Link
+                      to="/admin/notice"
+                      onClick={() => setShowDropdown(false)}
+                      className="flex items-center justify-center gap-1.5 text-[11px] text-white/40 hover:text-primary font-semibold transition-colors"
+                    >
+                      View all notices
+                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    </Link>
+                  </div>
                 </div>
               )}
 
-              <div className="max-h-[220px] overflow-y-auto divide-y divide-white/4">
-                {notifications.length === 0 ? (
-                  <div className="py-8 px-5 text-center text-[#aea9b6] text-xs">
-                    No recent notifications
-                  </div>
-                ) : (
-                  notifications.map((item) => (
-                    <div key={item.id} className="p-4 hover:bg-white/4 transition-colors flex gap-3 items-start">
-                      <div className={`mt-0.5 shrink-0 h-6 w-6 rounded-full flex items-center justify-center text-[10px] ${
-                        item.type === "meet" 
-                          ? "bg-purple-500/10 text-purple-300 border border-purple-400/20" 
-                          : "bg-emerald-500/10 text-emerald-300 border border-emerald-400/20"
-                      }`}>
-                        <span className="material-symbols-outlined text-sm">
-                          {item.type === "meet" ? "calendar_month" : "campaign"}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white text-xs font-semibold truncate">{item.title}</p>
-                        <p className="text-[#aea9b6] text-[11px] mt-1 leading-relaxed">{item.description}</p>
-                        <p className="text-slate-500 text-[10px] mt-1.5">
-                          {new Date(item.date).toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
-                        </p>
-                      </div>
+              {/* ── Approvals Tab ── */}
+              {activeTab === "approvals" && isSecretary && (
+                <div className="mt-3 max-h-[380px] overflow-y-auto">
+                  {pendingApprovals.length === 0 ? (
+                    <div className="py-12 flex flex-col items-center gap-2 text-white/30">
+                      <span className="material-symbols-outlined text-3xl">how_to_reg</span>
+                      <p className="text-xs">No pending approvals</p>
                     </div>
-                  ))
-                )}
-              </div>
-              <div className="px-5 pt-3 border-t border-white/8 text-center">
-                <Link
-                  to="/admin/notice"
-                  onClick={() => setShowDropdown(false)}
-                  className="text-xs text-primary hover:text-secondary font-semibold transition-colors uppercase tracking-wider"
-                >
-                  View All Notices →
-                </Link>
-              </div>
+                  ) : (
+                    <div className="divide-y divide-white/5 px-3 pb-3">
+                      {pendingApprovals.map((member) => (
+                        <div key={member._id} className="py-3.5">
+                          <div className="flex gap-3 items-start">
+                            {/* Avatar */}
+                            <div className="shrink-0 h-10 w-10 rounded-xl overflow-hidden border border-white/10 bg-white/5">
+                              <img
+                                src={member.image || "https://images.unsplash.com/photo-1680355466468-bd0a68b11fa0?q=80&w=100"}
+                                alt={member.name}
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+
+                            {/* Info */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white text-xs font-bold truncate">{member.name}</p>
+                              <p className="text-white/40 text-[10px] truncate">{member.email}</p>
+
+                              <div className="flex flex-wrap gap-1 mt-1.5">
+                                {/* Role badge */}
+                                <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#f183ff]/10 border border-[#f183ff]/20 text-[#f183ff]">
+                                  {ROLE_LABELS[member.role] || member.role}
+                                </span>
+                                {/* Domain badge */}
+                                {(member.subDomain || member.coreDomain) && (
+                                  <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/6 border border-white/10 text-white/50">
+                                    {member.subDomain || member.coreDomain}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Reg number */}
+                            <p className="shrink-0 text-[9px] text-white/25 font-mono mt-0.5">{member.regNum}</p>
+                          </div>
+
+                          {/* Action buttons */}
+                          <div className="flex gap-2 mt-3">
+                            <button
+                              onClick={() => handleApprove(member._id)}
+                              disabled={actionLoading === member._id}
+                              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold border border-emerald-400/20 bg-emerald-500/8 text-emerald-300 hover:bg-emerald-500/18 disabled:opacity-40 transition-all"
+                            >
+                              <span className="material-symbols-outlined text-sm">check_circle</span>
+                              {actionLoading === member._id ? "Approving…" : "Approve"}
+                            </button>
+                            <button
+                              onClick={() => handleReject(member._id)}
+                              disabled={actionLoading === member._id}
+                              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold border border-red-400/20 bg-red-500/8 text-red-300 hover:bg-red-500/18 disabled:opacity-40 transition-all"
+                            >
+                              <span className="material-symbols-outlined text-sm">cancel</span>
+                              {actionLoading === member._id ? "Rejecting…" : "Reject"}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           )}
         </div>
 
-        {/* User Identity Profile Indicator */}
+        {/* ── User Pill ── */}
         {user && (
-          <div className="flex items-center gap-3 pl-3 border-l border-white/10">
+          <div className="flex items-center gap-2.5 pl-4 border-l border-white/8">
             <div className="hidden md:block text-right">
               <p className="text-xs font-bold text-white leading-tight">{user.name}</p>
-              <p className="text-[10px] text-primary/80 uppercase tracking-widest leading-none mt-1 font-semibold">{user.role}</p>
+              <p className="text-[10px] text-primary/70 uppercase tracking-widest leading-none mt-0.5">
+                {ROLE_LABELS[user.role] || user.role}
+              </p>
             </div>
             <button
               onClick={handleLogout}
-              className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 overflow-hidden flex items-center justify-center text-white hover:text-red-400 hover:border-red-400/20 hover:bg-red-400/8 transition-all duration-300 group"
               title="Logout"
+              className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:text-red-400 hover:border-red-400/20 hover:bg-red-400/8 transition-all group"
             >
-              <span className="material-symbols-outlined text-lg group-hover:translate-x-0.5 transition-transform">logout</span>
+              <span className="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 transition-transform">logout</span>
             </button>
           </div>
         )}
       </div>
+
+      {/* ── Rejection Reason Modal ── */}
+      {rejectingId && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0d1117]/98 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.7)]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-9 w-9 rounded-xl bg-red-500/10 border border-red-400/20 flex items-center justify-center">
+                <span className="material-symbols-outlined text-red-400 text-lg">report</span>
+              </div>
+              <div>
+                <h3 className="text-white font-bold text-sm">Reject Application</h3>
+                <p className="text-white/40 text-[11px]">Reason is optional but recommended</p>
+              </div>
+            </div>
+            <textarea
+              className="w-full rounded-xl border border-white/10 bg-white/4 px-4 py-3 text-sm text-white placeholder:text-white/25 outline-none focus:border-red-400/40 resize-none transition-colors"
+              rows={3}
+              placeholder="e.g. Incomplete profile, domain mismatch…"
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              autoFocus
+            />
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => { setRejectingId(null); setRejectionReason(""); }}
+                className="flex-1 py-2.5 text-xs font-semibold rounded-xl border border-white/10 bg-white/4 text-white/60 hover:bg-white/8 hover:text-white transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitReject}
+                disabled={!!actionLoading}
+                className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-red-500/15 border border-red-400/25 text-red-300 hover:bg-red-500/25 disabled:opacity-40 transition-all"
+              >
+                {actionLoading ? "Rejecting…" : "Confirm Reject"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </nav>
   );
 }

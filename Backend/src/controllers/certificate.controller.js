@@ -1,7 +1,8 @@
 import Certificate from '../models/Certificate.js';
 import User from '../models/User.js';
 import { supabase } from '../config/supabase.js';
-import nodemailer from 'nodemailer';
+import sendMail from '../lib/mailer.js';
+import { certificateIssuedEmail } from '../lib/email-templates.js';
 
 /**
  * GET /api/certificate/my
@@ -62,17 +63,6 @@ export const verifyCertificate = async (req, res) => {
   }
 };
 
-function getTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: parseInt(process.env.SMTP_PORT) === 465,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-}
 
 /**
  * POST /api/certificate/upload-generated
@@ -87,7 +77,6 @@ export const uploadGenerated = async (req, res) => {
     }
 
     const savedCerts = [];
-    const transporter = getTransporter();
 
     for (const certData of certificates) {
       const { credentialId, issuedToName, issuedToEmail, imageBase64 } = certData;
@@ -131,31 +120,15 @@ export const uploadGenerated = async (req, res) => {
       });
       savedCerts.push(certificate);
 
-      // Send email
-      const linkedInShareUrl = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent(templateTitle)}&organizationName=SQAC&certId=${credentialId}&certUrl=${encodeURIComponent((process.env.FRONTEND_URL || 'http://localhost:5173') + '/verify/' + credentialId)}`;
-      
-      const emailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
-          <h2>Congratulations ${issuedToName}!</h2>
-          <p>We are pleased to issue your certificate for <strong>${templateTitle}</strong>.</p>
-          <p>You can view and download your certificate using the link below:</p>
-          <a href="${imageUrl}" target="_blank" style="display:inline-block; padding: 10px 20px; background: #007bff; color: #fff; text-decoration: none; border-radius: 5px;">View Certificate</a>
-          <br><br>
-          <p>Share your achievement on LinkedIn!</p>
-          <a href="${linkedInShareUrl}" target="_blank" style="display:inline-block; padding: 10px 20px; background: #0077b5; color: #fff; text-decoration: none; border-radius: 5px;">Post to LinkedIn</a>
-        </div>
-      `;
+      // Send branded certificate email
+      const certVerifyLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify/${credentialId}`;
+      const linkedInShareUrl = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent(templateTitle)}&organizationName=SQAC&certId=${credentialId}&certUrl=${encodeURIComponent(certVerifyLink)}`;
 
-      try {
-        await transporter.sendMail({
-          from: process.env.SMTP_USER,
-          to: issuedToEmail,
-          subject: `Your Certificate: ${templateTitle}`,
-          html: emailHtml,
-        });
-      } catch (mailErr) {
-        console.error('Failed to send email to', issuedToEmail, mailErr);
-      }
+      sendMail({
+        to: issuedToEmail,
+        subject: `SQAC Portal — Your Certificate: ${templateTitle}`,
+        html: certificateIssuedEmail(issuedToName, templateTitle, imageUrl, certVerifyLink, linkedInShareUrl),
+      }).catch((mailErr) => console.error('Failed to send certificate email to', issuedToEmail, mailErr));
     }
 
     res.status(201).json({ message: 'Certificates generated and sent', count: savedCerts.length });

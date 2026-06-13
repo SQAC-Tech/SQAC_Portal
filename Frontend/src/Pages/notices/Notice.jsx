@@ -7,16 +7,17 @@ import MainContent from "../../components/common/layout/MainContent";
 import RightPanel from "../../components/common/layout/RightPanel";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import { fetchWithAuth } from "../../api/fetchWithAuth";
+import { usePermissions } from "../../utils/usePermissions";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function Notice() {
+    const { canSendNotice, canDeleteMember: canDeleteNotice } = usePermissions();
     const [notices, setNotices] = useState([]);
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [image, setImage] = useState("");
     const [loading, setLoading] = useState(false);
-    const [role, setRole] = useState(null);
     const [editId, setEditId] = useState(null);
 
     const [currentUser, setCurrentUser] = useState(null);
@@ -44,16 +45,14 @@ export default function Notice() {
             const data = await fetchWithAuth(`${API_BASE_URL}/user/profile`);
             if (data && data.user) {
                 setCurrentUser(data.user);
-                setRole(data.user.role);
             }
         } catch (err) {
             console.error(err);
-            setRole(null);
         }
     }
 
-    const canCreate = role === "admin" || role === "subadmin" || role === "lead";
-    const canManage = role === "admin"; // Admin can Edit and Delete
+    const canCreate = canSendNotice;
+    const canManage = canDeleteNotice;
 
     // ---------- GET NOTICES ----------
     async function fetchNotices() {
@@ -62,10 +61,7 @@ export default function Notice() {
             setNotices(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error(err);
-            // Hide error for regular users who just don't have access
-            if (role !== "user") {
-                toast.error(err.message || "Failed to load notices");
-            }
+            toast.error(err.message || "Failed to load notices");
             setNotices([]);
         }
     }
@@ -93,17 +89,9 @@ export default function Notice() {
 
     // ---------- INITIAL LOAD ----------
     useEffect(() => {
-        async function init() {
-            await fetchUser();
-        }
-        init();
+        fetchUser();
+        fetchNotices();
     }, []);
-
-    useEffect(() => {
-        if (role) {
-            fetchNotices();
-        }
-    }, [role]);
 
     // ---------- CREATE / EDIT NOTICE ----------
     async function handleSaveNotice({ domain, subdomain }) {

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,7 +17,7 @@ function StepOne({ formData, setFormData }) {
       <FormInput icon="id_card" label="Register Number" placeholder="Register Number*" value={formData.regno}
         onChange={(val) => setFormData({ ...formData, regno: val })} />
 
-      <FormInput icon="mail" label="Email" placeholder="Email*" type="email" value={formData.email}
+      <FormInput icon="mail" label="SRM Email" placeholder="xx1234@srmist.edu.in*" type="email" value={formData.email}
         onChange={(val) => setFormData({ ...formData, email: val })} />
 
       <FormInput icon="call" label="Phone" placeholder="Phone Number*" value={formData.phone}
@@ -30,54 +29,155 @@ function StepOne({ formData, setFormData }) {
   );
 }
 
+const ROLE_OPTIONS = [
+  { label: "Select Role", value: "" },
+  { label: "Member", value: "member" },
+  { label: "Associate Lead", value: "associate_lead" },
+  { label: "Domain Lead", value: "domain_lead" },
+  { label: "Corporate Lead", value: "corp_lead" },
+  { label: "Project Lead", value: "project_lead" },
+  { label: "Technical Lead", value: "technical_lead" },
+  { label: "Joint Secretary", value: "joint_secretary" },
+  { label: "Secretary", value: "secretary" },
+];
+
+// The 6 team domains used by domain_lead / associate_lead
+const TEAM_DOMAINS = [
+  { label: "Select Domain", value: "" },
+  { label: "AI / ML", value: "AI/ML" },
+  { label: "Web Development", value: "Web Development" },
+  { label: "App Development", value: "App Development" },
+  { label: "Events", value: "Events" },
+  { label: "Media", value: "Media" },
+  { label: "Sponsorships", value: "Sponsorships" },
+];
+
+// Derive coreDomain from a team domain
+const DOMAIN_TO_CORE = {
+  "AI/ML": "Technical",
+  "Web Development": "Technical",
+  "App Development": "Technical",
+  "Events": "Corporate",
+  "Media": "Corporate",
+  "Sponsorships": "Corporate",
+};
+
+// Roles that manage everything — no domain picker needed
+const BROAD_ROLES = ["secretary", "joint_secretary", "project_lead"];
+// Roles with a single auto-set coreDomain, no subDomain
+const AUTO_CORE_ROLES = { technical_lead: "Technical", corp_lead: "Corporate" };
+
 function StepTwo({ formData, setFormData }) {
-  const isCorporate = formData.coreDomain === "Corporate";
-  
+  const role = formData.role;
+
+  const handleRoleChange = (val) => {
+    const next = { ...formData, role: val, coreDomain: "", subDomain: "" };
+    if (AUTO_CORE_ROLES[val])      next.coreDomain = AUTO_CORE_ROLES[val];
+    if (BROAD_ROLES.includes(val)) next.coreDomain = "All";
+    setFormData(next);
+  };
+
+  const handleTeamDomainChange = (val) => {
+    setFormData({ ...formData, subDomain: val, coreDomain: DOMAIN_TO_CORE[val] || "" });
+  };
+
+  const isAutoDomain     = !!AUTO_CORE_ROLES[role];
+  const isBroadRole      = BROAD_ROLES.includes(role);
+  const needsSubDomain   = role === "member" && formData.coreDomain;
+
+  const technicalSubDomains = [
+    { label: "Select Sub Domain", value: "" },
+    { label: "AI / ML",           value: "AI/ML" },
+    { label: "Web Development",   value: "Web Development" },
+    { label: "App Development",   value: "App Development" },
+  ];
+
+  const corporateSubDomains = [
+    { label: "Select Sub Domain", value: "" },
+    { label: "Events",       value: "Events" },
+    { label: "Media",        value: "Media" },
+    { label: "Sponsorships", value: "Sponsorships" },
+  ];
+
   return (
     <div className="space-y-5">
-      <FormSelect 
-        icon="category" 
-        label="Core Domain" 
-        value={formData.coreDomain}
-        options={[
-          { label: "Select Domain", value: "" },
-          { label: "Technical", value: "Technical" },
-          { label: "Corporate", value: "Corporate" }
-        ]}
-        onChange={(val) => setFormData({ ...formData, coreDomain: val, subDomain: "" })} 
+
+      {/* Role always first */}
+      <FormSelect
+        icon="badge"
+        label="Role"
+        value={role}
+        options={ROLE_OPTIONS}
+        onChange={handleRoleChange}
       />
 
-      <FormSelect 
-        icon="hub" 
-        label="Sub Domain" 
-        value={formData.subDomain}
-        options={isCorporate ? [
-          { label: "Select Sub Domain", value: "" },
-          { label: "Events", value: "Events" },
-          { label: "Media", value: "Media" },
-          { label: "Public Relations", value: "Public Relations" },
-          { label: "Sponsorships", value: "Sponsorships" },
-          { label: "Creatives", value: "Creatives" }
-        ] : [
-          { label: "Select Sub Domain", value: "" },
-          { label: "Web Development", value: "Web Development" },
-          { label: "AI/ML", value: "AI/ML" },
-          { label: "Cross-Domain", value: "Cross-Domain" }
-        ]}
-        onChange={(val) => setFormData({ ...formData, subDomain: val })} 
-      />
+      {/* Secretary / Joint Sec / Project Lead — no domain picker, show scope pill */}
+      {isBroadRole && role && (
+        <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-primary/20 bg-primary/5 text-sm text-white/80">
+          <span className="material-symbols-outlined text-primary shrink-0">public</span>
+          {role === "project_lead"
+            ? "You oversee projects across all domains."
+            : "You manage all domains across the organisation."}
+        </div>
+      )}
 
-      <FormSelect 
-        icon="work" 
-        label="Position" 
-        value={formData.position}
-        options={[
-          { label: "Select Position", value: "" },
-          { label: "Member", value: "member" },
-          { label: "Associate", value: "associate" }
-        ]}
-        onChange={(val) => setFormData({ ...formData, position: val })} 
-      />
+      {/* Technical Lead / Corp Lead — auto-set coreDomain, show scope pill */}
+      {isAutoDomain && (
+        <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-primary/20 bg-primary/5 text-sm text-white/80">
+          <span className="material-symbols-outlined text-primary shrink-0">auto_awesome</span>
+          You manage the entire&nbsp;
+          <span className="text-white font-bold">{formData.coreDomain}</span>
+          &nbsp;domain.
+        </div>
+      )}
+
+      {/* Domain Lead — pick which specific domain they lead */}
+      {role === "domain_lead" && (
+        <FormSelect
+          icon="hub"
+          label="Domain You Lead"
+          value={formData.subDomain}
+          options={TEAM_DOMAINS}
+          onChange={handleTeamDomainChange}
+        />
+      )}
+
+      {/* Associate Lead — pick their specific sub-domain */}
+      {role === "associate_lead" && (
+        <FormSelect
+          icon="hub"
+          label="Your Sub Domain"
+          value={formData.subDomain}
+          options={TEAM_DOMAINS}
+          onChange={handleTeamDomainChange}
+        />
+      )}
+
+      {/* Member — pick Core Domain first, then Sub Domain */}
+      {role === "member" && (
+        <FormSelect
+          icon="category"
+          label="Core Domain"
+          value={formData.coreDomain}
+          options={[
+            { label: "Select Core Domain", value: "" },
+            { label: "Technical",          value: "Technical" },
+            { label: "Corporate",          value: "Corporate" },
+          ]}
+          onChange={(val) => setFormData({ ...formData, coreDomain: val, subDomain: "" })}
+        />
+      )}
+
+      {needsSubDomain && (
+        <FormSelect
+          icon="hub"
+          label="Sub Domain"
+          value={formData.subDomain}
+          options={formData.coreDomain === "Corporate" ? corporateSubDomains : technicalSubDomains}
+          onChange={(val) => setFormData({ ...formData, subDomain: val })}
+        />
+      )}
+
     </div>
   );
 }
@@ -115,11 +215,10 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(0);
   const [flipPhase, setFlipPhase] = useState("idle"); // "idle" | "out" | "in"
   const [flipDir, setFlipDir] = useState(1); // 1 = next (right), -1 = back (left)
-  const [showLaunchOverlay, setShowLaunchOverlay] = useState(false);
+  const [submittedRole, setSubmittedRole] = useState(null); // stores role after successful submit
   const [isSubmitting, setIsSubmitting] = useState(false);
   const pendingStepRef = useRef(null);
   const cardRef = useRef(null);
-  const navigate = useNavigate();
 
   const sceneRef = useRef(null);
   const pointerRef = useRef({ x: 0.5, y: 0.5 });
@@ -135,7 +234,7 @@ export default function OnboardingPage() {
     password: "",
     coreDomain: "",
     subDomain: "",
-    position: "",
+    role: "",
     linkedin: "",
     instagram: "",
     github: "",
@@ -178,9 +277,9 @@ export default function OnboardingPage() {
           toast.error("Register Number is required.");
           return;
         }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
-          toast.error("Please enter a valid Email address.");
+        const srmEmailRegex = /^[a-zA-Z]{2}\d{4}@srmist\.edu\.in$/;
+        if (!formData.email.trim() || !srmEmailRegex.test(formData.email.trim())) {
+          toast.error("Please enter a valid SRM email (e.g. xx1234@srmist.edu.in).");
           return;
         }
         const phoneRegex = /^\+?[0-9]{10,15}$/;
@@ -193,18 +292,28 @@ export default function OnboardingPage() {
           return;
         }
       } else if (step === 1) {
-        if (!formData.coreDomain) {
-          toast.error("Core Domain is required.");
+        if (!formData.role) {
+          toast.error("Please select your role.");
           return;
         }
-        if (!formData.subDomain) {
-          toast.error("Sub Domain is required.");
-          return;
+        const r = formData.role;
+        if (r === "domain_lead" || r === "associate_lead") {
+          if (!formData.subDomain) {
+            toast.error(`Please select the domain for your ${r === "domain_lead" ? "Domain Lead" : "Associate Lead"} role.`);
+            return;
+          }
+        } else if (r === "member") {
+          if (!formData.coreDomain) {
+            toast.error("Core Domain is required.");
+            return;
+          }
+          if (!formData.subDomain) {
+            toast.error("Sub Domain is required.");
+            return;
+          }
         }
-        if (!formData.position) {
-          toast.error("Position is required.");
-          return;
-        }
+        // secretary, joint_secretary, project_lead, technical_lead, corp_lead
+        // — coreDomain is auto-set or not required, no further validation needed
       } else if (step === 2) {
         if (!formData.linkedin.trim() || !formData.linkedin.includes("linkedin.com")) {
           toast.error("A valid LinkedIn profile URL is required.");
@@ -327,7 +436,7 @@ export default function OnboardingPage() {
       password: formData.password,
       coreDomain: formData.coreDomain,
       subDomain: formData.subDomain,
-      position: formData.position,
+      role: formData.role,
       address: formData.address,
       bio: formData.bio,
       socials: {
@@ -343,18 +452,12 @@ export default function OnboardingPage() {
         payload
       );
 
-      // Trigger the success overlay animation instead of instant redirect
-      setShowLaunchOverlay(true);
-      toast.success("Welcome aboard! 🎉", { autoClose: 2000 });
-
-      // Wait 3.5s for the rocket animation to complete before redirecting
-      setTimeout(() => {
-        navigate("/login");
-      }, 3500);
+      // Show success overlay — do NOT redirect to login since account needs approval first
+      setSubmittedRole(formData.role || "member");
 
     } catch (err) {
       setIsSubmitting(false);
-      toast.error(err.response?.data?.error || "Onboarding failed ❌");
+      toast.error(err.response?.data?.error || "Onboarding failed. Please try again.");
       console.error(err);
     }
   };
@@ -366,21 +469,51 @@ export default function OnboardingPage() {
       <ToastContainer />
 
       {/* Success Launch Overlay */}
-      {showLaunchOverlay && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-[40px] overlay-fade-in">
-          <div className="flex flex-col items-center popup-anim px-4">
-            <div className="rocket-anim text-8xl sm:text-9xl mb-8 filter drop-shadow-[0_0_40px_rgba(241,131,255,0.8)]">
-              🚀
+      {submittedRole && (() => {
+        const isAdminRole = submittedRole === "secretary" || submittedRole === "joint_secretary";
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-[40px] overlay-fade-in">
+            <div className="flex flex-col items-center popup-anim px-6 max-w-md text-center">
+              <div className="text-7xl sm:text-8xl mb-6 filter drop-shadow-[0_0_40px_rgba(241,131,255,0.8)]">
+                ✅
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-headline font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent tracking-tight">
+                Registration Complete!
+              </h2>
+              <p className="text-on-surface-variant font-label text-base mt-4 leading-relaxed">
+                Your application has been submitted successfully.
+              </p>
+
+              {isAdminRole ? (
+                <>
+                  <p className="text-on-surface font-semibold text-sm mt-2">
+                    Admin account requests are reviewed by an existing administrator or the system owner.
+                  </p>
+                  <p className="text-on-surface-variant text-xs mt-3 leading-relaxed opacity-70">
+                    If you are the first Secretary, ask your system admin to approve your account directly in the database, or run the seed script.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-on-surface font-semibold text-sm mt-2">
+                    Awaiting approval from the Secretary.
+                  </p>
+                  <p className="text-on-surface-variant text-xs mt-3 leading-relaxed opacity-70">
+                    You will receive an email once your account is approved. You can then log in to the portal.
+                  </p>
+                </>
+              )}
+
+              <a
+                href="/login"
+                className="mt-8 inline-block bg-gradient-to-r from-primary to-secondary text-black font-bold text-sm px-8 py-3 rounded-full shadow-[0_8px_20px_rgba(241,131,255,0.35)] hover:-translate-y-0.5 transition-all"
+              >
+                Back to Login
+              </a>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-headline font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent tracking-tight text-center">
-              Registration Successful!
-            </h2>
-            <p className="text-on-surface-variant font-label text-base sm:text-lg mt-4 tracking-wide text-center">
-              Preparing your creative space...
-            </p>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       <main
         ref={sceneRef}
