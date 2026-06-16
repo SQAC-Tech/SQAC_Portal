@@ -96,22 +96,11 @@ export const createMOM = async (req, res) => {
   }
 };
 
-// ─── Get All MOMs (role-filtered) ─────────────────────────────────────────────
+// ─── Get All MOMs ─────────────────────────────────────────────────────────────
 export const getAllMOMs = async (req, res) => {
   try {
-    let query = {};
-
-    if (!isPrivileged(req.user.role)) {
-      // Regular users only see MOMs they created or are listed as attendee
-      query = {
-        $or: [
-          { createdBy: req.user._id },
-          { "attendees.userId": req.user._id },
-        ],
-      };
-    }
-
-    const moms = await MOM.find(query)
+    // All activated members can see the full MOM history
+    const moms = await MOM.find()
       .sort({ date: -1 })
       .populate("createdBy", "name email role")
       .populate("meetingRef", "title startDate");

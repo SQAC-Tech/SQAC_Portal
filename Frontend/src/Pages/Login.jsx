@@ -272,9 +272,13 @@ export default function Login() {
 
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
-        console.log("Login successful");
-        // Redirect to dashboard or home page
-        window.location.href = "/admin/members"; // Adjust as needed
+        if (!data.user.cocAccepted) {
+          window.location.href = "/accept-coc";
+        } else if (!data.user.profileCompleted) {
+          window.location.href = "/complete-profile";
+        } else {
+          window.location.href = "/dashboard";
+        }
       } else {
         setError(data.message || data.error || "Login failed");
       }

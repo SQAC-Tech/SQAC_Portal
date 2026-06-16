@@ -11,39 +11,56 @@ const ALL_ADMIN_ROLES = [
   "associate_lead",
 ];
 
-export const ProtectedRoute = ({ children }) => {
-  const userStr = localStorage.getItem("user");
-  if (!userStr) {
-    return <Navigate to="/login" replace />;
+function getUser() {
+  try {
+    const s = localStorage.getItem("user");
+    return s ? JSON.parse(s) : null;
+  } catch {
+    return null;
   }
+}
+
+export const ProtectedRoute = ({ children }) => {
+  const user = getUser();
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+};
+
+// Requires login + COC accepted
+export const COCRoute = ({ children }) => {
+  const user = getUser();
+  if (!user) return <Navigate to="/login" replace />;
+  if (!user.cocAccepted) return <Navigate to="/accept-coc" replace />;
+  return children;
+};
+
+// Requires login + COC accepted + profile completed
+export const ActiveRoute = ({ children }) => {
+  const user = getUser();
+  if (!user) return <Navigate to="/login" replace />;
+  if (!user.cocAccepted) return <Navigate to="/accept-coc" replace />;
+  if (!user.profileCompleted) return <Navigate to="/complete-profile" replace />;
   return children;
 };
 
 export const SecretaryRoute = ({ children }) => {
-  const userStr = localStorage.getItem("user");
-  if (!userStr) return <Navigate to="/login" replace />;
-  try {
-    const user = JSON.parse(userStr);
-    if (user.role !== "secretary") return <Navigate to="/dashboard" replace />;
-  } catch {
-    return <Navigate to="/login" replace />;
-  }
+  const user = getUser();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== "secretary") return <Navigate to="/dashboard" replace />;
+  return children;
+};
+
+export const SecretaryOrJointRoute = ({ children }) => {
+  const user = getUser();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== "secretary" && user.role !== "joint_secretary") return <Navigate to="/dashboard" replace />;
   return children;
 };
 
 export const AdminRoute = ({ children }) => {
-  const userStr = localStorage.getItem("user");
-  if (!userStr) {
-    return <Navigate to="/login" replace />;
-  }
-  try {
-    const user = JSON.parse(userStr);
-    const role = user.role || "member";
-    if (!ALL_ADMIN_ROLES.includes(role)) {
-      return <Navigate to="/dashboard" replace />;
-    }
-  } catch (e) {
-    return <Navigate to="/login" replace />;
-  }
+  const user = getUser();
+  if (!user) return <Navigate to="/login" replace />;
+  const role = user.role || "member";
+  if (!ALL_ADMIN_ROLES.includes(role)) return <Navigate to="/dashboard" replace />;
   return children;
 };

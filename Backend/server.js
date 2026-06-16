@@ -57,6 +57,7 @@ import {
 import certificateRoutes from "./src/routes/certificate.routes.js";
 import projectRoutes from "./src/routes/project.routes.js";
 import momRoutes from "./src/routes/mom.routes.js";
+import cocRoutes from "./src/routes/coc.routes.js";
 
 const app = express();
 
@@ -139,6 +140,9 @@ app.use("/api/projects", projectRoutes);
 
 // Minutes of Meeting (MOM)
 app.use("/api/mom", momRoutes);
+
+// Code of Conduct
+app.use("/api/coc", cocRoutes);
 
 //Attendance
 app.post("/attendance/add", requirePermission("MANAGE_ATTENDANCE"), addAttendance);

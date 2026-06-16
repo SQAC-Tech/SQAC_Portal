@@ -167,7 +167,10 @@ const loginUser = async (req, res) => {
         email: user.email,
         regNum: user.regNum,
         coreDomain: user.coreDomain,
+        subDomain: user.subDomain,
         role: user.role,
+        cocAccepted: user.cocAccepted === true,
+        profileCompleted: user.profileCompleted === true,
       },
     });
   } catch (err) {
