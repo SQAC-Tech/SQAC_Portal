@@ -152,6 +152,11 @@ app.put("/attendance/edit/:id", requirePermission("MANAGE_ATTENDANCE"), editAtte
 app.get("/attendance/domain", requirePermission("MANAGE_ATTENDANCE"), getAttendanceByDomain);
 app.get("/attendance/by-domain-subdomain", requirePermission("MANAGE_ATTENDANCE"), getAttendanceByDomainSubdomain);
 
+// Ping endpoint for keep-alive
+app.get("/api/ping", (req, res) => {
+  res.status(200).json({ message: "pong" });
+});
+
 // Database Connection and Server Start
 const PORT = process.env.PORT || 3000;
 
@@ -160,6 +165,23 @@ connectDB()
     console.log("Connected to MongoDB");
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
+      
+      // Self-ping cron to keep Render free tier awake (pings every 14 minutes)
+      const PING_INTERVAL = 14 * 60 * 1000; // 14 minutes
+      setInterval(async () => {
+        try {
+          // Render provides RENDER_EXTERNAL_URL automatically
+          const url = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+          const response = await fetch(`${url}/api/ping`);
+          if (response.ok) {
+            console.log(`[KeepAlive] Successfully pinged ${url}/api/ping`);
+          } else {
+            console.log(`[KeepAlive] Ping failed with status: ${response.status}`);
+          }
+        } catch (error) {
+          console.error("[KeepAlive] Error pinging server:", error.message);
+        }
+      }, PING_INTERVAL);
     });
   })
   .catch((err) => {
