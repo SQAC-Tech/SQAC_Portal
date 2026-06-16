@@ -22,6 +22,12 @@ export const navItems = [
     secretaryOnly: true,
   },
   {
+    icon: "verified_user",
+    label: "COC Records",
+    href: "/admin/coc",
+    cocRecordsOnly: true,
+  },
+  {
     icon: "description",
     label: "Create MOM",
     href: "/admin/mom/create",

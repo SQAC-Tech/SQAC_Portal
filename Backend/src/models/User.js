@@ -84,7 +84,20 @@ const userSchema = new mongoose.Schema(
     rejectionReason:{
         type:String,
         default:''
-    }
+    },
+
+    // COC acceptance tracking
+    cocAccepted:        { type: Boolean, default: false },
+    cocAcceptedAt:      { type: Date, default: null },
+    cocVersionAccepted: { type: String, default: null },
+
+    // Profile completion (mandatory fields after COC)
+    profileCompleted:   { type: Boolean, default: false },
+    department:         { type: String, default: "" },
+    section:            { type: String, default: "" },
+    facultyAdvisorName: { type: String, default: "" },
+    facultyAdvisorNo:   { type: String, default: "" },
+    residenceType:      { type: String, enum: ["Hosteller", "Dayscholar", ""], default: "" },
   },
   { timestamps: true }
 );

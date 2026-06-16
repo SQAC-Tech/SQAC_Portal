@@ -37,6 +37,7 @@ const AdminSidebar = ({ onLogout }) => {
           return memberOnlyLabels.includes(item.label);
         }
         if (item.secretaryOnly && role !== "secretary") return false;
+        if (item.cocRecordsOnly && role !== "secretary" && role !== "joint_secretary") return false;
         if (item.label === "Certificate Generator" && !CERT_PERM_ROLES.includes(role)) {
           return false;
         }
