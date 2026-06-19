@@ -183,7 +183,7 @@ export default function AcceptCOC() {
             <span className="material-symbols-outlined text-[#f183ff] text-[18px]">description</span>
             <span className="text-sm font-medium">SQAC Code of Conduct</span>
             <a
-              href="/SQAC Code of Conduct.pdf"
+              href={`${API}/api/coc/document`}
               target="_blank"
               rel="noreferrer"
               className="ml-auto text-xs text-[#81ecff] hover:underline"
@@ -192,7 +192,7 @@ export default function AcceptCOC() {
             </a>
           </div>
           <iframe
-            src="/SQAC Code of Conduct.pdf"
+            src={`${API}/api/coc/document`}
             title="SQAC Code of Conduct"
             className="w-full"
             style={{ height: "60vh", border: "none" }}
