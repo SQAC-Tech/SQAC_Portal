@@ -10,6 +10,7 @@ export default function COCRecords() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(null);
+  const [viewing, setViewing] = useState(null);
   const [downloadingAll, setDownloadingAll] = useState(false);
 
   useEffect(() => {
@@ -64,9 +65,27 @@ export default function COCRecords() {
     else toast.success(`Downloaded ${filtered.length} PDF(s).`);
   };
 
-  // Opens the PDF inline in a new browser tab
-  const viewPdf = (userId) => {
-    window.open(`${API}/api/coc/records/${userId}/pdf`, "_blank");
+  // Fetches PDF with auth then opens the blob in a new tab
+  const viewPdf = async (userId) => {
+    setViewing(userId);
+    try {
+      const res = await fetch(`${API}/api/coc/records/${userId}/pdf`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to load PDF.");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+      // revoke after a short delay so the new tab has time to load it
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setViewing(null);
+    }
   };
 
   // Fetches the PDF blob and triggers a file download
@@ -210,13 +229,14 @@ export default function COCRecords() {
                         {/* View in browser */}
                         <button
                           onClick={() => viewPdf(rec.userId)}
+                          disabled={viewing === rec.userId}
                           title="View PDF"
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#81ecff]/10 border border-[#81ecff]/20 text-[#81ecff] text-xs font-medium hover:bg-[#81ecff]/20 transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#81ecff]/10 border border-[#81ecff]/20 text-[#81ecff] text-xs font-medium hover:bg-[#81ecff]/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <span className="material-symbols-outlined text-[14px]">
-                            open_in_new
+                            {viewing === rec.userId ? "hourglass_top" : "open_in_new"}
                           </span>
-                          View
+                          {viewing === rec.userId ? "…" : "View"}
                         </button>
 
                         {/* Download to disk */}
