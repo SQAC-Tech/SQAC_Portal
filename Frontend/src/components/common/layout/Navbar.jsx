@@ -1,16 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import logo from "../../../assets/LogoSQAC-Cntu4jgR.png";
+import SQACLogo from "../../ui/SQACLogo";
+import MobileNav from "./MobileNav";
+import { ROLE_LABELS } from "../../../utils/memberHelpers";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-const ROLE_LABELS = {
-  secretary: "Secretary", joint_secretary: "Joint Secretary",
-  technical_lead: "Technical Lead", project_lead: "Project Lead",
-  corp_lead: "Corporate Lead", domain_lead: "Domain Lead",
-  associate_lead: "Associate Lead", member: "Member",
-};
 
 function timeAgo(date) {
   const diff = Math.floor((Date.now() - new Date(date)) / 1000);
@@ -31,6 +26,7 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [rejectingId, setRejectingId] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -225,22 +221,30 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-[100] h-16 border-b border-white/8 bg-[#070910]/90 backdrop-blur-2xl px-6 md:px-12 flex items-center justify-between">
 
-      {/* Brand */}
-      <Link to="/dashboard" className="flex items-center gap-3 group">
-        <img
-          src={logo}
-          alt="SQAC Logo"
-          className="h-9 w-9 rounded-xl object-contain shadow-[0_0_18px_rgba(241,131,255,0.25)] ring-1 ring-white/10 bg-white/5"
-        />
-        <div className="leading-tight">
-          <p className="font-headline text-lg font-bold text-white tracking-wider group-hover:text-primary transition-colors">
-            SQAC <span className="text-[#ff6c95] font-light">Portal</span>
-          </p>
-          <p className="hidden sm:block text-[10px] uppercase tracking-[0.35em] text-white/35">
-            Software Quality Assurance Community
-          </p>
-        </div>
-      </Link>
+      {/* Left: hamburger (mobile) + brand */}
+      <div className="flex items-center gap-2.5">
+        <button
+          onClick={() => setMobileNavOpen(true)}
+          aria-label="Open menu"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:text-white lg:hidden"
+        >
+          <span className="material-symbols-outlined text-[22px]">menu</span>
+        </button>
+
+        <Link to="/dashboard" className="group flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 shadow-[0_0_18px_rgba(241,131,255,0.25)]">
+            <SQACLogo size={22} />
+          </span>
+          <div className="leading-tight">
+            <p className="font-headline text-lg font-bold tracking-wider text-white transition-colors group-hover:text-primary">
+              SQAC <span className="font-light text-[#ff6c95]">Portal</span>
+            </p>
+            <p className="hidden text-[10px] uppercase tracking-[0.35em] text-white/35 sm:block">
+              Software Quality Assurance Community
+            </p>
+          </div>
+        </Link>
+      </div>
 
       <div className="flex items-center gap-4">
 
@@ -259,7 +263,7 @@ export default function Navbar() {
           </button>
 
           {showDropdown && (
-            <div className="absolute right-0 mt-2 w-[360px] rounded-2xl border border-white/10 bg-[#0d1117]/96 backdrop-blur-2xl shadow-[0_24px_60px_rgba(0,0,0,0.7)] overflow-hidden z-[110]">
+            <div className="absolute right-0 mt-2 w-[360px] rounded-2xl border border-white/10 bg-[#0c0f1a]/96 backdrop-blur-2xl shadow-[0_24px_60px_rgba(0,0,0,0.7)] overflow-hidden z-[110]">
 
               {/* Panel Header */}
               <div className="px-4 pt-4 pb-0">
@@ -457,7 +461,7 @@ export default function Navbar() {
       {/* ── Rejection Reason Modal ── */}
       {rejectingId && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0d1117]/98 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.7)]">
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0c0f1a]/98 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.7)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-9 w-9 rounded-xl bg-red-500/10 border border-red-400/20 flex items-center justify-center">
                 <span className="material-symbols-outlined text-red-400 text-lg">report</span>
@@ -493,6 +497,14 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      {/* ── Mobile navigation drawer ── */}
+      <MobileNav
+        open={mobileNavOpen}
+        onClose={() => setMobileNavOpen(false)}
+        onLogout={handleLogout}
+        user={user}
+      />
 
     </nav>
   );

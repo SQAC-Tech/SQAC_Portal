@@ -1,18 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 import MemberCard from "../../components/admin/MemberCard";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import Navbar from "../../components/common/layout/Navbar";
 import { usePermissions } from "../../utils/usePermissions";
-import { DEFAULT_AVATAR, roleLabel, formatDate } from "../../utils/memberHelpers";
+import { roleLabel, formatDate, ROLE_LABELS } from "../../utils/memberHelpers";
+import { Avatar, EmptyState } from "../../components/ui";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-const ROLE_LABELS = {
-  secretary: "Secretary", joint_secretary: "Joint Secretary",
-  technical_lead: "Technical Lead", project_lead: "Project Lead",
-  corp_lead: "Corporate Lead", domain_lead: "Domain Lead",
-  associate_lead: "Associate Lead", member: "Member",
-};
 
 function DetailRow({ label, value }) {
   if (!value) return null;
@@ -41,13 +36,9 @@ function MemberDetailModal({ member, onClose }) {
         <div className="p-6 space-y-5">
           {/* Header */}
           <div className="flex items-start gap-4">
-            <img
-              src={member.image || DEFAULT_AVATAR}
-              alt={member.name}
-              className="w-16 h-16 rounded-2xl object-cover border border-white/10 shrink-0"
-            />
+            <Avatar src={member.image} alt={member.name} size={64} />
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-bold text-white font-['Space_Grotesk'] truncate">{member.name}</h2>
+              <h2 className="text-xl font-bold text-white font-headline truncate">{member.name}</h2>
               <div className="flex flex-wrap gap-1.5 mt-1.5">
                 <span className="px-2 py-0.5 rounded-full bg-[#81ecff]/10 border border-[#81ecff]/20 text-[#81ecff] text-[10px] font-semibold uppercase tracking-wide">
                   {ROLE_LABELS[member.role] || member.role || "Member"}
@@ -246,8 +237,9 @@ const Members = () => {
       if (!res.ok) throw new Error(data?.message || data?.error || "Unable to delete member.");
       setMembers((cur) => cur.filter((m) => m._id !== member._id));
       if (selectedMember?._id === member._id) setSelectedMember(null);
+      toast.success(`${member.name} removed`);
     } catch (err) {
-      alert(err.message || "Failed to delete member.");
+      toast.error(err.message || "Failed to delete member.");
     }
   };
 
@@ -298,7 +290,7 @@ const Members = () => {
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-6 px-5 py-4 md:px-8 lg:pl-28">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">SQAC Portal</p>
-            <h1 className="mt-2 text-2xl font-bold text-white font-['Space_Grotesk'] md:text-3xl">Members Command Deck</h1>
+            <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">Members Command Deck</h1>
           </div>
 
           <div className="hidden min-w-[280px] flex-1 md:flex md:max-w-xl">
@@ -351,7 +343,7 @@ const Members = () => {
 
         <section className="mt-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h3 className="text-2xl font-bold text-white font-['Space_Grotesk']">Member IDs</h3>
+            <h3 className="text-2xl font-bold text-white font-headline">Member IDs</h3>
             <p className="mt-1 text-sm text-white/55">Showing {filteredMembers.length} of {members.length} members</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -373,24 +365,31 @@ const Members = () => {
         )}
 
         {!loading && error && (
-          <section className="mt-8 rounded-[2rem] border border-red-300/15 bg-red-500/8 p-6 text-white/85">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-lg font-bold text-white">Members unavailable</p>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-white/65">{error}</p>
-              </div>
-              <button
-                className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-bold text-black transition-transform hover:-translate-y-0.5"
-                onClick={() => fetchMembers()}
-              >Try again</button>
-            </div>
+          <section className="mt-8 rounded-[2rem] border border-red-300/15 bg-red-500/8">
+            <EmptyState
+              icon="error"
+              title="Members unavailable"
+              description={error}
+              action={
+                <button
+                  className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black transition-transform hover:-translate-y-0.5"
+                  onClick={() => fetchMembers()}
+                >
+                  <span className="material-symbols-outlined text-lg">refresh</span>
+                  Try again
+                </button>
+              }
+            />
           </section>
         )}
 
         {!loading && !error && filteredMembers.length === 0 && (
-          <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center">
-            <p className="text-2xl font-bold text-white font-['Space_Grotesk']">No matching members</p>
-            <p className="mt-3 text-sm text-white/60">Try a different search term.</p>
+          <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04]">
+            <EmptyState
+              icon={searchTerm ? "search_off" : "group"}
+              title={searchTerm ? "No matching members" : "No members yet"}
+              description={searchTerm ? "Try a different search term." : "Members will appear here once they join."}
+            />
           </section>
         )}
 
@@ -416,8 +415,8 @@ const Members = () => {
       {/* Confirm Delete Modal */}
       {confirmModal.isOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0c0a15] p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">Confirm Delete</h3>
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0c0f1a] p-6 shadow-2xl">
+            <h3 className="text-lg font-bold text-white mb-2 font-headline">Confirm Delete</h3>
             <p className="text-white/60 text-sm mb-6">{confirmModal.message}</p>
             <div className="flex justify-end gap-3">
               <button

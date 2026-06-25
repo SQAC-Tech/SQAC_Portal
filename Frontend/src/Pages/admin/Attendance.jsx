@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { toast } from "react-hot-toast";
-import Navbar from "../../components/common/layout/Navbar";
-import AdminSidebar from "../../components/admin/AdminSidebar";
+import AppShell from "../../components/common/layout/AppShell";
 import { usePermissions } from "../../utils/usePermissions";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -71,11 +70,6 @@ export default function AttendancePage() {
     } catch (err) {
       console.error("Failed to fetch members list:", err);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    window.location.href = "/login";
   };
 
   const openNewModal = () => {
@@ -200,11 +194,8 @@ export default function AttendancePage() {
   }, [attendanceList]);
 
   return (
-    <div className="min-h-screen bg-[#070910] text-[#f5eefc] lg:pl-24 selection:bg-primary/30 flex flex-col font-body">
-      <Navbar />
-      <AdminSidebar onLogout={handleLogout} />
-
-      <main className="flex-grow p-6 lg:p-8 space-y-8 max-w-[1600px] w-full mx-auto">
+    <AppShell main={false}>
+      <main className="flex-grow space-y-8 max-w-[1600px] w-full mx-auto px-5 pb-16 pt-8 md:px-8 lg:pl-28">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/8 pb-6">
           <div>
@@ -234,7 +225,7 @@ export default function AttendancePage() {
           ].map((st, index) => (
             <div
               key={index}
-              className="rounded-2xl border border-white/8 bg-[#090812]/52 backdrop-blur-xl p-5 flex items-center justify-between shadow-[0_10px_30px_rgba(0,0,0,0.15)]"
+              className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] p-5 flex items-center justify-between shadow-[0_30px_80px_rgba(4,6,20,0.42)]"
             >
               <div>
                 <p className="text-[10px] font-bold text-[#aea9b6] uppercase tracking-wider">{st.label}</p>
@@ -246,7 +237,7 @@ export default function AttendancePage() {
         </div>
 
         {/* Table Filters Section */}
-        <div className="rounded-2xl border border-white/8 bg-[#090812]/52 backdrop-blur-xl p-5 flex flex-col md:flex-row gap-4 items-center justify-between shadow-[0_10px_30px_rgba(0,0,0,0.15)]">
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)] p-5 flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="w-full md:max-w-md">
             <label className="relative block">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/35">
@@ -269,7 +260,7 @@ export default function AttendancePage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-[#0b0a13] border border-white/8 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
+                className="bg-[#070910] border border-white/8 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
               >
                 <option value="all">All</option>
                 <option value="present">Present</option>
@@ -285,7 +276,7 @@ export default function AttendancePage() {
               <select
                 value={domainFilter}
                 onChange={(e) => setDomainFilter(e.target.value)}
-                className="bg-[#0b0a13] border border-white/8 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
+                className="bg-[#070910] border border-white/8 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
               >
                 <option value="all">All Divisions</option>
                 <option value="Technical">Technical</option>
@@ -296,7 +287,7 @@ export default function AttendancePage() {
         </div>
 
         {/* Attendance Log Table */}
-        <div className="border border-white/8 bg-[#090812]/52 backdrop-blur-xl rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)]">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -380,7 +371,7 @@ export default function AttendancePage() {
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${
-                            statusColors[record.status] || "bg-slate-500/10 text-slate-300 border-slate-500/20"
+                            statusColors[record.status] || "bg-[#6b6f7d]/10 text-[#aea9b6] border-[#494651]/20"
                           }`}>
                             {record.status}
                           </span>
@@ -411,7 +402,7 @@ export default function AttendancePage() {
       {/* Attendance Form Popup Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/72 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#0c0a15]/95 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative overflow-hidden">
+          <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#0c0f1a]/95 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary" />
 
             <div className="flex justify-between items-center mb-6">
@@ -449,7 +440,7 @@ export default function AttendancePage() {
                     required
                     value={selectedUserId}
                     onChange={(e) => setSelectedUserId(e.target.value)}
-                    className="w-full bg-[#0d0c16] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full bg-[#0c0f1a] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                   >
                     <option value="">-- Choose Member --</option>
                     {members.map((m) => (
@@ -511,7 +502,7 @@ export default function AttendancePage() {
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="w-full bg-[#0d0c16] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full bg-[#0c0f1a] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                   >
                     <option value="present">Present</option>
                     <option value="absent">Absent</option>
@@ -526,7 +517,7 @@ export default function AttendancePage() {
                   <select
                     value={meetType}
                     onChange={(e) => setMeetType(e.target.value)}
-                    className="w-full bg-[#0d0c16] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full bg-[#0c0f1a] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                   >
                     <option value="gmeet">Google Meet</option>
                     <option value="in_person">In Person</option>
@@ -555,6 +546,6 @@ export default function AttendancePage() {
           </div>
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }

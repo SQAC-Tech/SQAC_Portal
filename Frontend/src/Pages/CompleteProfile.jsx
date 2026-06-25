@@ -1,21 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { ROLE_LABELS } from "../utils/memberHelpers";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const DEPARTMENTS = ["CTECH", "CINTEL", "ECE", "NWC", "DSBS", "Mechanical", "Other"];
-
-const ROLE_LABELS = {
-  secretary:       "Secretary",
-  joint_secretary: "Joint Secretary",
-  technical_lead:  "Technical Lead",
-  project_lead:    "Project Lead",
-  corp_lead:       "Corporate Lead",
-  domain_lead:     "Domain Lead",
-  associate_lead:  "Associate Lead",
-  member:          "Member",
-};
 
 function Field({ label, required, children }) {
   return (

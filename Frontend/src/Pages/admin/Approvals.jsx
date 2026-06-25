@@ -1,32 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import AdminSidebar from "../../components/admin/AdminSidebar";
-import Navbar from "../../components/common/layout/Navbar";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import AppShell from "../../components/common/layout/AppShell";
+import { ROLE_LABELS, ROLE_COLORS } from "../../utils/memberHelpers";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-const ROLE_LABELS = {
-  secretary:       "Secretary",
-  joint_secretary: "Joint Secretary",
-  technical_lead:  "Technical Lead",
-  project_lead:    "Project Lead",
-  corp_lead:       "Corporate Lead",
-  domain_lead:     "Domain Lead",
-  associate_lead:  "Associate Lead",
-  member:          "Member",
-};
-
-const ROLE_COLORS = {
-  secretary:       "bg-[#f183ff]/10 border-[#f183ff]/25 text-[#f183ff]",
-  joint_secretary: "bg-violet-500/10 border-violet-400/25 text-violet-300",
-  technical_lead:  "bg-blue-500/10 border-blue-400/25 text-blue-300",
-  project_lead:    "bg-cyan-500/10 border-cyan-400/25 text-cyan-300",
-  corp_lead:       "bg-amber-500/10 border-amber-400/25 text-amber-300",
-  domain_lead:     "bg-emerald-500/10 border-emerald-400/25 text-emerald-300",
-  associate_lead:  "bg-orange-500/10 border-orange-400/25 text-orange-300",
-  member:          "bg-white/6 border-white/15 text-white/60",
-};
 
 export default function Approvals() {
   const navigate = useNavigate();
@@ -98,11 +76,6 @@ export default function Approvals() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
-
   const roleOptions = ["all", ...Object.keys(ROLE_LABELS)];
 
   const filtered = pending.filter((m) => {
@@ -115,12 +88,7 @@ export default function Approvals() {
   });
 
   return (
-    <div className="min-h-screen bg-[#070910] text-white">
-      <Navbar />
-      <AdminSidebar onLogout={handleLogout} />
-
-      <main className="pl-0 lg:pl-20 pt-20 pb-10 px-4 md:px-8 lg:px-12">
-
+    <AppShell>
         {/* Header */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -158,7 +126,7 @@ export default function Approvals() {
             className="px-4 py-2.5 rounded-xl border border-white/10 bg-white/4 text-sm text-white/70 outline-none focus:border-primary/50 transition-colors"
           >
             {roleOptions.map((r) => (
-              <option key={r} value={r} className="bg-[#0d1220]">
+              <option key={r} value={r} className="bg-[#0c0f1a]">
                 {r === "all" ? "All Roles" : ROLE_LABELS[r]}
               </option>
             ))}
@@ -166,7 +134,7 @@ export default function Approvals() {
         </div>
 
         {/* Table */}
-        <div className="rounded-2xl border border-white/8 bg-[#0c0f1a]/70 overflow-hidden">
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)]">
           {loading ? (
             <div className="py-24 flex flex-col items-center gap-3 text-white/25">
               <span className="material-symbols-outlined text-4xl animate-spin">progress_activity</span>
@@ -294,12 +262,11 @@ export default function Approvals() {
             Showing {filtered.length} of {pending.length} applications
           </p>
         )}
-      </main>
 
       {/* Rejection Modal */}
       {rejectingId && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0d1117]/98 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.7)]">
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0c0f1a]/98 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.7)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-9 w-9 rounded-xl bg-red-500/10 border border-red-400/20 flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-red-400 text-lg">report</span>
@@ -337,6 +304,6 @@ export default function Approvals() {
           </div>
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }

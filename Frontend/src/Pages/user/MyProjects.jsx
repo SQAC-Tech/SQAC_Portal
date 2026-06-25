@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import AdminSidebar from "../../components/admin/AdminSidebar";
-import Navbar from "../../components/common/layout/Navbar";
+import AppShell from "../../components/common/layout/AppShell";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -99,23 +98,15 @@ const MyProjects = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070910] text-[#f5eefc] overflow-hidden relative flex pt-16">
-      <Navbar />
-      <div className="pointer-events-none fixed inset-0 -z-40 bg-[radial-gradient(circle_at_top_left,rgba(241,131,255,0.18),transparent_30%),radial-gradient(circle_at_top_right,rgba(129,236,255,0.14),transparent_28%),linear-gradient(180deg,#070910_0%,#0b1020_44%,#070910_100%)]" />
-      <div className="pointer-events-none fixed inset-0 -z-30 opacity-70 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-
-      <AdminSidebar onLogout={() => {
-        localStorage.removeItem("user");
-        window.location.href = "/login";
-      }} />
-
-      <div className="flex-1 flex flex-col h-screen overflow-hidden pl-0 lg:pl-24">
-        <header className="flex-shrink-0 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl px-8 py-6">
+    <AppShell main={false}>
+      <header className="sticky top-0 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl">
+        <div className="mx-auto max-w-[1500px] px-5 py-4 md:px-8 lg:pl-28">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">Workspace</p>
-          <h1 className="mt-2 text-2xl font-bold text-white font-['Space_Grotesk'] md:text-3xl">My Assigned Projects</h1>
-        </header>
+          <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">My Assigned Projects</h1>
+        </div>
+      </header>
 
-        <main className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+      <main className="mx-auto max-w-[1500px] px-5 pb-16 pt-8 md:px-8 lg:pl-28">
           {loading ? (
             <div className="text-white/50 text-center py-20 animate-pulse">Loading assignments...</div>
           ) : error ? (
@@ -129,7 +120,7 @@ const MyProjects = () => {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <span className="text-xs text-primary/80 font-bold uppercase tracking-widest">{project.domain}</span>
-                      <h3 className="text-xl font-bold text-white mt-1 font-['Space_Grotesk']">{project.title}</h3>
+                      <h3 className="text-xl font-bold text-white mt-1 font-headline">{project.title}</h3>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getDifficultyColor(project.difficulty)}`}>
                       {project.difficulty}
@@ -148,15 +139,14 @@ const MyProjects = () => {
             </div>
           )}
         </main>
-      </div>
 
       {selectedProject && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-2xl bg-[#0d1220] h-full flex flex-col border-l border-white/10 shadow-2xl animate-slide-in-right">
+          <div className="w-full max-w-2xl bg-[#0c0f1a] h-full flex flex-col border-l border-white/10 shadow-2xl animate-slide-in-right">
             <div className="p-6 border-b border-white/10 flex justify-between items-center bg-[#070910]">
               <div>
                 <span className="text-xs text-primary/80 font-bold uppercase tracking-widest">{selectedProject.domain}</span>
-                <h2 className="text-xl font-bold text-white mt-1 font-['Space_Grotesk']">{selectedProject.title}</h2>
+                <h2 className="text-xl font-bold text-white mt-1 font-headline">{selectedProject.title}</h2>
               </div>
               <div className="flex items-center gap-3">
                 {selectedProject.status === "in_progress" && (
@@ -174,7 +164,7 @@ const MyProjects = () => {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 custom-scrollbar bg-[#0d1220]">
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 custom-scrollbar bg-[#0c0f1a]">
               <div className="mb-4">
                 <h4 className="text-sm font-bold text-white/80 uppercase tracking-wider mb-2">Project PRD</h4>
                 <p className="text-sm text-white/60">{selectedProject.description}</p>
@@ -237,8 +227,8 @@ const MyProjects = () => {
       {/* Generic Confirmation Modal */}
       {confirmModal.isOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-[#0d1220] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up">
-            <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">Confirm Action</h3>
+          <div className="bg-[#0c0f1a] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up">
+            <h3 className="text-lg font-bold text-white mb-2 font-headline">Confirm Action</h3>
             <p className="text-white/60 text-sm mb-6">{confirmModal.message}</p>
             <div className="flex justify-end gap-3">
               <button 
@@ -261,7 +251,7 @@ const MyProjects = () => {
       {/* Generic Alert Modal */}
       {alertModal.isOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-[#0d1220] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up text-center">
+          <div className="bg-[#0c0f1a] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up text-center">
             <div className={`mx-auto w-12 h-12 rounded-full mb-4 flex items-center justify-center ${
               alertModal.type === 'error' ? 'bg-red-500/20 text-red-400' :
               alertModal.type === 'success' ? 'bg-emerald-500/20 text-emerald-400' :
@@ -271,7 +261,7 @@ const MyProjects = () => {
                 {alertModal.type === 'error' ? 'error' : alertModal.type === 'success' ? 'check_circle' : 'info'}
               </span>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">
+            <h3 className="text-lg font-bold text-white mb-2 font-headline">
               {alertModal.type === 'error' ? 'Error' : alertModal.type === 'success' ? 'Success' : 'Notice'}
             </h3>
             <p className="text-white/60 text-sm mb-6">{alertModal.message}</p>
@@ -284,7 +274,7 @@ const MyProjects = () => {
           </div>
         </div>
       )}
-    </div>
+    </AppShell>
   );
 };
 

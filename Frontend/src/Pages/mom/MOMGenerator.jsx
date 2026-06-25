@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 import { exportMOMtoPDF, loadLogoBase64 } from "../../utils/momPdfExport";
 import Navbar from "../../components/common/layout/Navbar";
 
@@ -44,7 +45,7 @@ const isValidDateStr = (s) =>
 
 /* ── Reusable primitives ─────────────────────────────────────────── */
 const Label = ({ children, required }) => (
-  <label className="block text-[11px] font-semibold uppercase tracking-widest text-[#8a8496] mb-1.5">
+  <label className="block text-[11px] font-semibold uppercase tracking-widest text-[#aea9b6] mb-1.5">
     {children}
     {required && <span className="text-[#ff6c95] ml-0.5">*</span>}
   </label>
@@ -53,8 +54,8 @@ const Label = ({ children, required }) => (
 const Input = ({ className = "", ...props }) => (
   <input
     {...props}
-    className={`w-full bg-[#13111e] border border-[#2e2a3a] rounded-lg px-3 py-2.5 text-sm text-[#f0eaf8]
-      placeholder-[#3d384d] focus:outline-none focus:border-[#f183ff] focus:ring-1 focus:ring-[#f183ff]/20
+    className={`w-full bg-[#0c0f1a] border border-[#272c3a] rounded-lg px-3 py-2.5 text-sm text-[#f5eefc]
+      placeholder-[#353b4a] focus:outline-none focus:border-[#f183ff] focus:ring-1 focus:ring-[#f183ff]/20
       transition-all disabled:opacity-50 ${className}`}
   />
 );
@@ -62,8 +63,8 @@ const Input = ({ className = "", ...props }) => (
 const Textarea = ({ className = "", ...props }) => (
   <textarea
     {...props}
-    className={`w-full bg-[#13111e] border border-[#2e2a3a] rounded-lg px-3 py-2.5 text-sm text-[#f0eaf8]
-      placeholder-[#3d384d] focus:outline-none focus:border-[#f183ff] focus:ring-1 focus:ring-[#f183ff]/20
+    className={`w-full bg-[#0c0f1a] border border-[#272c3a] rounded-lg px-3 py-2.5 text-sm text-[#f5eefc]
+      placeholder-[#353b4a] focus:outline-none focus:border-[#f183ff] focus:ring-1 focus:ring-[#f183ff]/20
       transition-all resize-none disabled:opacity-50 ${className}`}
   />
 );
@@ -71,7 +72,7 @@ const Textarea = ({ className = "", ...props }) => (
 const Select = ({ children, className = "", ...props }) => (
   <select
     {...props}
-    className={`w-full bg-[#13111e] border border-[#2e2a3a] rounded-lg px-3 py-2.5 text-sm text-[#f0eaf8]
+    className={`w-full bg-[#0c0f1a] border border-[#272c3a] rounded-lg px-3 py-2.5 text-sm text-[#f5eefc]
       focus:outline-none focus:border-[#f183ff] transition-all ${className}`}
   >
     {children}
@@ -80,17 +81,17 @@ const Select = ({ children, className = "", ...props }) => (
 
 const Card = ({ children, className = "" }) => (
   <div
-    className={`rounded-xl border border-[#2e2a3a] bg-[#100e1a] overflow-hidden ${className}`}
+    className={`relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)] ${className}`}
   >
     {children}
   </div>
 );
 
 const CardHeader = ({ icon, title, badge }) => (
-  <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e1b2e] bg-[#0d0b17]">
+  <div className="flex items-center justify-between px-4 py-3 border-b border-[#1b1f2b] bg-[#070910]">
     <div className="flex items-center gap-2.5">
       <span className="text-sm">{icon}</span>
-      <span className="text-sm font-semibold text-[#e8e0f5]">{title}</span>
+      <span className="text-sm font-semibold text-[#f5eefc]">{title}</span>
     </div>
     {badge && (
       <span className="px-2 py-0.5 rounded-full bg-[#f183ff]/10 border border-[#f183ff]/20 text-[10px] text-[#f183ff] font-semibold">
@@ -102,6 +103,8 @@ const CardHeader = ({ icon, title, badge }) => (
 
 /* ── Main Component ──────────────────────────────────────────────── */
 export default function MOMGenerator() {
+  const location = useLocation();
+  const isAdminCtx = location.pathname.startsWith("/admin");
   const [mom, setMom] = useState(defaultMOM);
   const [meetings, setMeetings] = useState([]);
   const [allMembers, setAllMembers] = useState([]);
@@ -398,17 +401,17 @@ export default function MOMGenerator() {
   /* ── Success screen ──────────────────────────────────────────── */
   if (saveSuccess) {
     return (
-      <div className="min-h-screen bg-[#0a0812] text-[#f0eaf8] font-sans pt-16">
-        <Navbar />
+      <div className={isAdminCtx ? "text-[#f5eefc] font-sans" : "min-h-screen bg-[#070910] text-[#f5eefc] font-sans pt-16"}>
+        {!isAdminCtx && <Navbar />}
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] px-6">
           <div className="w-full max-w-md text-center">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#81ecff] to-[#f183ff] flex items-center justify-center mx-auto mb-6">
               <span className="text-2xl">✓</span>
             </div>
-            <h2 className="text-2xl font-bold text-[#f0eaf8] mb-2">
+            <h2 className="text-2xl font-bold text-[#f5eefc] mb-2">
               MOM Saved!
             </h2>
-            <p className="text-[#8a8496] text-sm mb-8">
+            <p className="text-[#aea9b6] text-sm mb-8">
               Minutes of Meeting "
               <span className="text-[#f183ff]">{mom.title}</span>" published.
               {mom.attendees.length > 0 &&
@@ -424,7 +427,7 @@ export default function MOMGenerator() {
               <button
                 onClick={handleExportPDF}
                 disabled={pdfLoading}
-                className="px-6 py-2.5 rounded-lg border border-[#2e2a3a] text-[#8a8496] text-sm hover:border-[#f183ff]/40 hover:text-[#f183ff] transition-all disabled:opacity-50"
+                className="px-6 py-2.5 rounded-lg border border-[#272c3a] text-[#aea9b6] text-sm hover:border-[#f183ff]/40 hover:text-[#f183ff] transition-all disabled:opacity-50"
               >
                 {pdfLoading ? "Exporting…" : "Export PDF"}
               </button>
@@ -437,18 +440,16 @@ export default function MOMGenerator() {
 
   /* ─────────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-[#0a0812] text-[#f0eaf8] font-sans">
+    <div className={isAdminCtx ? "text-[#f5eefc] font-sans" : "min-h-screen bg-[#070910] text-[#f5eefc] font-sans"}>
+      {!isAdminCtx && <Navbar />}
       {/* ── Top bar ─────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-50 bg-[#0a0812]/95 backdrop-blur-md border-b border-[#1e1b2e] px-6 py-3.5 flex items-center justify-between">
+      <div className="sticky top-16 z-50 bg-[#070910]/90 backdrop-blur-2xl border-b border-white/8 px-6 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f183ff] to-[#ff6c95] flex items-center justify-center text-white font-bold text-sm">
-            M
-          </div>
           <div>
-            <h1 className="text-[15px] font-bold text-[#f0eaf8] leading-tight">
+            <h1 className="text-[15px] font-bold text-[#f5eefc] leading-tight">
               MOM Generator
             </h1>
-            <p className="text-[11px] text-[#5a5468]">Minutes of Meeting</p>
+            <p className="text-[11px] text-[#aea9b6]">Minutes of Meeting</p>
           </div>
           {mom.aiGenerated && (
             <span className="ml-2 px-2.5 py-0.5 rounded-full bg-[#81ecff]/10 border border-[#81ecff]/20 text-[10px] text-[#81ecff] font-semibold tracking-wide">
@@ -461,7 +462,7 @@ export default function MOMGenerator() {
           <button
             onClick={handleExportPDF}
             disabled={pdfLoading || !mom.title.trim()}
-            className="px-3.5 py-2 rounded-lg border border-[#2e2a3a] text-xs text-[#8a8496]
+            className="px-3.5 py-2 rounded-lg border border-[#272c3a] text-xs text-[#aea9b6]
               hover:border-[#f183ff]/40 hover:text-[#f183ff] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1.5"
           >
             {pdfLoading ? <Spinner /> : "📄"} PDF
@@ -485,7 +486,7 @@ export default function MOMGenerator() {
       )}
 
       {/* ── Mobile tab switcher ──────────────────────────────────── */}
-      <div className="flex mx-6 mt-3 p-1 rounded-xl bg-[#100e1a] border border-[#1e1b2e] xl:hidden">
+      <div className="flex mx-6 mt-3 p-1 rounded-xl bg-[#0c0f1a] border border-[#1b1f2b] xl:hidden">
         {[
           { id: "form", label: "📝 Form" },
           { id: "ai", label: "✨ AI Assistant" },
@@ -496,7 +497,7 @@ export default function MOMGenerator() {
             className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
               activeTab === t.id
                 ? "bg-gradient-to-r from-[#f183ff] to-[#ff6c95] text-white"
-                : "text-[#5a5468] hover:text-[#8a8496]"
+                : "text-[#6b6f7d] hover:text-[#aea9b6]"
             }`}
           >
             {t.label}
@@ -511,7 +512,7 @@ export default function MOMGenerator() {
       <div className="flex flex-col xl:flex-row h-[calc(100vh-73px)]">
         {/* ── LEFT: Form ────────────────────────────────────────── */}
         <div
-          className={`flex-1 min-w-0 overflow-y-auto p-5 space-y-4 xl:border-r border-[#1e1b2e] ${activeTab !== "form" ? "hidden xl:block" : ""}`}
+          className={`flex-1 min-w-0 overflow-y-auto p-5 space-y-4 xl:border-r border-[#1b1f2b] ${activeTab !== "form" ? "hidden xl:block" : ""}`}
         >
           {/* Meeting Info */}
           <Card>
@@ -602,7 +603,7 @@ export default function MOMGenerator() {
               </div>
 
               {mom.attendees.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 p-3 bg-[#13111e] rounded-lg border border-[#2e2a3a]">
+                <div className="flex flex-wrap gap-1.5 p-3 bg-[#0c0f1a] rounded-lg border border-[#272c3a]">
                   {mom.attendees.map((a) => (
                     <button
                       key={a.userId}
@@ -625,9 +626,9 @@ export default function MOMGenerator() {
                   onChange={(e) => setMemberSearch(e.target.value)}
                   placeholder="Search members by name, email or domain…"
                 />
-                <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-[#1e1b2e] bg-[#0d0b17] divide-y divide-[#1a172a]">
+                <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-[#1b1f2b] bg-[#070910] divide-y divide-[#0c0f1a]">
                   {filteredMembers.length === 0 ? (
-                    <p className="text-xs text-[#5a5468] text-center py-8">
+                    <p className="text-xs text-[#6b6f7d] text-center py-8">
                       No members for this scope
                     </p>
                   ) : (
@@ -638,25 +639,25 @@ export default function MOMGenerator() {
                           key={m._id}
                           onClick={() => toggleAttendee(m)}
                           className={`w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm transition-all
-                            ${selected ? "bg-[#f183ff]/8" : "hover:bg-[#13111e]"}`}
+                            ${selected ? "bg-[#f183ff]/8" : "hover:bg-[#0c0f1a]"}`}
                         >
                           <div
                             className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all
                             ${
                               selected
                                 ? "bg-gradient-to-br from-[#f183ff] to-[#ff6c95] text-white"
-                                : "bg-[#1e1b2e] text-[#8a8496]"
+                                : "bg-[#1b1f2b] text-[#aea9b6]"
                             }`}
                           >
                             {selected ? "✓" : m.name?.[0] || "?"}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div
-                              className={`font-medium truncate ${selected ? "text-[#f0eaf8]" : "text-[#c4bdd4]"}`}
+                              className={`font-medium truncate ${selected ? "text-[#f5eefc]" : "text-[#aea9b6]"}`}
                             >
                               {m.name}
                             </div>
-                            <div className="text-[11px] text-[#5a5468] truncate">
+                            <div className="text-[11px] text-[#6b6f7d] truncate">
                               {m.role} · {m.coreDomain}
                               {m.subDomain ? ` / ${m.subDomain}` : ""}
                             </div>
@@ -693,7 +694,7 @@ export default function MOMGenerator() {
                   />
                   <button
                     onClick={() => removeArr("discussedPoints", i)}
-                    className="mt-2.5 text-[#2e2a3a] hover:text-[#ff6e84] transition-colors text-lg shrink-0 opacity-0 group-hover:opacity-100"
+                    className="mt-2.5 text-[#272c3a] hover:text-[#ff6e84] transition-colors text-lg shrink-0 opacity-0 group-hover:opacity-100"
                   >
                     ×
                   </button>
@@ -726,7 +727,7 @@ export default function MOMGenerator() {
                   />
                   <button
                     onClick={() => removeArr("decisions", i)}
-                    className="text-[#2e2a3a] hover:text-[#ff6e84] transition-colors text-lg shrink-0 opacity-0 group-hover:opacity-100"
+                    className="text-[#272c3a] hover:text-[#ff6e84] transition-colors text-lg shrink-0 opacity-0 group-hover:opacity-100"
                   >
                     ×
                   </button>
@@ -750,14 +751,14 @@ export default function MOMGenerator() {
             />
             <div className="p-4 space-y-3">
               {mom.actionItems.length === 0 && (
-                <p className="text-xs text-[#5a5468] text-center py-4">
+                <p className="text-xs text-[#6b6f7d] text-center py-4">
                   No action items yet
                 </p>
               )}
               {mom.actionItems.map((item, i) => (
                 <div
                   key={i}
-                  className="rounded-lg bg-[#13111e] border border-[#2e2a3a] p-3 space-y-2.5 group"
+                  className="rounded-lg bg-[#0c0f1a] border border-[#272c3a] p-3 space-y-2.5 group"
                 >
                   <div className="flex gap-2">
                     <div className="w-5 h-5 rounded-full bg-[#f183ff]/10 border border-[#f183ff]/20 flex items-center justify-center text-[10px] text-[#f183ff] shrink-0 mt-0.5">
@@ -771,7 +772,7 @@ export default function MOMGenerator() {
                     />
                     <button
                       onClick={() => removeActionItem(i)}
-                      className="text-[#2e2a3a] hover:text-[#ff6e84] transition-colors text-xl shrink-0 opacity-0 group-hover:opacity-100"
+                      className="text-[#272c3a] hover:text-[#ff6e84] transition-colors text-xl shrink-0 opacity-0 group-hover:opacity-100"
                     >
                       ×
                     </button>
@@ -798,12 +799,12 @@ export default function MOMGenerator() {
                       {/* Bug fix: if AI gave a non-date string, show it as text with a clear button */}
                       {item.dueDate && !isValidDateStr(item.dueDate) ? (
                         <div className="flex gap-1">
-                          <div className="flex-1 bg-[#13111e] border border-[#ff6c95]/30 rounded-lg px-3 py-2.5 text-xs text-[#ff6c95] truncate">
+                          <div className="flex-1 bg-[#0c0f1a] border border-[#ff6c95]/30 rounded-lg px-3 py-2.5 text-xs text-[#ff6c95] truncate">
                             {item.dueDate}
                           </div>
                           <button
                             onClick={() => setActionItem(i, "dueDate", "")}
-                            className="px-2 rounded-lg border border-[#2e2a3a] text-[#5a5468] hover:text-[#ff6e84] text-sm transition-all"
+                            className="px-2 rounded-lg border border-[#272c3a] text-[#6b6f7d] hover:text-[#ff6e84] text-sm transition-all"
                             title="Clear and enter a date"
                           >
                             ×
@@ -861,23 +862,23 @@ export default function MOMGenerator() {
 
         {/* ── RIGHT: AI Panel ───────────────────────────────────── */}
         <div
-          className={`w-full xl:w-[400px] shrink-0 flex flex-col bg-[#0a0812] border-t xl:border-t-0 border-[#1e1b2e]
+          className={`w-full xl:w-[400px] shrink-0 flex flex-col bg-[#070910] border-t xl:border-t-0 border-[#1b1f2b]
           ${activeTab !== "ai" ? "hidden xl:flex" : "flex"}`}
         >
           {/* Header */}
-          <div className="px-5 pt-5 pb-4 border-b border-[#1e1b2e]">
+          <div className="px-5 pt-5 pb-4 border-b border-[#1b1f2b]">
             <div className="flex items-center gap-2.5 mb-1">
               <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#81ecff] to-[#f183ff] flex items-center justify-center text-[10px] font-bold text-black">
                 AI
               </div>
-              <h2 className="font-bold text-sm text-[#f0eaf8]">
+              <h2 className="font-bold text-sm text-[#f5eefc]">
                 AI MOM Assistant
               </h2>
               <span className="px-2 py-0.5 rounded-full bg-[#81ecff]/10 border border-[#81ecff]/20 text-[10px] text-[#81ecff]">
                 LLaMA 3.3-70B
               </span>
             </div>
-            <p className="text-xs text-[#5a5468]">
+            <p className="text-xs text-[#6b6f7d]">
               Describe your meeting in plain language — AI fills in the form.
             </p>
           </div>
@@ -891,7 +892,7 @@ export default function MOMGenerator() {
 
           {/* Examples */}
           <div className="px-5 pt-4 space-y-1.5">
-            <p className="text-[10px] uppercase tracking-widest text-[#3d384d] mb-2">
+            <p className="text-[10px] uppercase tracking-widest text-[#353b4a] mb-2">
               Try something like…
             </p>
             {[
@@ -902,8 +903,8 @@ export default function MOMGenerator() {
               <button
                 key={i}
                 onClick={() => setAiPrompt(ex)}
-                className="w-full text-left px-3 py-2.5 rounded-lg bg-[#100e1a] border border-[#1e1b2e] text-xs text-[#5a5468]
-                  hover:border-[#f183ff]/25 hover:text-[#8a8496] transition-all"
+                className="w-full text-left px-3 py-2.5 rounded-lg bg-[#0c0f1a] border border-[#1b1f2b] text-xs text-[#6b6f7d]
+                  hover:border-[#f183ff]/25 hover:text-[#aea9b6] transition-all"
               >
                 "{ex.slice(0, 72)}…"
               </button>

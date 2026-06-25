@@ -537,4 +537,109 @@
             box-shadow: 0 18px 40px rgba(241, 131, 255, 0.08);
         }
     }
+
+    /* ── Unified shadow system ──────────────────────────────────────────────
+       One elevation scale for cards, dropdowns, dialogs and tooltips so every
+       surface belongs to the same visual language. */
+    .shadow-card {
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.05),
+            0 12px 32px rgba(4, 6, 20, 0.32);
+    }
+
+    .shadow-elevated {
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.06),
+            0 24px 60px rgba(4, 6, 20, 0.45);
+    }
+
+    .shadow-overlay {
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            0 40px 120px rgba(0, 0, 0, 0.55);
+    }
+
+    .shadow-glow-primary {
+        box-shadow: 0 0 28px rgba(241, 131, 255, 0.28);
+    }
+
+    /* Reusable focus ring — apply alongside `focus-visible:` variants. */
+    .focus-ring {
+        outline: none;
+    }
+
+    .focus-ring:focus-visible {
+        outline: 2px solid rgba(241, 131, 255, 0.6);
+        outline-offset: 2px;
+    }
+}
+
+/* ── Custom scrollbar (thin, rounded, dark-theme) ───────────────────────────
+   Applies globally. Elements that opt out (e.g. .member-sidebar-shell) keep
+   their own more-specific rules because those win the cascade. */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background 200ms ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(241, 131, 255, 0.42);
+    background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Opt-out: elements that hide their scrollbar. Re-asserted here (unlayered) so
+   they win over the global rules above — the `.member-sidebar-shell` rules in
+   @layer utilities would otherwise be overridden by these unlayered styles. */
+.member-sidebar-shell,
+.no-scrollbar {
+    scrollbar-width: none;
+}
+
+.member-sidebar-shell::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+/* ── Global keyboard focus visibility (accessibility) ──────────────────────
+   Subtle, only shows for keyboard navigation, never for mouse clicks. */
+:focus-visible {
+    outline: 2px solid rgba(241, 131, 255, 0.55);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ── Reduced-motion support (accessibility) ─────────────────────────────────
+   Honour users who request less motion: collapse animations/transitions. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
 }

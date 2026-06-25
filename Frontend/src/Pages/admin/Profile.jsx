@@ -379,7 +379,7 @@ const Profile = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">
               SQAC Portal
             </p>
-            <h1 className="mt-2 text-2xl font-bold text-white font-['Space_Grotesk'] md:text-3xl">
+            <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">
               Profile Command Deck
             </h1>
           </div>
@@ -464,7 +464,7 @@ const Profile = () => {
                       <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-primary/80">
                         SQAC Member Profile
                       </p>
-                      <h2 className="mt-3 text-3xl font-bold text-white font-['Space_Grotesk']">
+                      <h2 className="mt-3 text-3xl font-bold text-white font-headline">
                         {profile.name}
                       </h2>
                       <p className="mt-2 text-sm text-white/65">
@@ -543,6 +543,51 @@ const Profile = () => {
                         {profile.attendance ?? 0}%
                       </p>
                     </div>
+                  </div>
+                </div>
+
+                {/* Academic & Membership details */}
+                <div className="relative mt-6">
+                  <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-primary/80">
+                    Academic &amp; Membership
+                  </p>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                    {[
+                      { label: "Department", value: profile.department },
+                      { label: "Section", value: profile.section },
+                      { label: "Core Domain", value: profile.coreDomain },
+                      { label: "Sub Domain", value: profile.subDomain },
+                      { label: "Position", value: profile.position },
+                      { label: "Residence", value: profile.residenceType },
+                      { label: "Faculty Advisor", value: profile.facultyAdvisorName },
+                      { label: "Faculty Contact", value: profile.facultyAdvisorNo },
+                      {
+                        label: "Code of Conduct",
+                        value: profile.cocAccepted
+                          ? `Accepted${profile.cocVersionAccepted ? ` · ${profile.cocVersionAccepted}` : ""}`
+                          : "Not accepted",
+                      },
+                      {
+                        label: "Accepted On",
+                        value: profile.cocAcceptedAt ? formatDate(profile.cocAcceptedAt) : null,
+                      },
+                      {
+                        label: "Profile Status",
+                        value: profile.profileCompleted ? "Completed" : "Incomplete",
+                      },
+                    ].map((item) => (
+                      <div
+                        className="member-info-block rounded-2xl border border-white/8 px-4 py-4"
+                        key={item.label}
+                      >
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-white/40">
+                          {item.label}
+                        </p>
+                        <p className="mt-2 text-sm font-semibold text-white/85">
+                          {item.value || "Not provided"}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -652,13 +697,13 @@ const Profile = () => {
 
       {isEditOpen && profile ? (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 px-4 backdrop-blur-md">
-          <div className="w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#0d1220]/95 p-6 shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
+          <div className="w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#0c0f1a]/95 p-6 shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary/80">
                   Edit Profile
                 </p>
-                <h3 className="mt-2 text-2xl font-bold text-white font-['Space_Grotesk']">
+                <h3 className="mt-2 text-2xl font-bold text-white font-headline">
                   Public details
                 </h3>
                 <p className="mt-1 text-sm text-white/55">

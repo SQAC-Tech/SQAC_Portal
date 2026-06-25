@@ -27,13 +27,13 @@ export default function Verify() {
   }, [credentialId]);
 
   return (
-    <div className="min-h-screen bg-[#0f0d16] text-slate-200 flex flex-col items-center justify-center p-6 font-body">
-      <div className="max-w-3xl w-full bg-[#1a1625] rounded-3xl p-8 border border-white/10 shadow-[0_30px_60px_-15px_rgba(241,131,255,0.06)]">
+    <div className="min-h-screen bg-[#070910] text-[#f5eefc] flex flex-col items-center justify-center p-6 font-body">
+      <div className="max-w-3xl w-full bg-[#0c0f1a] rounded-3xl p-8 border border-white/10 shadow-[0_30px_60px_-15px_rgba(241,131,255,0.06)]">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-headline font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#f183ff] to-[#ff6c95] mb-2">
             Credential Verification
           </h1>
-          <p className="text-slate-400 font-label tracking-wider uppercase text-sm">
+          <p className="text-[#aea9b6] font-label tracking-wider uppercase text-sm">
             SQAC Authentic Record
           </p>
         </div>
@@ -58,37 +58,37 @@ export default function Verify() {
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
-                  <label className="text-xs text-slate-500 uppercase tracking-widest block mb-1">Issued To</label>
+                  <label className="text-xs text-[#78737f] uppercase tracking-widest block mb-1">Issued To</label>
                   <p className="text-2xl font-headline font-bold text-white">{certData.issuedToName}</p>
-                  <p className="text-sm text-slate-400">{certData.issuedToEmail}</p>
+                  <p className="text-sm text-[#aea9b6]">{certData.issuedToEmail}</p>
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-500 uppercase tracking-widest block mb-1">Certificate</label>
+                  <label className="text-xs text-[#78737f] uppercase tracking-widest block mb-1">Certificate</label>
                   <p className="text-lg text-white">{certData.title}</p>
-                  <p className="text-sm text-slate-400 mt-1">{certData.description}</p>
+                  <p className="text-sm text-[#aea9b6] mt-1">{certData.description}</p>
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-500 uppercase tracking-widest block mb-1">Details</label>
-                  <div className="bg-[#0f0d16] rounded-xl p-4 border border-white/5 space-y-2 mt-2">
+                  <label className="text-xs text-[#78737f] uppercase tracking-widest block mb-1">Details</label>
+                  <div className="bg-[#070910] rounded-xl p-4 border border-white/5 space-y-2 mt-2">
                     <div className="flex justify-between">
-                      <span className="text-slate-400 text-sm">Type:</span>
+                      <span className="text-[#aea9b6] text-sm">Type:</span>
                       <span className="text-white text-sm capitalize">{certData.type}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400 text-sm">Issued On:</span>
+                      <span className="text-[#aea9b6] text-sm">Issued On:</span>
                       <span className="text-white text-sm">{new Date(certData.issuedAt).toLocaleDateString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400 text-sm">Credential ID:</span>
+                      <span className="text-[#aea9b6] text-sm">Credential ID:</span>
                       <span className="text-[#f183ff] text-sm font-mono">{certData.credentialId}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col justify-center items-center bg-[#0f0d16] rounded-2xl p-4 border border-white/5">
+              <div className="flex flex-col justify-center items-center bg-[#070910] rounded-2xl p-4 border border-white/5">
                 <img src={certData.imageUrl} alt="Certificate" className="w-full h-auto rounded-lg shadow-lg border border-white/10" />
                 <a href={certData.imageUrl} target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-2 text-sm text-[#f183ff] hover:text-[#ff6c95] transition-colors">
                   <span className="material-symbols-outlined text-sm">download</span>

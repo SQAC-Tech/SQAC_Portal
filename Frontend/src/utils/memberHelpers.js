@@ -70,7 +70,9 @@ export const initialsFromName = (name = "") =>
     .map((part) => part[0]?.toUpperCase() || "")
     .join("") || "SQ";
 
-const ROLE_LABELS = {
+// Canonical role maps — single source of truth. Import these instead of
+// re-declaring per page (previously duplicated in Dashboard/Navbar/Members).
+export const ROLE_LABELS = {
   secretary: "Secretary",
   joint_secretary: "Joint Secretary",
   technical_lead: "Technical Lead",
@@ -80,6 +82,20 @@ const ROLE_LABELS = {
   associate_lead: "Associate Lead",
   member: "Member",
 };
+
+export const ROLE_COLORS = {
+  secretary:       "bg-[#f183ff]/10 border-[#f183ff]/25 text-[#f183ff]",
+  joint_secretary: "bg-violet-500/10 border-violet-400/25 text-violet-300",
+  technical_lead:  "bg-blue-500/10 border-blue-400/25 text-blue-300",
+  project_lead:    "bg-cyan-500/10 border-cyan-400/25 text-cyan-300",
+  corp_lead:       "bg-amber-500/10 border-amber-400/25 text-amber-300",
+  domain_lead:     "bg-emerald-500/10 border-emerald-400/25 text-emerald-300",
+  associate_lead:  "bg-orange-500/10 border-orange-400/25 text-orange-300",
+  member:          "bg-white/6 border-white/15 text-white/60",
+};
+
+export const roleLabelFor = (role) => ROLE_LABELS[role] || "Member";
+export const roleColorFor = (role) => ROLE_COLORS[role] || ROLE_COLORS.member;
 
 export const roleLabel = (member) => ROLE_LABELS[member.role] || "Member";
 

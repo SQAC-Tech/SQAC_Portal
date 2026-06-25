@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import AdminSidebar from "../../components/admin/AdminSidebar";
-import Navbar from "../../components/common/layout/Navbar";
+import AppShell from "../../components/common/layout/AppShell";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -125,17 +124,7 @@ export default function COCRecords() {
       : "—";
 
   return (
-    <div className="min-h-screen bg-[#070910] text-[#f5eefc] pt-16 lg:pl-24">
-      <Navbar />
-      <AdminSidebar />
-
-      {/* bg orbs */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-[#f183ff]/6 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-15%] left-[-10%] w-[400px] h-[400px] bg-[#81ecff]/4 rounded-full blur-[100px]" />
-      </div>
-
-      <main className="relative z-10 mx-auto max-w-[1200px] px-5 pb-16 pt-8 md:px-8">
+    <AppShell maxWidth="max-w-[1200px]">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-1">
@@ -181,7 +170,7 @@ export default function COCRecords() {
         </div>
 
         {/* Table */}
-        <div className="rounded-2xl border border-white/8 bg-[#0c0f1a]/70 backdrop-blur-xl overflow-hidden">
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)]">
           {loading ? (
             <div className="p-8 text-center text-[#aea9b6] text-sm animate-pulse">
               Loading records…
@@ -266,7 +255,6 @@ export default function COCRecords() {
             Download signed PDFs and upload them to Google Drive manually for archival.
           </p>
         )}
-      </main>
-    </div>
+    </AppShell>
   );
 }

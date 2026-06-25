@@ -13,13 +13,13 @@ const MemberEditModal = ({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/65 px-4 backdrop-blur-md">
-      <div className="w-full max-w-lg rounded-[2rem] border border-white/10 bg-[#0d1220]/95 p-6 shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
+      <div className="w-full max-w-lg rounded-[2rem] border border-white/10 bg-[#0c0f1a]/95 p-6 shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary/80">
               Edit Member
             </p>
-            <h3 className="mt-2 text-2xl font-bold text-white font-['Space_Grotesk']">
+            <h3 className="mt-2 text-2xl font-bold text-white font-headline">
               {editingMember.name}
             </h3>
             <p className="mt-1 text-sm text-white/55">
@@ -46,7 +46,7 @@ const MemberEditModal = ({
               value={editForm.role}
             >
               {editableRoles.map((role) => (
-                <option className="bg-[#0d1220]" key={role} value={role}>
+                <option className="bg-[#0c0f1a]" key={role} value={role}>
                   {role}
                 </option>
               ))}

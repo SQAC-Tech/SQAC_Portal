@@ -200,7 +200,7 @@ export default function Meet() {
   const isOrganizer = canScheduleMeet;
 
   return (
-    <div className="min-h-screen bg-[#070910] text-[#f5eefc] lg:pl-24 selection:bg-primary/30 flex flex-col font-body">
+    <div className="min-h-screen bg-[#070910] text-[#f5eefc] lg:pl-28 selection:bg-primary/30 flex flex-col font-body">
       <Navbar />
       <AdminSidebar onLogout={handleLogout} />
 
@@ -251,7 +251,7 @@ export default function Meet() {
           </div>
 
           {/* Calendar Grid Container */}
-          <div className="flex-grow border border-white/8 bg-[#090812]/52 backdrop-blur-xl rounded-2xl overflow-hidden flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+          <div className="relative flex-grow overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)] flex flex-col">
             {/* Days header */}
             <div className="grid grid-cols-7 border-b border-white/8 bg-white/2 text-center py-3">
               {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((d) => (
@@ -276,7 +276,7 @@ export default function Meet() {
                 return (
                   <div
                     key={idx}
-                    className={`min-h-[100px] p-2 flex flex-col gap-1.5 transition-all duration-200 ${cell.isCurrentMonth ? "bg-transparent" : "bg-[#0b0a13]/30 opacity-40"
+                    className={`min-h-[100px] p-2 flex flex-col gap-1.5 transition-all duration-200 ${cell.isCurrentMonth ? "bg-transparent" : "bg-[#070910]/30 opacity-40"
                       } ${isToday(cell.date) ? "bg-primary/5 border border-primary/20 relative" : ""}`}
                   >
                     <div className="flex justify-between items-center">
@@ -312,7 +312,7 @@ export default function Meet() {
         </div>
 
         {/* Right Side Panel: Agenda & Feed */}
-        <div className="w-full lg:w-96 shrink-0 border-l border-white/8 bg-[#090814]/90 backdrop-blur-3xl p-6 lg:p-8 flex flex-col gap-8">
+        <div className="w-full lg:w-96 shrink-0 border-l border-white/8 bg-[#0c0f1a]/90 backdrop-blur-3xl p-6 lg:p-8 flex flex-col gap-8">
           {/* Today's Agenda Section */}
           <div className="space-y-4">
             <h2 className="text-xl font-bold font-headline text-white tracking-wide">Today's Agenda</h2>
@@ -401,7 +401,7 @@ export default function Meet() {
               ].map((hk) => (
                 <div
                   key={hk.label}
-                  className="rounded-xl border border-white/6 bg-white/2 p-3 flex flex-col gap-2 hover:bg-white/4 transition-colors cursor-pointer"
+                  className="rounded-2xl border border-white/10 bg-[linear-gradient(155deg,rgba(22,20,31,0.85),rgba(12,11,18,0.8))] p-3 flex flex-col gap-2 hover:-translate-y-0.5 hover:border-[#f183ff]/25 transition-all cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[#ff6c95] text-lg">{hk.icon}</span>
                   <div>
@@ -421,21 +421,21 @@ export default function Meet() {
                 <span className="h-2 w-2 rounded-full bg-emerald-400 mt-1.5 shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
                 <div>
                   <p className="text-white/90">Uplink D4 verified meeting room "Void"</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Just now</p>
+                  <p className="text-[10px] text-[#78737f] mt-0.5">Just now</p>
                 </div>
               </div>
               <div className="flex items-start gap-2.5 text-xs">
                 <span className="h-2 w-2 rounded-full bg-pink-400 mt-1.5 shrink-0 shadow-[0_0_8px_rgba(244,114,182,0.6)]" />
                 <div>
                   <p className="text-white/90">Priority Alert: Sector 7 briefing starts in 5m</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">3 mins ago</p>
+                  <p className="text-[10px] text-[#78737f] mt-0.5">3 mins ago</p>
                 </div>
               </div>
               <div className="flex items-start gap-2.5 text-xs">
-                <span className="h-2 w-2 rounded-full bg-slate-500 mt-1.5 shrink-0" />
+                <span className="h-2 w-2 rounded-full bg-[#6b6f7d] mt-1.5 shrink-0" />
                 <div>
                   <p className="text-white/90">Archive: Q3 Review log moved to storage</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">1 hour ago</p>
+                  <p className="text-[10px] text-[#78737f] mt-0.5">1 hour ago</p>
                 </div>
               </div>
             </div>
@@ -446,7 +446,7 @@ export default function Meet() {
       {/* Deploy Briefing Popup Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/72 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#0c0a15]/95 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative overflow-hidden">
+          <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#0c0f1a]/95 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative overflow-hidden">
             {/* Background cyber glowing details */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary" />
 
@@ -526,7 +526,7 @@ export default function Meet() {
                 <select
                   value={teamScope}
                   onChange={(e) => setTeamScope(e.target.value)}
-                  className="w-full bg-[#0d0c16] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full bg-[#0c0f1a] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                 >
                   <option value="all">All Members</option>
                   <option value="technical">Technical Division</option>
@@ -574,7 +574,7 @@ export default function Meet() {
       {/* View Meeting Details Modal */}
       {selectedMeeting && (
         <div className="fixed inset-0 z-[160] flex items-center justify-center bg-black/72 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0c0a15]/95 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative overflow-hidden">
+          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0c0f1a]/95 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary" />
 
             <div className="flex justify-between items-start mb-6">

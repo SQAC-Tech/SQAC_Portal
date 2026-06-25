@@ -1,30 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
-const ROLE_LABELS = {
-  secretary:       "Secretary",
-  joint_secretary: "Joint Secretary",
-  technical_lead:  "Technical Lead",
-  project_lead:    "Project Lead",
-  corp_lead:       "Corporate Lead",
-  domain_lead:     "Domain Lead",
-  associate_lead:  "Associate Lead",
-  member:          "Member",
-};
-
-const ROLE_COLORS = {
-  secretary:       "bg-[#f183ff]/10 border-[#f183ff]/25 text-[#f183ff]",
-  joint_secretary: "bg-violet-500/10 border-violet-400/25 text-violet-300",
-  technical_lead:  "bg-blue-500/10 border-blue-400/25 text-blue-300",
-  project_lead:    "bg-cyan-500/10 border-cyan-400/25 text-cyan-300",
-  corp_lead:       "bg-amber-500/10 border-amber-400/25 text-amber-300",
-  domain_lead:     "bg-emerald-500/10 border-emerald-400/25 text-emerald-300",
-  associate_lead:  "bg-orange-500/10 border-orange-400/25 text-orange-300",
-  member:          "bg-white/6 border-white/15 text-white/60",
-};
-
-const DEFAULT_AVATAR =
-  "https://images.unsplash.com/photo-1680355466468-bd0a68b11fa0?q=80&w=100";
+import { ROLE_LABELS, ROLE_COLORS } from "../../utils/memberHelpers";
+import { Avatar } from "../ui";
 
 export default function PendingApprovalsWidget({
   pending = [],
@@ -53,13 +30,7 @@ export default function PendingApprovalsWidget({
         >
           <div className="flex items-center gap-3">
             {/* Avatar */}
-            <div className="shrink-0 h-9 w-9 rounded-xl overflow-hidden border border-white/10 bg-white/5">
-              <img
-                src={member.image || DEFAULT_AVATAR}
-                alt={member.name}
-                className="h-full w-full object-cover"
-              />
-            </div>
+            <Avatar src={member.image} alt={member.name} size={36} />
 
             {/* Info */}
             <div className="flex-1 min-w-0">

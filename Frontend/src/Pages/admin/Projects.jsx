@@ -166,7 +166,7 @@ const Projects = () => {
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-6 px-5 py-4 md:px-8 lg:pl-28">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">Project Database</p>
-            <h1 className="mt-2 text-2xl font-bold text-white font-['Space_Grotesk'] md:text-3xl">Command Deck</h1>
+            <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">Command Deck</h1>
           </div>
           <div className="hidden flex-1 md:flex max-w-md">
             <input
@@ -194,7 +194,7 @@ const Projects = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
-              <div key={project._id} className="bg-white/5 border border-white/10 rounded-[2rem] p-6 hover:bg-white/[0.07] transition-all relative overflow-hidden group">
+              <div key={project._id} className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)] p-6 hover:-translate-y-1 hover:border-[#f183ff]/30 transition-all group">
                 <div className="absolute top-0 right-0 p-6 flex gap-2">
                   <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getDifficultyColor(project.difficulty)}`}>
                     {project.difficulty}
@@ -206,14 +206,14 @@ const Projects = () => {
 
                 <div className="mt-2 mb-4 pr-32">
                   <span className="text-xs text-primary/80 font-bold uppercase tracking-widest">{project.domain}</span>
-                  <h3 className="text-xl font-bold text-white mt-1 font-['Space_Grotesk'] leading-tight">{project.title}</h3>
+                  <h3 className="text-xl font-bold text-white mt-1 font-headline leading-tight">{project.title}</h3>
                 </div>
 
                 <p className="text-sm text-white/60 mb-6 line-clamp-2">{project.description}</p>
 
                 <div className="flex flex-wrap gap-2 mb-6">
                   {project.techStack.map((tech, i) => (
-                    <span key={i} className="text-xs px-2.5 py-1 rounded-md bg-[#0d1220] border border-white/5 text-white/70">
+                    <span key={i} className="text-xs px-2.5 py-1 rounded-md bg-[#0c0f1a] border border-white/5 text-white/70">
                       {tech}
                     </span>
                   ))}
@@ -232,11 +232,11 @@ const Projects = () => {
                     </button>
                   ) : (
                     <div className="flex gap-2">
-                      <div className="flex-1 bg-[#0d1220] rounded-xl p-3 border border-white/5">
+                      <div className="flex-1 bg-[#0c0f1a] rounded-xl p-3 border border-white/5">
                         <p className="text-xs text-white/40 uppercase tracking-wider font-bold mb-2">Assigned Team ({project.teamMembers?.length || 0})</p>
                         <div className="flex -space-x-2">
                           {(project.teamMembers || []).map((member, i) => (
-                            <div key={i} className="w-8 h-8 rounded-full bg-white/10 border border-[#0d1220] flex items-center justify-center text-xs font-bold text-white shadow-sm" title={member.memberId?.fullName || "Member"}>
+                            <div key={i} className="w-8 h-8 rounded-full bg-white/10 border border-[#0c0f1a] flex items-center justify-center text-xs font-bold text-white shadow-sm" title={member.memberId?.fullName || "Member"}>
                               {(member.memberId?.fullName || "?")[0]}
                             </div>
                           ))}
@@ -260,11 +260,11 @@ const Projects = () => {
 
       {selectedProject && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-2xl bg-[#0d1220] h-full flex flex-col border-l border-white/10 shadow-2xl animate-slide-in-right">
+          <div className="w-full max-w-2xl bg-[#0c0f1a] h-full flex flex-col border-l border-white/10 shadow-2xl animate-slide-in-right">
             <div className="p-6 border-b border-white/10 flex justify-between items-center bg-[#070910]">
               <div>
                 <span className="text-xs text-primary/80 font-bold uppercase tracking-widest">{selectedProject.domain}</span>
-                <h2 className="text-xl font-bold text-white mt-1 font-['Space_Grotesk']">{selectedProject.title}</h2>
+                <h2 className="text-xl font-bold text-white mt-1 font-headline">{selectedProject.title}</h2>
               </div>
               <div className="flex items-center gap-3">
                 {selectedProject.status === "in_progress" && canAssignProject && (
@@ -282,7 +282,7 @@ const Projects = () => {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 custom-scrollbar bg-[#0d1220]">
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 custom-scrollbar bg-[#0c0f1a]">
               <div className="mb-4">
                 <h4 className="text-sm font-bold text-white/80 uppercase tracking-wider mb-2">Project PRD</h4>
                 <p className="text-sm text-white/60">{selectedProject.description}</p>
@@ -340,8 +340,8 @@ const Projects = () => {
       {/* Generic Confirmation Modal */}
       {confirmModal.isOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-[#0d1220] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up">
-            <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">Confirm Action</h3>
+          <div className="bg-[#0c0f1a] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up">
+            <h3 className="text-lg font-bold text-white mb-2 font-headline">Confirm Action</h3>
             <p className="text-white/60 text-sm mb-6">{confirmModal.message}</p>
             <div className="flex justify-end gap-3">
               <button 
@@ -364,7 +364,7 @@ const Projects = () => {
       {/* Generic Alert Modal */}
       {alertModal.isOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-[#0d1220] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up text-center">
+          <div className="bg-[#0c0f1a] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up text-center">
             <div className={`mx-auto w-12 h-12 rounded-full mb-4 flex items-center justify-center ${
               alertModal.type === 'error' ? 'bg-red-500/20 text-red-400' :
               alertModal.type === 'success' ? 'bg-emerald-500/20 text-emerald-400' :
@@ -374,7 +374,7 @@ const Projects = () => {
                 {alertModal.type === 'error' ? 'error' : alertModal.type === 'success' ? 'check_circle' : 'info'}
               </span>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">
+            <h3 className="text-lg font-bold text-white mb-2 font-headline">
               {alertModal.type === 'error' ? 'Error' : alertModal.type === 'success' ? 'Success' : 'Notice'}
             </h3>
             <p className="text-white/60 text-sm mb-6">{alertModal.message}</p>

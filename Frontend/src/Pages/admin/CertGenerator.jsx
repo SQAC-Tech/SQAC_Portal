@@ -328,18 +328,18 @@ export default function CertGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0d16] text-slate-200 p-8 font-body pt-16 flex flex-col">
+    <div className="min-h-screen bg-[#070910] text-[#f5eefc] font-body flex flex-col">
       <Navbar />
-      <div className="max-w-7xl w-full mx-auto lg:pl-24">
+      <AdminSidebar onLogout={handleLogout} />
+      <div className="max-w-7xl w-full mx-auto px-5 pb-16 pt-8 md:px-8 lg:pl-28">
         <h1 className="text-4xl font-headline font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#f183ff] to-[#ff6c95] mb-8">
           Certificate Generator Canvas
         </h1>
-        <AdminSidebar onLogout={handleLogout} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Controls Panel */}
-          <div className="bg-[#1a1625] p-6 rounded-2xl border border-white/10 space-y-6">
+          <div className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)] p-6 space-y-6">
             <div>
-              <label className="block text-sm font-label text-slate-400 mb-2">
+              <label className="block text-sm font-label text-[#aea9b6] mb-2">
                 1. Upload Base Template (Image)
               </label>
               <input
@@ -350,16 +350,16 @@ export default function CertGenerator() {
               />
             </div>
 
-            <div className="bg-[#0f0d16] p-1 rounded-xl flex mb-4">
+            <div className="bg-[#070910] p-1 rounded-xl flex mb-4">
               <button
                 onClick={() => setInputType("csv")}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${inputType === "csv" ? "bg-[#f183ff] text-white" : "text-slate-400 hover:text-slate-200"}`}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${inputType === "csv" ? "bg-[#f183ff] text-white" : "text-[#aea9b6] hover:text-[#f5eefc]"}`}
               >
                 CSV Upload
               </button>
               <button
                 onClick={() => setInputType("manual")}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${inputType === "manual" ? "bg-[#f183ff] text-white" : "text-slate-400 hover:text-slate-200"}`}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${inputType === "manual" ? "bg-[#f183ff] text-white" : "text-[#aea9b6] hover:text-[#f5eefc]"}`}
               >
                 Manual Entry
               </button>
@@ -367,7 +367,7 @@ export default function CertGenerator() {
 
             {inputType === "csv" ? (
               <div>
-                <label className="block text-sm font-label text-slate-400 mb-2">
+                <label className="block text-sm font-label text-[#aea9b6] mb-2">
                   2. Upload CSV (id, name, email)
                 </label>
                 <input
@@ -384,7 +384,7 @@ export default function CertGenerator() {
               </div>
             ) : (
               <div className="space-y-3">
-                <label className="block text-sm font-label text-slate-400 mb-1">
+                <label className="block text-sm font-label text-[#aea9b6] mb-1">
                   2. Recipient Details
                 </label>
                 <input
@@ -392,27 +392,27 @@ export default function CertGenerator() {
                   placeholder="Full Name"
                   value={manualName}
                   onChange={(e) => setManualName(e.target.value)}
-                  className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                  className="w-full bg-[#070910] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
                 />
                 <input
                   type="email"
                   placeholder="Email Address"
                   value={manualEmail}
                   onChange={(e) => setManualEmail(e.target.value)}
-                  className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                  className="w-full bg-[#070910] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
                 />
                 <input
                   type="text"
                   placeholder="Custom ID (Optional)"
                   value={manualId}
                   onChange={(e) => setManualId(e.target.value)}
-                  className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                  className="w-full bg-[#070910] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
                 />
               </div>
             )}
 
             <div className="space-y-4">
-              <label className="block text-sm font-label text-slate-400">
+              <label className="block text-sm font-label text-[#aea9b6]">
                 3. Certificate Details
               </label>
               <input
@@ -420,26 +420,26 @@ export default function CertGenerator() {
                 placeholder="Title (e.g. Hackathon Winner)"
                 value={templateTitle}
                 onChange={(e) => setTemplateTitle(e.target.value)}
-                className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                className="w-full bg-[#070910] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
               />
               <input
                 type="text"
                 placeholder="Description"
                 value={templateDescription}
                 onChange={(e) => setTemplateDescription(e.target.value)}
-                className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                className="w-full bg-[#070910] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
               />
             </div>
 
             <div className="space-y-4">
-              <label className="block text-sm font-label text-slate-400">
+              <label className="block text-sm font-label text-[#aea9b6]">
                 4. Font Styling
               </label>
               <div className="grid grid-cols-2 gap-4">
                 <select
                   value={fontFamily}
                   onChange={(e) => setFontFamily(e.target.value)}
-                  className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                  className="w-full bg-[#070910] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
                 >
                   <option value="Inter">Inter</option>
                   <option value="Roboto">Roboto</option>
@@ -453,7 +453,7 @@ export default function CertGenerator() {
                   placeholder="Size"
                   value={fontSize}
                   onChange={(e) => setFontSize(Number(e.target.value))}
-                  className="w-full bg-[#0f0d16] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                  className="w-full bg-[#070910] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
                 />
               </div>
               <div className="flex gap-2">
@@ -463,7 +463,7 @@ export default function CertGenerator() {
                       prev === "bold" ? "normal" : "bold",
                     )
                   }
-                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${fontWeight === "bold" ? "bg-[#f183ff] text-white" : "bg-[#0f0d16] text-slate-400"}`}
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${fontWeight === "bold" ? "bg-[#f183ff] text-white" : "bg-[#070910] text-[#aea9b6]"}`}
                 >
                   Bold
                 </button>
@@ -473,7 +473,7 @@ export default function CertGenerator() {
                       prev === "italic" ? "normal" : "italic",
                     )
                   }
-                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${fontStyle === "italic" ? "bg-[#f183ff] text-white" : "bg-[#0f0d16] text-slate-400"}`}
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${fontStyle === "italic" ? "bg-[#f183ff] text-white" : "bg-[#070910] text-[#aea9b6]"}`}
                 >
                   Italic
                 </button>
@@ -487,42 +487,42 @@ export default function CertGenerator() {
             </div>
 
             <div className="space-y-4">
-              <label className="block text-sm font-label text-slate-400">
+              <label className="block text-sm font-label text-[#aea9b6]">
                 5. Placement & Sizing
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setPlaceMode("text")}
-                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === "text" ? "border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]" : "border-white/5 bg-[#0f0d16]"}`}
+                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === "text" ? "border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]" : "border-white/5 bg-[#070910]"}`}
                 >
                   Name
                 </button>
                 <button
                   onClick={() => setPlaceMode("qr")}
-                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === "qr" ? "border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]" : "border-white/5 bg-[#0f0d16]"}`}
+                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === "qr" ? "border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]" : "border-white/5 bg-[#070910]"}`}
                 >
                   QR Code
                 </button>
                 <button
                   onClick={() => setPlaceMode("cred")}
-                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === "cred" ? "border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]" : "border-white/5 bg-[#0f0d16]"}`}
+                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${placeMode === "cred" ? "border-[#f183ff] bg-[#f183ff]/10 text-[#f183ff]" : "border-white/5 bg-[#070910]"}`}
                 >
                   Cred ID
                 </button>
                 <button
                   onClick={() => setShowCredential(!showCredential)}
-                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${showCredential ? "border-green-500 bg-green-500/10 text-green-500" : "border-white/5 bg-[#0f0d16]"}`}
+                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-all ${showCredential ? "border-green-500 bg-green-500/10 text-green-500" : "border-white/5 bg-[#070910]"}`}
                 >
                   {showCredential ? "Show ID" : "Hide ID"}
                 </button>
               </div>
 
               {/* Dynamic Sizing Control */}
-              <div className="bg-[#0f0d16] p-3 rounded-xl border border-white/5 space-y-3">
+              <div className="bg-[#070910] p-3 rounded-xl border border-white/5 space-y-3">
                 {placeMode === "qr" && (
                   <div>
                     <div className="flex justify-between mb-1">
-                      <span className="text-[10px] text-slate-400">
+                      <span className="text-[10px] text-[#aea9b6]">
                         QR Size
                       </span>
                       <span className="text-[10px] font-bold">{qrSize}px</span>
@@ -540,7 +540,7 @@ export default function CertGenerator() {
                 {placeMode === "cred" && (
                   <div>
                     <div className="flex justify-between mb-1">
-                      <span className="text-[10px] text-slate-400">
+                      <span className="text-[10px] text-[#aea9b6]">
                         ID Size
                       </span>
                       <span className="text-[10px] font-bold">
@@ -589,9 +589,9 @@ export default function CertGenerator() {
           </div>
 
           {/* Canvas Area */}
-          <div className="lg:col-span-2 bg-[#1a1625] p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center overflow-auto">
+          <div className="lg:col-span-2 relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)] p-6 flex flex-col items-center justify-center overflow-auto">
             {!templateImage ? (
-              <div className="text-slate-500 text-center">
+              <div className="text-[#78737f] text-center">
                 <span className="material-symbols-outlined text-4xl mb-2 block">
                   image
                 </span>
@@ -611,7 +611,7 @@ export default function CertGenerator() {
       {/* Generic Alert Modal */}
       {alertModal.isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-[#0d1220] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up text-center">
+          <div className="bg-[#0c0f1a] border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-scale-up text-center">
             <div className={`mx-auto w-12 h-12 rounded-full mb-4 flex items-center justify-center ${
               alertModal.type === 'error' ? 'bg-red-500/20 text-red-400' :
               alertModal.type === 'success' ? 'bg-emerald-500/20 text-emerald-400' :
@@ -621,7 +621,7 @@ export default function CertGenerator() {
                 {alertModal.type === 'error' ? 'error' : alertModal.type === 'success' ? 'check_circle' : 'info'}
               </span>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">
+            <h3 className="text-lg font-bold text-white mb-2 font-headline">
               {alertModal.type === 'error' ? 'Error' : alertModal.type === 'success' ? 'Success' : 'Notice'}
             </h3>
             <p className="text-white/60 text-sm mb-6">{alertModal.message}</p>

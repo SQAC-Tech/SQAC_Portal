@@ -123,13 +123,13 @@ const SkillsEditorModal = ({ user, memberProfile, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 px-4 backdrop-blur-md">
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col rounded-[2rem] border border-white/10 bg-[#0d1220]/95 shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col rounded-[2rem] border border-white/10 bg-[#0c0f1a]/95 shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
         <div className="p-6 border-b border-white/10 flex items-start justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary/80">
               Skill Evaluation
             </p>
-            <h3 className="mt-2 text-2xl font-bold text-white font-['Space_Grotesk']">
+            <h3 className="mt-2 text-2xl font-bold text-white font-headline">
               Update {user?.coreDomain} Skills
             </h3>
             <p className="mt-1 text-sm text-white/55">
@@ -198,7 +198,7 @@ const SkillsEditorModal = ({ user, memberProfile, onClose, onSave }) => {
           </form>
         </div>
 
-        <div className="p-6 border-t border-white/10 flex justify-end gap-3 bg-[#0a0f18]">
+        <div className="p-6 border-t border-white/10 flex justify-end gap-3 bg-[#0c0f1a]">
           <button
             type="button"
             className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white/75 transition-all hover:bg-white/10 hover:text-white"

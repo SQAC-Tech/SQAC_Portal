@@ -34,7 +34,7 @@ export default function RightPanel({
     }, [domain]);
 
     return (
-        <div className="w-96 bg-[#111122] p-6 border-l border-white/10 flex flex-col gap-4">
+        <div className="w-96 bg-[#0c0f1a] p-6 border-l border-white/10 flex flex-col gap-4">
 
             {/* Header */}
             <div className="flex justify-between items-start">
@@ -58,7 +58,7 @@ export default function RightPanel({
             <div>
                 <label className="text-sm text-gray-400 mb-1 block">Title</label>
                 <input
-                    className="w-full p-3 rounded-xl bg-[#1b1b2f] text-white border border-white/10 focus:ring-2 focus:ring-pink-500"
+                    className="w-full p-3 rounded-xl bg-[#1b1f2b] text-white border border-white/10 focus:ring-2 focus:ring-pink-500"
                     placeholder="Enter headline..."
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
@@ -69,7 +69,7 @@ export default function RightPanel({
             <div>
                 <label className="text-sm text-gray-400 mb-1 block">Description</label>
                 <textarea
-                    className="w-full p-3 rounded-xl bg-[#1b1b2f] text-white border border-white/10 h-28 focus:ring-2 focus:ring-pink-500 resize-none"
+                    className="w-full p-3 rounded-xl bg-[#1b1f2b] text-white border border-white/10 h-28 focus:ring-2 focus:ring-pink-500 resize-none"
                     placeholder="Write your announcement..."
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
@@ -84,7 +84,7 @@ export default function RightPanel({
                     placeholder="Paste image link..."
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-[#1b1b2f] text-white border border-white/10 focus:ring-2 focus:ring-pink-500"
+                    className="w-full p-3 rounded-xl bg-[#1b1f2b] text-white border border-white/10 focus:ring-2 focus:ring-pink-500"
                 />
             </div>
 
@@ -94,7 +94,7 @@ export default function RightPanel({
                 <select
                     value={domain}
                     onChange={(e) => setDomain(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-[#1b1b2f] text-white border border-white/10"
+                    className="w-full p-3 rounded-xl bg-[#1b1f2b] text-white border border-white/10"
                 >
                     {Object.keys(domainMap).map((d) => (
                         <option key={d} value={d}>
@@ -115,7 +115,7 @@ export default function RightPanel({
             w-full p-3 rounded-xl text-white border border-white/10
             ${subdomains.length === 0
                             ? "bg-gray-700 cursor-not-allowed text-gray-500"
-                            : "bg-[#1b1b2f]"
+                            : "bg-[#1b1f2b]"
                         }
                 `}
                 >

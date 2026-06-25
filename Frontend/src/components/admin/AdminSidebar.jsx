@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { navItems } from "../../utils/memberHelpers";
+import SQACLogo from "../ui/SQACLogo";
 
 // Roles that can access admin sections (everyone except member)
 const ROLES_WITH_ADMIN_ACCESS = [
@@ -51,7 +52,18 @@ const AdminSidebar = ({ onLogout }) => {
 
   return (
     <aside className="member-sidebar fixed left-4 top-1/2 z-50 hidden -translate-y-1/2 lg:flex">
-      <div className="member-sidebar-shell flex flex-col items-center gap-2 rounded-[2rem] border border-white/10 bg-[#0d1220]/72 px-2.5 py-4 backdrop-blur-2xl">
+      <div className="member-sidebar-shell flex flex-col items-center gap-2 rounded-[2rem] border border-white/10 bg-[#0c0f1a]/72 px-2.5 py-4 backdrop-blur-2xl">
+        {/* Brand */}
+        <Link
+          to="/dashboard"
+          aria-label="SQAC — Dashboard"
+          title="SQAC"
+          className="mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] transition-transform duration-200 hover:scale-105"
+        >
+          <SQACLogo size={24} />
+        </Link>
+        <div className="mb-1 h-px w-7 shrink-0 bg-white/10" />
+
         {filteredNavItems.map((item) => {
           const isRoute = item.href.startsWith("/");
           const isActive = isRoute && location.pathname === item.href;
@@ -86,9 +98,10 @@ const AdminSidebar = ({ onLogout }) => {
           );
         })}
 
+        <div className="mt-1 h-px w-7 shrink-0 bg-white/10" />
         <button
           aria-label="Logout"
-          className="member-sidebar-link mt-2 text-red-100/80 hover:text-red-100 shrink-0"
+          className="member-sidebar-link shrink-0 text-red-100/80 hover:text-red-100"
           onClick={onLogout}
           title="Logout"
           type="button"

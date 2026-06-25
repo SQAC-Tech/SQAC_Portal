@@ -1,46 +1,24 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import Navbar from "../components/common/layout/Navbar";
-import AdminSidebar from "../components/admin/AdminSidebar";
+import AppShell from "../components/common/layout/AppShell";
 import StatCard from "../components/dashboard/StatCard";
 import UpcomingMeetsWidget from "../components/dashboard/UpcomingMeetsWidget";
 import RecentNoticesWidget from "../components/dashboard/RecentNoticesWidget";
 import QuickActionsWidget from "../components/dashboard/QuickActionsWidget";
 import MyProjectsWidget from "../components/dashboard/MyProjectsWidget";
 import PendingApprovalsWidget from "../components/dashboard/PendingApprovalsWidget";
+import { Avatar, PremiumCard } from "../components/ui";
 import { fetchWithAuth } from "../api/fetchWithAuth";
 import { usePermissions } from "../utils/usePermissions";
+import { ROLE_LABELS, ROLE_COLORS } from "../utils/memberHelpers";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-const DEFAULT_AVATAR =
-  "https://images.unsplash.com/photo-1680355466468-bd0a68b11fa0?q=80&w=715&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-
-const ROLE_LABELS = {
-  secretary:       "Secretary",
-  joint_secretary: "Joint Secretary",
-  technical_lead:  "Technical Lead",
-  project_lead:    "Project Lead",
-  corp_lead:       "Corporate Lead",
-  domain_lead:     "Domain Lead",
-  associate_lead:  "Associate Lead",
-  member:          "Member",
-};
-
-const ROLE_COLORS = {
-  secretary:       "bg-[#f183ff]/10 border-[#f183ff]/25 text-[#f183ff]",
-  joint_secretary: "bg-violet-500/10 border-violet-400/25 text-violet-300",
-  technical_lead:  "bg-blue-500/10 border-blue-400/25 text-blue-300",
-  project_lead:    "bg-cyan-500/10 border-cyan-400/25 text-cyan-300",
-  corp_lead:       "bg-amber-500/10 border-amber-400/25 text-amber-300",
-  domain_lead:     "bg-emerald-500/10 border-emerald-400/25 text-emerald-300",
-  associate_lead:  "bg-orange-500/10 border-orange-400/25 text-orange-300",
-  member:          "bg-white/6 border-white/15 text-white/60",
-};
-
 // ── Shared card wrapper ─────────────────────────────────────────────────────
-const CARD = "rounded-2xl border border-white/8 bg-[#0c0f1a]/70 backdrop-blur-xl p-5";
+// Premium panel — same glass/radius/shadow language as the Profile card.
+const CARD =
+  "relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)] p-6";
 
 // ── Section header ──────────────────────────────────────────────────────────
 function SectionHeader({ title, linkTo, linkLabel = "View all" }) {
@@ -69,20 +47,17 @@ function WelcomeHero({ profile, role, isMember }) {
   const badgeClass = ROLE_COLORS[role] || ROLE_COLORS.member;
 
   return (
-    <div className="relative rounded-2xl border border-white/8 bg-[#0c0f1a]/70 backdrop-blur-xl p-6 md:p-8 overflow-hidden">
+    <PremiumCard padding="lg">
       {/* Top gradient line */}
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#f183ff] via-[#ff6c95] to-transparent" />
-      {/* Glow */}
-      <div className="absolute top-4 right-8 h-28 w-28 rounded-full bg-[#f183ff]/8 blur-3xl pointer-events-none" />
 
       <div className="flex items-center gap-5">
-        <div className="shrink-0 h-14 w-14 rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-[0_0_24px_rgba(241,131,255,0.12)]">
-          <img
-            src={profile?.image || DEFAULT_AVATAR}
-            alt={profile?.name}
-            className="h-full w-full object-cover"
-          />
-        </div>
+        <Avatar
+          src={profile?.image}
+          alt={profile?.name}
+          size={56}
+          className="shadow-[0_0_24px_rgba(241,131,255,0.12)]"
+        />
         <div>
           <p className="text-sm text-white/40 font-semibold">{greeting},</p>
           <h1 className="text-xl md:text-2xl font-headline font-bold text-white leading-tight">
@@ -107,7 +82,7 @@ function WelcomeHero({ profile, role, isMember }) {
           )}
         </div>
       </div>
-    </div>
+    </PremiumCard>
   );
 }
 
@@ -469,7 +444,6 @@ function RoleLayout({ role, data, onApprove, onReject, loadingId, rejectModal })
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Dashboard() {
-  const navigate = useNavigate();
   const { role } = usePermissions();
 
   const [loading, setLoading] = useState(true);
@@ -587,16 +561,10 @@ export default function Dashboard() {
     }
   }, [rejectingId, rejectReason]);
 
-  const handleLogout = useCallback(async () => {
-    try { await fetchWithAuth(`${API}/logout`, { method: "POST" }); } catch (_) {}
-    localStorage.removeItem("user");
-    navigate("/login");
-  }, [navigate]);
-
   // ── Rejection modal JSX (passed down to Secretary layout) ────────────────
   const rejectModal = rejectingId ? (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0d1117]/98 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.7)]">
+      <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0c0f1a]/98 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.7)]">
         <div className="flex items-center gap-3 mb-4">
           <div className="h-9 w-9 rounded-xl bg-red-500/10 border border-red-400/20 flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-red-400 text-lg">report</span>
@@ -636,29 +604,19 @@ export default function Dashboard() {
   ) : null;
 
   return (
-    <div className="min-h-screen bg-[#070910] text-[#f5eefc] font-body">
-      <Navbar />
-      <AdminSidebar onLogout={handleLogout} />
-
-      {/* Background atmosphere */}
-      <div className="pointer-events-none fixed inset-0 -z-40 bg-[radial-gradient(circle_at_top_left,rgba(241,131,255,0.10),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(129,236,255,0.06),transparent_28%)]" />
-      <div className="pointer-events-none fixed -left-16 top-20 -z-20 h-56 w-56 rounded-full bg-[#f183ff]/12 blur-[90px]" />
-      <div className="pointer-events-none fixed right-0 bottom-24 -z-20 h-64 w-64 rounded-full bg-[#81ecff]/7 blur-[110px]" />
-
-      <main className="mx-auto max-w-[1400px] px-5 pb-16 pt-24 md:px-8 lg:pl-32">
-        {loading ? (
-          <DashboardSkeleton />
-        ) : (
-          <RoleLayout
-            role={role}
-            data={data}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            loadingId={loadingId}
-            rejectModal={rejectModal}
-          />
-        )}
-      </main>
-    </div>
+    <AppShell>
+      {loading ? (
+        <DashboardSkeleton />
+      ) : (
+        <RoleLayout
+          role={role}
+          data={data}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          loadingId={loadingId}
+          rejectModal={rejectModal}
+        />
+      )}
+    </AppShell>
   );
 }

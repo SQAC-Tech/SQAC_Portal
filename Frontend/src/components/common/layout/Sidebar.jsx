@@ -19,7 +19,7 @@ function timeAgo(date) {
 
 export default function NoticeCard({ notice, isAdmin, onDelete }) {
     return (
-        <div className="relative p-5 rounded-2xl bg-[#15152b]/80 border border-white/10 backdrop-blur-md hover:scale-[1.02] transition">
+        <div className="relative p-5 rounded-2xl bg-[#1b1f2b]/80 border border-white/10 backdrop-blur-md hover:scale-[1.02] transition">
 
             {/* Glow */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-pink-500/10 to-purple-500/10 blur-xl opacity-30"></div>

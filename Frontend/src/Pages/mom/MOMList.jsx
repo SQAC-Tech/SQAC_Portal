@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { exportMOMtoPDF, loadLogoBase64 } from "../../utils/momPdfExport";
-import Navbar from "../../components/common/layout/Navbar";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -105,9 +104,9 @@ export default function MOMList() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0d16] text-[#f5eefc]">
+    <div className={isAdminCtx ? "text-[#f5eefc]" : "min-h-screen bg-[#070910] text-[#f5eefc]"}>
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-[#0f0d16]/90 backdrop-blur-md border-b border-[#494651]/40 px-6 py-4">
+      <div className={`sticky z-40 bg-[#070910]/90 backdrop-blur-md border-b border-[#494651]/40 px-6 py-4 ${isAdminCtx ? "top-16" : "top-0"}`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
@@ -138,7 +137,7 @@ export default function MOMList() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search MOMs by title, author or scope…"
-          className="w-full bg-[#1b1823] border border-[#494651] rounded-xl px-4 py-3 text-sm text-[#f5eefc]
+          className="w-full bg-[#0c0f1a] border border-[#494651] rounded-xl px-4 py-3 text-sm text-[#f5eefc]
             placeholder-[#494651] focus:outline-none focus:border-[#f183ff] focus:ring-1 focus:ring-[#f183ff]/30 transition-all mb-6"
         />
 
@@ -175,8 +174,8 @@ export default function MOMList() {
             {filtered.map((mom) => (
               <div
                 key={mom._id}
-                className="group relative rounded-xl border border-[#494651]/60 bg-[#1b1823] overflow-hidden
-                  hover:border-[#f183ff]/30 transition-all cursor-pointer"
+                className="group relative overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)]
+                  hover:border-[#f183ff]/30 hover:-translate-y-1 transition-all cursor-pointer"
                 onClick={() => setSelected(mom)}
               >
                 {/* Top accent */}
@@ -274,7 +273,7 @@ export default function MOMList() {
           onClick={() => setSelected(null)}
         >
           <div
-            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-[#494651]/60 bg-[#1b1823]"
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-[#494651]/60 bg-[#0c0f1a]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal header gradient */}
@@ -381,7 +380,7 @@ export default function MOMList() {
                   </h4>
                   <div className="rounded-xl overflow-hidden border border-[#494651]/40">
                     <table className="w-full text-sm">
-                      <thead className="bg-[#14121c]">
+                      <thead className="bg-[#0c0f1a]">
                         <tr>
                           {["Task", "Assignee", "Due Date"].map((h) => (
                             <th
@@ -398,7 +397,7 @@ export default function MOMList() {
                           <tr
                             key={i}
                             className={
-                              i % 2 === 0 ? "bg-[#1b1823]" : "bg-[#14121c]"
+                              i % 2 === 0 ? "bg-[#0c0f1a]" : "bg-[#0c0f1a]"
                             }
                           >
                             <td className="px-3 py-2.5 text-[#f5eefc]">
@@ -419,7 +418,7 @@ export default function MOMList() {
               )}
 
               {(selected.nextMeetDate || selected.nextMeetAgenda) && (
-                <div className="p-3 rounded-xl bg-[#14121c] border border-[#81ecff]/20">
+                <div className="p-3 rounded-xl bg-[#0c0f1a] border border-[#81ecff]/20">
                   <h4 className="text-xs font-bold uppercase tracking-widest text-[#81ecff] mb-2">
                     Next Meeting
                   </h4>
@@ -467,7 +466,7 @@ export default function MOMList() {
       {/* ── Delete Confirm Dialog ─────────────────────────────────── */}
       {deleteId && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-2xl border border-[#ff6e84]/40 bg-[#1b1823] p-6 space-y-4">
+          <div className="w-full max-w-sm rounded-2xl border border-[#ff6e84]/40 bg-[#0c0f1a] p-6 space-y-4">
             <div className="text-4xl text-center">⚠️</div>
             <h3 className="text-center font-bold text-[#f5eefc]">
               Delete this MOM?

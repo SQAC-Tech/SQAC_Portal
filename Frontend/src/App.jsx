@@ -39,7 +39,28 @@ import {
 function App() {
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        gutter={10}
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: "rgba(12, 15, 26, 0.92)",
+            color: "#f5eefc",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "14px",
+            padding: "12px 16px",
+            fontSize: "14px",
+            fontFamily: "Manrope, sans-serif",
+            backdropFilter: "blur(16px)",
+            boxShadow: "0 24px 60px rgba(4, 6, 20, 0.45)",
+          },
+          success: { iconTheme: { primary: "#34d399", secondary: "#0c0f1a" } },
+          error: { iconTheme: { primary: "#ff6e84", secondary: "#0c0f1a" } },
+          loading: { iconTheme: { primary: "#f183ff", secondary: "#0c0f1a" } },
+        }}
+      />
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />

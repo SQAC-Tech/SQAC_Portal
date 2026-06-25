@@ -4,7 +4,7 @@ import { DEFAULT_AVATAR, roleLabel } from "../../utils/memberHelpers";
 const MemberCard = ({ member, index, onView, onDelete, canDelete = true }) => {
   return (
     <article
-      className="member-id-card group relative overflow-hidden rounded-[2rem] border border-white/12 bg-white/[0.04] p-[1px] shadow-[0_30px_80px_rgba(4,6,20,0.42)] cursor-pointer"
+      className="member-id-card group relative h-full overflow-hidden rounded-[2rem] border border-white/12 bg-white/[0.04] p-[1px] shadow-[0_30px_80px_rgba(4,6,20,0.42)] cursor-pointer"
       style={{ animationDelay: `${index * 90}ms` }}
       onClick={() => onView(member)}
     >
@@ -24,7 +24,7 @@ const MemberCard = ({ member, index, onView, onDelete, canDelete = true }) => {
 
         {/* Info */}
         <div className="flex-1 w-full space-y-2 mb-5">
-          <h3 className="text-lg font-bold text-white font-['Space_Grotesk'] leading-snug">{member.name}</h3>
+          <h3 className="text-lg font-bold text-white font-headline leading-snug">{member.name}</h3>
           <div className="inline-flex rounded-full border border-white/10 bg-white/4 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-[#81ecff]">
             {member.position || roleLabel(member)}
           </div>
