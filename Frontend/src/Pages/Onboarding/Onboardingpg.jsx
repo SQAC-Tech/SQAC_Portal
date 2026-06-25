@@ -194,7 +194,7 @@ function StepThree({ formData, setFormData }) {
       <FormInput icon="code" label="GitHub" placeholder="GitHub*" value={formData.github}
         onChange={(val) => setFormData({ ...formData, github: val })} />
 
-      <FormTextArea icon="edit_note" label="Bio" placeholder="Short Bio" rows={4}
+      <FormTextArea icon="edit_note" label="Bio" placeholder="Short Bio" rows={4} maxLength={150}
         value={formData.bio}
         onChange={(val) => setFormData({ ...formData, bio: val })} />
     </div>
@@ -423,6 +423,11 @@ export default function OnboardingPage() {
 
     if (!formData.address.trim()) {
       toast.error("Address is required.");
+      return;
+    }
+
+    if (formData.bio && formData.bio.length > 150) {
+      toast.error("Bio must be 150 characters or less.");
       return;
     }
 
@@ -658,7 +663,7 @@ function FormInput({ icon, label, placeholder, value, onChange, type = "text" })
   );
 }
 
-function FormTextArea({ icon, label, placeholder, rows, value, onChange }) {
+function FormTextArea({ icon, label, placeholder, rows, value, onChange, maxLength }) {
   return (
     <div className="space-y-2">
       <label className="block text-xs font-label uppercase tracking-widest text-on-surface-variant ml-1">
@@ -672,9 +677,15 @@ function FormTextArea({ icon, label, placeholder, rows, value, onChange }) {
           rows={rows}
           value={value}
           placeholder={placeholder}
+          maxLength={maxLength}
           onChange={(e) => onChange(e.target.value)}
           className="w-full bg-surface-container-highest border border-outline-variant/15 rounded-xl py-4 pl-12 pr-4 font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline/50 resize-none"
         />
+        {maxLength && (
+          <span className="absolute right-3 bottom-2 text-[10px] text-outline/60">
+            {(value?.length || 0)}/{maxLength}
+          </span>
+        )}
       </div>
     </div>
   );
