@@ -5,8 +5,25 @@ import { usePermissions } from "../../utils/usePermissions";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const DOMAINS = ["Web Development", "AI/ML", "Cross-Domain", "Events", "Media", "Public Relations", "Sponsorships", "Creatives", "Corporate"];
+const DIFFICULTIES = ["beginner", "intermediate", "advanced"];
+const PRIORITIES = ["high", "medium", "low"];
+
+const EMPTY_FORM = {
+  title: "",
+  domain: "Web Development",
+  difficulty: "intermediate",
+  timeline: "",
+  teamSize: 3,
+  description: "",
+  techStack: "",     // comma-separated
+  objectives: "",    // one per line
+  deliverables: "",  // one per line
+  features: [],       // [{ name, description, priority }]
+};
+
 const Projects = () => {
-  const { canAssignProject } = usePermissions();
+  const { canAssignProject, canCreateProject } = usePermissions();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -18,6 +35,15 @@ const Projects = () => {
   const [posting, setPosting] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: "", type: "info" });
+
+  // Create-project modal
+  const [showCreate, setShowCreate] = useState(false);
+  const [createTab, setCreateTab] = useState("ai"); // "ai" | "manual"
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [creating, setCreating] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
 
   const showAlert = (message, type = "info") => {
     setAlertModal({ isOpen: true, message, type });
@@ -131,6 +157,121 @@ const Projects = () => {
     });
   };
 
+  const openCreate = () => {
+    setForm(EMPTY_FORM);
+    setAiPrompt("");
+    setAiError("");
+    setCreateTab("ai");
+    setShowCreate(true);
+  };
+
+  const setField = (key, value) => setForm((f) => ({ ...f, [key]: value }));
+
+  const updateFeature = (i, key, value) =>
+    setForm((f) => ({
+      ...f,
+      features: f.features.map((ft, idx) => (idx === i ? { ...ft, [key]: value } : ft)),
+    }));
+
+  const addFeature = () =>
+    setForm((f) => ({ ...f, features: [...f.features, { name: "", description: "", priority: "medium" }] }));
+
+  const removeFeature = (i) =>
+    setForm((f) => ({ ...f, features: f.features.filter((_, idx) => idx !== i) }));
+
+  const handleAIGenerate = async () => {
+    if (aiPrompt.trim().length < 10) {
+      setAiError("Describe the project in a bit more detail (at least 10 characters).");
+      return;
+    }
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/projects/ai-generate`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: aiPrompt }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "AI generation failed.");
+
+      const d = data.data || {};
+      setForm((f) => ({
+        ...f,
+        title: d.title || f.title,
+        description: d.description || f.description,
+        domain: DOMAINS.includes(d.domain) ? d.domain : f.domain,
+        difficulty: DIFFICULTIES.includes(d.difficulty) ? d.difficulty : f.difficulty,
+        timeline: d.timeline || f.timeline,
+        teamSize: Number(d.teamSize) > 0 ? Number(d.teamSize) : f.teamSize,
+        techStack: Array.isArray(d.techStack) ? d.techStack.join(", ") : f.techStack,
+        objectives: Array.isArray(d.objectives) ? d.objectives.join("\n") : f.objectives,
+        deliverables: Array.isArray(d.deliverables) ? d.deliverables.join("\n") : f.deliverables,
+        features: Array.isArray(d.features)
+          ? d.features.map((ft) => ({
+              name: ft.name || "",
+              description: ft.description || "",
+              priority: PRIORITIES.includes(ft.priority) ? ft.priority : "medium",
+            }))
+          : f.features,
+      }));
+      setCreateTab("manual"); // switch to review/edit the generated draft
+    } catch (err) {
+      setAiError(err.message);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleCreateProject = async (e) => {
+    e.preventDefault();
+    if (!form.title.trim() || !form.description.trim()) {
+      showAlert("Title and description are required.", "error");
+      return;
+    }
+    const toLines = (s) => s.split("\n").map((x) => x.trim()).filter(Boolean);
+    const payload = {
+      title: form.title.trim(),
+      description: form.description.trim(),
+      domain: form.domain,
+      difficulty: form.difficulty,
+      timeline: form.timeline.trim(),
+      teamSize: Number(form.teamSize) || 3,
+      techStack: form.techStack.split(",").map((x) => x.trim()).filter(Boolean),
+      objectives: toLines(form.objectives),
+      deliverables: toLines(form.deliverables),
+      features: form.features
+        .filter((ft) => ft.name.trim())
+        .map((ft) => ({ name: ft.name.trim(), description: ft.description.trim(), priority: ft.priority })),
+    };
+
+    setCreating(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/projects`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to create project.");
+
+      setShowCreate(false);
+      await fetchProjects();
+      // Chain straight into team assignment for the freshly created project
+      if (canAssignProject && data?._id) {
+        handleAssignTeam(data._id);
+      } else {
+        showAlert("Project created successfully.", "success");
+      }
+    } catch (err) {
+      showAlert(err.message, "error");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const filteredProjects = projects.filter(p => {
     if (filter !== "all") {
       if (filter === "assigned" && p.status === "unassigned") return false;
@@ -165,17 +306,28 @@ const Projects = () => {
       <header className="sticky top-0 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-6 px-5 py-4 md:px-8 lg:pl-28">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">Project Database</p>
-            <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">Command Deck</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">Track and assign work</p>
+            <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">Projects</h1>
           </div>
-          <div className="hidden flex-1 md:flex max-w-md">
-            <input
-              type="text"
-              placeholder="Search PRDs..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-full border border-white/10 bg-white/6 py-3 px-6 text-sm text-white outline-none transition-all placeholder:text-white/35 focus:border-primary/60 focus:bg-white/10"
-            />
+          <div className="flex items-center gap-3 md:flex-1 md:justify-end">
+            <div className="hidden md:flex max-w-md flex-1">
+              <input
+                type="text"
+                placeholder="Search PRDs..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-full border border-white/10 bg-white/6 py-3 px-6 text-sm text-white outline-none transition-all placeholder:text-white/35 focus:border-primary/60 focus:bg-white/10"
+              />
+            </div>
+            {canCreateProject && (
+              <button
+                onClick={openCreate}
+                className="shrink-0 bg-gradient-to-r from-primary to-secondary text-black font-headline font-bold px-5 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(241,131,255,0.25)] hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-lg font-bold">add</span>
+                New Project
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -333,6 +485,244 @@ const Projects = () => {
                 {posting ? "..." : "Send"}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Create Project Modal */}
+      {showCreate && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/72 backdrop-blur-sm px-4 py-8">
+          <div className="w-full max-w-2xl max-h-full overflow-y-auto rounded-3xl border border-white/10 bg-[#0c0f1a]/97 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative custom-scrollbar">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary" />
+
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-2xl font-bold font-headline text-white tracking-wide">New Project</h3>
+                <p className="text-[#aea9b6] text-xs mt-1">Draft a PRD manually or let AI scaffold it for you</p>
+              </div>
+              <button
+                onClick={() => setShowCreate(false)}
+                className="text-[#aea9b6] hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6 p-1 rounded-xl bg-white/4 border border-white/8 w-fit">
+              <button
+                onClick={() => setCreateTab("ai")}
+                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all flex items-center gap-1.5 ${createTab === "ai" ? "bg-primary text-black" : "text-white/70 hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-base">auto_awesome</span> AI Generate
+              </button>
+              <button
+                onClick={() => setCreateTab("manual")}
+                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${createTab === "manual" ? "bg-primary text-black" : "text-white/70 hover:text-white"}`}
+              >
+                Manual
+              </button>
+            </div>
+
+            {createTab === "ai" ? (
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Describe the project idea</label>
+                  <textarea
+                    rows={6}
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="e.g. A web dashboard for tracking club attendance with QR check-in, role-based access, and analytics charts."
+                    className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-white/20 transition-all resize-none"
+                  />
+                </div>
+                {aiError && (
+                  <div className="p-3 rounded-lg bg-[#ff6e84]/8 border border-[#ff6e84]/25 text-xs text-[#ff6e84]">✗ {aiError}</div>
+                )}
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreate(false)}
+                    className="px-5 py-2.5 border border-white/10 hover:bg-white/4 text-white rounded-xl text-sm transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAIGenerate}
+                    disabled={aiLoading}
+                    className="bg-gradient-to-r from-primary to-secondary text-black font-headline font-bold px-6 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(241,131,255,0.25)] hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-lg">auto_awesome</span>
+                    {aiLoading ? "Generating…" : "Generate Draft"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleCreateProject} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Title *</label>
+                  <input
+                    type="text"
+                    value={form.title}
+                    onChange={(e) => setField("title", e.target.value)}
+                    placeholder="Project name"
+                    className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-white/20 transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Domain</label>
+                    <select
+                      value={form.domain}
+                      onChange={(e) => setField("domain", e.target.value)}
+                      className="w-full bg-[#0c0f1a] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                    >
+                      {DOMAINS.map((d) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Difficulty</label>
+                    <select
+                      value={form.difficulty}
+                      onChange={(e) => setField("difficulty", e.target.value)}
+                      className="w-full bg-[#0c0f1a] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all capitalize"
+                    >
+                      {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Timeline</label>
+                    <input
+                      type="text"
+                      value={form.timeline}
+                      onChange={(e) => setField("timeline", e.target.value)}
+                      placeholder="e.g. 4 weeks"
+                      className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-white/20 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Team Size</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={form.teamSize}
+                      onChange={(e) => setField("teamSize", e.target.value)}
+                      className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Description *</label>
+                  <textarea
+                    rows={3}
+                    value={form.description}
+                    onChange={(e) => setField("description", e.target.value)}
+                    placeholder="What is this project about?"
+                    className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-white/20 transition-all resize-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Tech Stack <span className="text-white/30 normal-case">(comma-separated)</span></label>
+                  <input
+                    type="text"
+                    value={form.techStack}
+                    onChange={(e) => setField("techStack", e.target.value)}
+                    placeholder="React, Node.js, MongoDB"
+                    className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-white/20 transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Objectives <span className="text-white/30 normal-case">(one per line)</span></label>
+                    <textarea
+                      rows={3}
+                      value={form.objectives}
+                      onChange={(e) => setField("objectives", e.target.value)}
+                      placeholder={"Build X\nIntegrate Y"}
+                      className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-white/20 transition-all resize-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Deliverables <span className="text-white/30 normal-case">(one per line)</span></label>
+                    <textarea
+                      rows={3}
+                      value={form.deliverables}
+                      onChange={(e) => setField("deliverables", e.target.value)}
+                      placeholder={"Frontend repo\nAPI docs"}
+                      className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-white/20 transition-all resize-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Features</label>
+                    <button type="button" onClick={addFeature} className="text-xs text-primary hover:text-primary/80 font-bold flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm">add</span> Add
+                    </button>
+                  </div>
+                  {form.features.length === 0 && (
+                    <p className="text-xs text-white/30 ml-1">No features added.</p>
+                  )}
+                  {form.features.map((ft, i) => (
+                    <div key={i} className="flex gap-2 items-start bg-white/3 border border-white/8 rounded-xl p-2">
+                      <div className="flex-1 space-y-2">
+                        <input
+                          type="text"
+                          value={ft.name}
+                          onChange={(e) => updateFeature(i, "name", e.target.value)}
+                          placeholder="Feature name"
+                          className="w-full bg-white/4 border border-white/8 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary placeholder:text-white/20"
+                        />
+                        <input
+                          type="text"
+                          value={ft.description}
+                          onChange={(e) => updateFeature(i, "description", e.target.value)}
+                          placeholder="Short description"
+                          className="w-full bg-white/4 border border-white/8 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary placeholder:text-white/20"
+                        />
+                      </div>
+                      <select
+                        value={ft.priority}
+                        onChange={(e) => updateFeature(i, "priority", e.target.value)}
+                        className="bg-[#0c0f1a] border border-white/8 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-primary capitalize"
+                      >
+                        {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                      <button type="button" onClick={() => removeFeature(i)} className="text-white/40 hover:text-rose-400 p-1.5">
+                        <span className="material-symbols-outlined text-lg">delete</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-2 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreate(false)}
+                    className="px-5 py-2.5 border border-white/10 hover:bg-white/4 text-white rounded-xl text-sm transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={creating}
+                    className="bg-gradient-to-r from-primary to-secondary text-black font-headline font-bold px-6 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(241,131,255,0.25)] hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+                  >
+                    {creating ? "Creating…" : "Create Project"}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

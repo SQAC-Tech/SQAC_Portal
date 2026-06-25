@@ -1,7 +1,7 @@
 import React from "react";
 
 /**
- * Premium card — the Profile "Command Deck" card aesthetic, reusable.
+ * Premium card — the signature SQAC profile card aesthetic, reusable.
  * Gradient hairline border + radial brand glow + glass gradient inner + soft
  * deep shadow. Matches `.member-id-card` from index.css.
  *

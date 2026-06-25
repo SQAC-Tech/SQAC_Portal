@@ -8,6 +8,7 @@ import RecentNoticesWidget from "../components/dashboard/RecentNoticesWidget";
 import QuickActionsWidget from "../components/dashboard/QuickActionsWidget";
 import MyProjectsWidget from "../components/dashboard/MyProjectsWidget";
 import PendingApprovalsWidget from "../components/dashboard/PendingApprovalsWidget";
+import ActivityFeedWidget from "../components/dashboard/ActivityFeedWidget";
 import { Avatar, PremiumCard } from "../components/ui";
 import { fetchWithAuth } from "../api/fetchWithAuth";
 import { usePermissions } from "../utils/usePermissions";
@@ -39,46 +40,69 @@ function SectionHeader({ title, linkTo, linkLabel = "View all" }) {
 }
 
 // ── Welcome hero ────────────────────────────────────────────────────────────
-function WelcomeHero({ profile, role, isMember }) {
-  const hour = new Date().getHours();
+function WelcomeHero({ profile, role, isMember, meta = [] }) {
+  const now = new Date();
+  const hour = now.getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const badge = ROLE_LABELS[role] || "Member";
   const badgeClass = ROLE_COLORS[role] || ROLE_COLORS.member;
+  const dateLabel = now.toLocaleDateString("en-US", {
+    weekday: "long", month: "long", day: "numeric",
+  });
 
   return (
     <PremiumCard padding="lg">
       {/* Top gradient line */}
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#f183ff] via-[#ff6c95] to-transparent" />
+      {/* Ambient glow */}
+      <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-[#f183ff]/10 blur-3xl" />
 
-      <div className="flex items-center gap-5">
-        <Avatar
-          src={profile?.image}
-          alt={profile?.name}
-          size={56}
-          className="shadow-[0_0_24px_rgba(241,131,255,0.12)]"
-        />
-        <div>
-          <p className="text-sm text-white/40 font-semibold">{greeting},</p>
-          <h1 className="text-xl md:text-2xl font-headline font-bold text-white leading-tight">
-            {profile?.name || "SQAC Member"}
-          </h1>
-          <div className="flex flex-wrap items-center gap-2 mt-1.5">
-            <span className={`text-[10px] font-bold uppercase tracking-[0.2em] px-2.5 py-0.5 rounded-full border ${badgeClass}`}>
-              {badge}
-            </span>
-            {profile?.coreDomain && (
-              <span className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">
-                {profile.coreDomain}
-                {profile.subDomain ? ` / ${profile.subDomain}` : ""}
+      <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-5">
+          <Avatar
+            src={profile?.image}
+            alt={profile?.name}
+            size={60}
+            className="shadow-[0_0_24px_rgba(241,131,255,0.12)]"
+          />
+          <div>
+            <p className="text-sm text-white/40 font-semibold">{greeting},</p>
+            <h1 className="text-xl md:text-2xl font-headline font-bold text-white leading-tight">
+              {profile?.name || "SQAC Member"}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2 mt-1.5">
+              <span className={`text-[10px] font-bold uppercase tracking-[0.2em] px-2.5 py-0.5 rounded-full border ${badgeClass}`}>
+                {badge}
               </span>
-            )}
+              {profile?.coreDomain && (
+                <span className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">
+                  {profile.coreDomain}
+                  {profile.subDomain ? ` / ${profile.subDomain}` : ""}
+                </span>
+              )}
+            </div>
           </div>
-          {isMember && profile?.coreDomain && (
-            <p className="text-xs text-white/25 mt-1.5">
-              Welcome to SQAC · {profile.coreDomain}
-              {profile.subDomain ? ` — ${profile.subDomain}` : ""}
-            </p>
+        </div>
+
+        {/* At a glance */}
+        <div className="lg:text-right">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/30">{dateLabel}</p>
+          {meta.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2 lg:justify-end">
+              {meta.map((m) => (
+                <div
+                  key={m.label}
+                  className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/4 px-3 py-2"
+                >
+                  <span className="material-symbols-outlined text-[#f183ff] text-base">{m.icon}</span>
+                  <div className="text-left leading-tight">
+                    <p className="text-sm font-bold text-white">{m.value}</p>
+                    <p className="text-[9px] uppercase tracking-wider text-white/35">{m.label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -110,7 +134,7 @@ function DashboardSkeleton() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function SecretaryLayout({ data, onApprove, onReject, loadingId, rejectModal }) {
-  const { profile, members, pending, meetings, notices, projectStats } = data;
+  const { profile, members, pending, meetings, notices, projectStats, moms } = data;
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const upcomingCount = meetings.filter(
@@ -124,7 +148,11 @@ function SecretaryLayout({ data, onApprove, onReject, loadingId, rejectModal }) 
 
   return (
     <div className="space-y-6">
-      <WelcomeHero profile={profile} role="secretary" />
+      <WelcomeHero profile={profile} role="secretary" meta={[
+        { icon: "group", value: members.length, label: "Members" },
+        { icon: "pending_actions", value: pending.length, label: "Pending" },
+        { icon: "calendar_month", value: upcomingCount, label: "Upcoming" },
+      ]} />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -180,15 +208,21 @@ function SecretaryLayout({ data, onApprove, onReject, loadingId, rejectModal }) 
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className={CARD}>
-        <SectionHeader title="Quick Actions" />
-        <QuickActionsWidget actions={[
-          { label: "Approvals",       icon: "how_to_reg",      to: "/admin/approvals",      gradient: "from-[#f183ff] to-[#ff6c95]" },
-          { label: "Create Notice",   icon: "campaign",        to: "/admin/notice",         gradient: "from-[#81ecff] to-[#f183ff]" },
-          { label: "Schedule Meet",   icon: "calendar_month",  to: "/meet",                 gradient: "from-[#ff6c95] to-[#f183ff]" },
-          { label: "Members",         icon: "group",           to: "/admin/members",        gradient: "from-[#f183ff] to-[#81ecff]" },
-        ]} />
+      {/* Recent Activity + Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={CARD}>
+          <SectionHeader title="Recent Activity" linkTo="/mom/list" />
+          <ActivityFeedWidget moms={moms} limit={4} />
+        </div>
+        <div className={CARD}>
+          <SectionHeader title="Quick Actions" />
+          <QuickActionsWidget actions={[
+            { label: "Approvals",       icon: "how_to_reg",      to: "/admin/approvals",      gradient: "from-[#f183ff] to-[#ff6c95]" },
+            { label: "Create Notice",   icon: "campaign",        to: "/admin/notice",         gradient: "from-[#81ecff] to-[#f183ff]" },
+            { label: "Schedule Meet",   icon: "calendar_month",  to: "/meet",                 gradient: "from-[#ff6c95] to-[#f183ff]" },
+            { label: "Members",         icon: "group",           to: "/admin/members",        gradient: "from-[#f183ff] to-[#81ecff]" },
+          ]} />
+        </div>
       </div>
 
       {rejectModal}
@@ -197,7 +231,7 @@ function SecretaryLayout({ data, onApprove, onReject, loadingId, rejectModal }) 
 }
 
 function JointSecretaryLayout({ data }) {
-  const { profile, members, meetings, notices, projectStats } = data;
+  const { profile, members, meetings, notices, projectStats, moms } = data;
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const upcomingCount = meetings.filter((m) => new Date(m.date || m.startDate) >= today).length;
@@ -206,7 +240,11 @@ function JointSecretaryLayout({ data }) {
 
   return (
     <div className="space-y-6">
-      <WelcomeHero profile={profile} role="joint_secretary" />
+      <WelcomeHero profile={profile} role="joint_secretary" meta={[
+        { icon: "group", value: members.length, label: "Members" },
+        { icon: "calendar_month", value: upcomingCount, label: "Upcoming" },
+        { icon: "campaign", value: noticesThisMonth, label: "Notices" },
+      ]} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard icon="group"           label="Total Members"       value={members.length}                   accent="magenta" linkTo="/admin/members" />
@@ -226,28 +264,38 @@ function JointSecretaryLayout({ data }) {
         </div>
       </div>
 
-      <div className={CARD}>
-        <SectionHeader title="Quick Actions" />
-        <QuickActionsWidget actions={[
-          { label: "Create Notice",  icon: "campaign",        to: "/admin/notice",      gradient: "from-[#81ecff] to-[#f183ff]" },
-          { label: "Schedule Meet",  icon: "calendar_month",  to: "/meet",              gradient: "from-[#f183ff] to-[#ff6c95]" },
-          { label: "Members",        icon: "group",           to: "/admin/members",     gradient: "from-[#f183ff] to-[#81ecff]" },
-          { label: "Attendance",     icon: "how_to_reg",      to: "/admin/attendance",  gradient: "from-[#ff6c95] to-[#f183ff]" },
-        ]} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={CARD}>
+          <SectionHeader title="Recent Activity" linkTo="/mom/list" />
+          <ActivityFeedWidget moms={moms} limit={4} />
+        </div>
+        <div className={CARD}>
+          <SectionHeader title="Quick Actions" />
+          <QuickActionsWidget actions={[
+            { label: "Create Notice",  icon: "campaign",        to: "/admin/notice",      gradient: "from-[#81ecff] to-[#f183ff]" },
+            { label: "Schedule Meet",  icon: "calendar_month",  to: "/meet",              gradient: "from-[#f183ff] to-[#ff6c95]" },
+            { label: "Members",        icon: "group",           to: "/admin/members",     gradient: "from-[#f183ff] to-[#81ecff]" },
+            { label: "Attendance",     icon: "how_to_reg",      to: "/admin/attendance",  gradient: "from-[#ff6c95] to-[#f183ff]" },
+          ]} />
+        </div>
       </div>
     </div>
   );
 }
 
 function LeadLayout({ data, role }) {
-  const { profile, members, meetings, notices, projectStats, myProjects } = data;
+  const { profile, members, meetings, notices, projectStats, myProjects, moms } = data;
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const upcomingCount = meetings.filter((m) => new Date(m.date || m.startDate) >= today).length;
 
   return (
     <div className="space-y-6">
-      <WelcomeHero profile={profile} role={role} />
+      <WelcomeHero profile={profile} role={role} meta={[
+        { icon: "rocket_launch", value: projectStats?.inProgress ?? "—", label: "Active" },
+        { icon: "layers", value: myProjects.length, label: "Mine" },
+        { icon: "calendar_month", value: upcomingCount, label: "Upcoming" },
+      ]} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard icon="rocket_launch"   label="Active Projects"    value={projectStats?.inProgress ?? "—"}  accent="cyan" />
@@ -276,12 +324,17 @@ function LeadLayout({ data, role }) {
           ]} />
         </div>
       </div>
+
+      <div className={CARD}>
+        <SectionHeader title="Recent Activity" linkTo="/mom/list" />
+        <ActivityFeedWidget moms={moms} limit={4} />
+      </div>
     </div>
   );
 }
 
 function DomainLeadLayout({ data }) {
-  const { profile, members, meetings, notices } = data;
+  const { profile, members, meetings, notices, moms } = data;
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const upcomingCount = meetings.filter((m) => new Date(m.date || m.startDate) >= today).length;
@@ -294,7 +347,11 @@ function DomainLeadLayout({ data }) {
 
   return (
     <div className="space-y-6">
-      <WelcomeHero profile={profile} role="domain_lead" />
+      <WelcomeHero profile={profile} role="domain_lead" meta={[
+        { icon: "group", value: domainMembers, label: "Domain" },
+        { icon: "calendar_month", value: upcomingCount, label: "Upcoming" },
+        { icon: "campaign", value: noticesThisMonth, label: "Notices" },
+      ]} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard icon="group"           label="Domain Members"     value={domainMembers}    accent="emerald" linkTo="/admin/members" />
@@ -314,21 +371,27 @@ function DomainLeadLayout({ data }) {
         </div>
       </div>
 
-      <div className={CARD}>
-        <SectionHeader title="Quick Actions" />
-        <QuickActionsWidget actions={[
-          { label: "Schedule Meet",  icon: "calendar_month",  to: "/meet",              gradient: "from-[#f183ff] to-[#ff6c95]" },
-          { label: "Create Notice",  icon: "campaign",        to: "/admin/notice",      gradient: "from-[#81ecff] to-[#f183ff]" },
-          { label: "Attendance",     icon: "how_to_reg",      to: "/admin/attendance",  gradient: "from-[#ff6c95] to-[#f183ff]" },
-          { label: "Create MOM",     icon: "description",     to: "/admin/mom/create",  gradient: "from-[#f183ff] to-[#81ecff]" },
-        ]} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={CARD}>
+          <SectionHeader title="Recent Activity" linkTo="/mom/list" />
+          <ActivityFeedWidget moms={moms} limit={4} />
+        </div>
+        <div className={CARD}>
+          <SectionHeader title="Quick Actions" />
+          <QuickActionsWidget actions={[
+            { label: "Schedule Meet",  icon: "calendar_month",  to: "/meet",              gradient: "from-[#f183ff] to-[#ff6c95]" },
+            { label: "Create Notice",  icon: "campaign",        to: "/admin/notice",      gradient: "from-[#81ecff] to-[#f183ff]" },
+            { label: "Attendance",     icon: "how_to_reg",      to: "/admin/attendance",  gradient: "from-[#ff6c95] to-[#f183ff]" },
+            { label: "Create MOM",     icon: "description",     to: "/admin/mom/create",  gradient: "from-[#f183ff] to-[#81ecff]" },
+          ]} />
+        </div>
       </div>
     </div>
   );
 }
 
 function AssociateLeadLayout({ data }) {
-  const { profile, meetings, notices, myProjects } = data;
+  const { profile, meetings, notices, myProjects, moms } = data;
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const upcomingCount = meetings.filter((m) => new Date(m.date || m.startDate) >= today).length;
@@ -337,7 +400,11 @@ function AssociateLeadLayout({ data }) {
 
   return (
     <div className="space-y-6">
-      <WelcomeHero profile={profile} role="associate_lead" />
+      <WelcomeHero profile={profile} role="associate_lead" meta={[
+        { icon: "layers", value: myProjects.length, label: "Projects" },
+        { icon: "calendar_month", value: upcomingCount, label: "Upcoming" },
+        { icon: "event", value: meetsThisMonth, label: "This Month" },
+      ]} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard icon="layers"          label="My Projects"         value={myProjects.length} accent="magenta" linkTo="/user/projects" />
@@ -371,12 +438,17 @@ function AssociateLeadLayout({ data }) {
           ]} />
         </div>
       </div>
+
+      <div className={CARD}>
+        <SectionHeader title="Recent Activity" linkTo="/mom/list" />
+        <ActivityFeedWidget moms={moms} limit={5} />
+      </div>
     </div>
   );
 }
 
 function MemberLayout({ data }) {
-  const { profile, meetings, notices, myProjects, myAttendance } = data;
+  const { profile, meetings, notices, myProjects, myAttendance, moms } = data;
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const upcomingCount = meetings.filter((m) => new Date(m.date || m.startDate) >= today).length;
@@ -387,7 +459,11 @@ function MemberLayout({ data }) {
 
   return (
     <div className="space-y-6">
-      <WelcomeHero profile={profile} role="member" isMember />
+      <WelcomeHero profile={profile} role="member" isMember meta={[
+        { icon: "layers", value: myProjects.length, label: "Projects" },
+        { icon: "calendar_month", value: upcomingCount, label: "Upcoming" },
+        { icon: "how_to_reg", value: attendedThisMonth, label: "Attended" },
+      ]} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard icon="layers"          label="My Projects"        value={myProjects.length}  accent="magenta" linkTo="/user/projects" />
@@ -412,14 +488,20 @@ function MemberLayout({ data }) {
         <MyProjectsWidget projects={myProjects} limit={3} />
       </div>
 
-      <div className={CARD}>
-        <SectionHeader title="Quick Actions" />
-        <QuickActionsWidget actions={[
-          { label: "My Projects",  icon: "rocket_launch",    to: "/user/projects",  gradient: "from-[#f183ff] to-[#ff6c95]" },
-          { label: "Profile",      icon: "manage_accounts",  to: "/user/profile",   gradient: "from-[#81ecff] to-[#f183ff]" },
-          { label: "Noticeboard",  icon: "campaign",         to: "/admin/notice",   gradient: "from-[#ff6c95] to-[#f183ff]" },
-          { label: "Schedule",     icon: "calendar_month",   to: "/meet",           gradient: "from-[#f183ff] to-[#81ecff]" },
-        ]} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={CARD}>
+          <SectionHeader title="Recent Activity" linkTo="/mom/list" />
+          <ActivityFeedWidget moms={moms} limit={4} />
+        </div>
+        <div className={CARD}>
+          <SectionHeader title="Quick Actions" />
+          <QuickActionsWidget actions={[
+            { label: "My Projects",  icon: "rocket_launch",    to: "/user/projects",  gradient: "from-[#f183ff] to-[#ff6c95]" },
+            { label: "Profile",      icon: "manage_accounts",  to: "/user/profile",   gradient: "from-[#81ecff] to-[#f183ff]" },
+            { label: "Noticeboard",  icon: "campaign",         to: "/admin/notice",   gradient: "from-[#ff6c95] to-[#f183ff]" },
+            { label: "Schedule",     icon: "calendar_month",   to: "/meet",           gradient: "from-[#f183ff] to-[#81ecff]" },
+          ]} />
+        </div>
       </div>
     </div>
   );
@@ -456,6 +538,7 @@ export default function Dashboard() {
     projectStats: null,
     myProjects:   [],
     myAttendance: [],
+    moms:         [],
   });
 
   // Approval action state
@@ -475,6 +558,7 @@ export default function Dashboard() {
         profile:  fetchWithAuth(`${API}/user/profile`),
         meetings: fetchWithAuth(`${API}/meet/getmeet`),
         notices:  fetchWithAuth(`${API}/notices`),
+        moms:     fetchWithAuth(`${API}/api/mom/all`),
       };
 
       const VIEW_MEMBERS_ROLES = [
@@ -517,6 +601,7 @@ export default function Dashboard() {
         projectStats: resolved.projectStats || null,
         myProjects:   Array.isArray(resolved.myProjects)   ? resolved.myProjects   : [],
         myAttendance: Array.isArray(resolved.myAttendance) ? resolved.myAttendance : [],
+        moms:         Array.isArray(resolved.moms)         ? resolved.moms         : [],
       });
       setLoading(false);
     }

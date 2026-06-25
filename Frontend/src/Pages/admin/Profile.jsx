@@ -380,7 +380,7 @@ const Profile = () => {
               SQAC Portal
             </p>
             <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">
-              Profile Command Deck
+              My Profile
             </h1>
           </div>
 

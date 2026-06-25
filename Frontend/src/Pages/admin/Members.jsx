@@ -289,8 +289,8 @@ const Members = () => {
       <header className="sticky top-0 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-6 px-5 py-4 md:px-8 lg:pl-28">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">SQAC Portal</p>
-            <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">Members Command Deck</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">Manage your team roster</p>
+            <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">Members</h1>
           </div>
 
           <div className="hidden min-w-[280px] flex-1 md:flex md:max-w-xl">

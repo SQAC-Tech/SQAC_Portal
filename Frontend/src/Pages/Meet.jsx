@@ -24,6 +24,12 @@ export default function Meet() {
   const [teamScope, setTeamScope] = useState("all");
   const [submitting, setSubmitting] = useState(false);
 
+  // Minutes of Meeting (MOM) for the selected meeting
+  const [mom, setMom] = useState(null);
+  const [momLoading, setMomLoading] = useState(false);
+  const [momError, setMomError] = useState("");
+  const [showMom, setShowMom] = useState(false);
+
   useEffect(() => {
     // Retrieve user details from localStorage
     const savedUser = localStorage.getItem("user");
@@ -60,6 +66,43 @@ export default function Meet() {
       setLoading(false);
     }
   };
+
+  // When a meeting is opened, load its Minutes of Meeting (if one is linked)
+  useEffect(() => {
+    setMom(null);
+    setMomError("");
+    setShowMom(false);
+
+    const momId = selectedMeeting?.momRef;
+    if (!momId) return;
+
+    let cancelled = false;
+    (async () => {
+      setMomLoading(true);
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/mom/${momId}`, {
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+        if (cancelled) return;
+        if (res.ok) {
+          setMom(await res.json());
+        } else if (res.status === 403) {
+          setMomError("You don't have access to these minutes.");
+        } else {
+          setMomError("Minutes not available.");
+        }
+      } catch (err) {
+        if (!cancelled) setMomError("Couldn't load the minutes.");
+      } finally {
+        if (!cancelled) setMomLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedMeeting]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -602,6 +645,32 @@ export default function Meet() {
                   {selectedMeeting.description || "No description provided."}
                 </p>
               </div>
+
+              {/* Minutes of Meeting */}
+              <div>
+                <h4 className="text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] mb-1">Minutes of Meeting</h4>
+                {momLoading ? (
+                  <p className="text-xs text-[#aea9b6] bg-white/4 border border-white/8 rounded-xl p-3">Loading minutes…</p>
+                ) : mom ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowMom(true)}
+                    className="w-full flex items-center justify-between gap-3 bg-tertiary/10 border border-tertiary/25 rounded-xl p-3 text-left hover:bg-tertiary/15 transition-colors group"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white truncate">{mom.title}</p>
+                      <p className="text-[11px] text-[#aea9b6] mt-0.5">
+                        {(mom.discussedPoints?.length || 0)} points · {(mom.decisions?.length || 0)} decisions · {(mom.actionItems?.length || 0)} actions
+                      </p>
+                    </div>
+                    <span className="material-symbols-outlined text-tertiary group-hover:translate-x-0.5 transition-transform">description</span>
+                  </button>
+                ) : (
+                  <p className="text-xs text-[#aea9b6] bg-white/4 border border-white/8 rounded-xl p-3">
+                    {momError || "No minutes recorded for this meeting yet."}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="flex justify-end gap-3">
               <button
@@ -619,6 +688,135 @@ export default function Meet() {
               >
                 Join Meeting
               </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Minutes of Meeting Popup */}
+      {showMom && mom && (
+        <div
+          className="fixed inset-0 z-[170] flex items-center justify-center bg-black/75 backdrop-blur-sm px-4 py-8"
+          onClick={() => setShowMom(false)}
+        >
+          <div
+            className="w-full max-w-2xl max-h-full overflow-y-auto rounded-3xl border border-white/10 bg-[#0c0f1a]/97 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary" />
+
+            <div className="flex justify-between items-start mb-6">
+              <div className="min-w-0 pr-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#81ecff] mb-1">Minutes of Meeting</p>
+                <h3 className="text-2xl font-bold font-headline text-white tracking-wide">{mom.title}</h3>
+                <p className="text-xs text-[#aea9b6] mt-1">
+                  {new Date(mom.date).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", year: "numeric" })}
+                  {mom.startTime ? ` · ${mom.startTime}` : ""}
+                  {mom.duration ? ` · ${mom.duration}` : ""}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowMom(false)}
+                className="text-[#aea9b6] hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5 shrink-0"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {mom.description && (
+                <p className="text-sm text-white/90 bg-white/4 border border-white/8 rounded-xl p-4">{mom.description}</p>
+              )}
+
+              {mom.attendees?.length > 0 && (
+                <div>
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] mb-2">Attendees ({mom.attendees.length})</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {mom.attendees.map((a, i) => (
+                      <span key={i} className="text-xs text-white/85 bg-white/5 border border-white/8 rounded-full px-3 py-1">
+                        {a.name}{a.role ? ` · ${a.role}` : ""}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {mom.discussedPoints?.length > 0 && (
+                <div>
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] mb-2">Discussion Points</h4>
+                  <ul className="space-y-1.5">
+                    {mom.discussedPoints.map((p, i) => (
+                      <li key={i} className="flex gap-2 text-sm text-white/90">
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {mom.decisions?.length > 0 && (
+                <div>
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] mb-2">Key Decisions</h4>
+                  <ul className="space-y-1.5">
+                    {mom.decisions.map((d, i) => (
+                      <li key={i} className="flex gap-2 text-sm text-white/90">
+                        <span className="h-2 w-2 rounded-sm bg-tertiary mt-1.5 shrink-0" />
+                        <span>{d}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {mom.actionItems?.length > 0 && (
+                <div>
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] mb-2">Action Items</h4>
+                  <div className="overflow-hidden rounded-xl border border-white/8">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-white/4 text-[#aea9b6]">
+                        <tr>
+                          <th className="px-3 py-2 font-semibold">Task</th>
+                          <th className="px-3 py-2 font-semibold">Assignee</th>
+                          <th className="px-3 py-2 font-semibold">Due</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/6">
+                        {mom.actionItems.map((a, i) => (
+                          <tr key={i} className="text-white/90">
+                            <td className="px-3 py-2">{a.task}</td>
+                            <td className="px-3 py-2 text-white/70">{a.assignee || "—"}</td>
+                            <td className="px-3 py-2 text-white/70">
+                              {a.dueDate ? new Date(a.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {(mom.nextMeetDate || mom.nextMeetAgenda) && (
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] mb-1">Next Meeting</h4>
+                  {mom.nextMeetDate && (
+                    <p className="text-sm font-semibold text-white">
+                      {new Date(mom.nextMeetDate).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}
+                    </p>
+                  )}
+                  {mom.nextMeetAgenda && <p className="text-xs text-white/80 mt-1">{mom.nextMeetAgenda}</p>}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end mt-8">
+              <button
+                onClick={() => setShowMom(false)}
+                className="px-5 py-2.5 border border-white/10 hover:bg-white/4 text-white rounded-xl text-sm transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

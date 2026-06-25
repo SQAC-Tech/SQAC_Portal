@@ -15,19 +15,21 @@ export default function StatCard({ icon, label, value, sub, linkTo, accent = "ma
 
   const inner = (
     <PremiumCard hover padding="none" className="h-full">
-      <div className="relative flex items-start gap-3.5 p-4">
-        <div className={`shrink-0 h-10 w-10 rounded-xl flex items-center justify-center ${a.bg} border ${a.border}`}>
-          <span className={`material-symbols-outlined text-lg ${a.text}`}>{icon}</span>
+      {/* Accent rail */}
+      <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${a.text} bg-current opacity-50`} />
+      <div className="relative flex items-start gap-3.5 p-4 pl-5">
+        <div className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${a.bg} border ${a.border} transition-transform group-hover:scale-105`}>
+          <span className={`material-symbols-outlined text-xl ${a.text}`}>{icon}</span>
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">{label}</p>
-          <p className="text-[1.35rem] font-bold font-headline text-white mt-0.5 leading-none">
+          <p className="text-2xl font-bold font-headline text-white mt-1 leading-none">
             {value ?? "—"}
           </p>
-          {sub && <p className="text-[11px] text-white/35 mt-1">{sub}</p>}
+          {sub && <p className="text-[11px] text-white/35 mt-1.5">{sub}</p>}
         </div>
         {linkTo && (
-          <span className={`shrink-0 material-symbols-outlined text-sm ${a.text} opacity-0 group-hover:opacity-60 transition-opacity mt-1`}>
+          <span className={`shrink-0 material-symbols-outlined text-sm ${a.text} opacity-0 group-hover:opacity-70 -translate-x-1 group-hover:translate-x-0 transition-all mt-1`}>
             arrow_forward
           </span>
         )}
