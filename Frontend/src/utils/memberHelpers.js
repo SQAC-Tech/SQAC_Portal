@@ -9,7 +9,6 @@ export const navItems = [
   { icon: "calendar_month", label: "Schedule", href: "/meet" },
   { icon: "how_to_reg", label: "Attendance", href: "/admin/attendance" },
   { icon: "campaign", label: "Noticeboard", href: "/admin/notice" },
-  { icon: "forum", label: "Chats", href: "#" },
   {
     icon: "license",
     label: "Certificate Generator",
@@ -38,7 +37,6 @@ export const navItems = [
     href: "/admin/mom/list",
   },
 ];
-
 
 export const editableRoles = [
   "member",
@@ -73,14 +71,14 @@ export const initialsFromName = (name = "") =>
     .join("") || "SQ";
 
 const ROLE_LABELS = {
-  secretary:       "Secretary",
+  secretary: "Secretary",
   joint_secretary: "Joint Secretary",
-  technical_lead:  "Technical Lead",
-  project_lead:    "Project Lead",
-  corp_lead:       "Corporate Lead",
-  domain_lead:     "Domain Lead",
-  associate_lead:  "Associate Lead",
-  member:          "Member",
+  technical_lead: "Technical Lead",
+  project_lead: "Project Lead",
+  corp_lead: "Corporate Lead",
+  domain_lead: "Domain Lead",
+  associate_lead: "Associate Lead",
+  member: "Member",
 };
 
 export const roleLabel = (member) => ROLE_LABELS[member.role] || "Member";

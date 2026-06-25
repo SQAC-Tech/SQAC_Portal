@@ -200,7 +200,7 @@ export default function AttendancePage() {
   }, [attendanceList]);
 
   return (
-    <div className="min-h-screen bg-[#070910] text-[#f5eefc] pt-16 lg:pl-24 selection:bg-primary/30 flex flex-col font-body">
+    <div className="min-h-screen bg-[#070910] text-[#f5eefc] lg:pl-24 selection:bg-primary/30 flex flex-col font-body">
       <Navbar />
       <AdminSidebar onLogout={handleLogout} />
 

@@ -13,14 +13,14 @@ export default function StatCard({ icon, label, value, sub, linkTo, accent = "ma
   const a = ACCENTS[accent] || ACCENTS.magenta;
 
   const inner = (
-    <div className="relative rounded-2xl border border-white/8 bg-[#0c0f1a]/70 backdrop-blur-xl p-5 flex items-start gap-4 overflow-hidden group hover:border-white/15 transition-all duration-200">
+    <div className="relative rounded-2xl border border-white/8 bg-[#0c0f1a]/70 backdrop-blur-xl p-4 flex items-start gap-3.5 overflow-hidden group hover:border-white/15 transition-all duration-200">
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-      <div className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${a.bg} border ${a.border}`}>
-        <span className={`material-symbols-outlined text-xl ${a.text}`}>{icon}</span>
+      <div className={`shrink-0 h-10 w-10 rounded-xl flex items-center justify-center ${a.bg} border ${a.border}`}>
+        <span className={`material-symbols-outlined text-lg ${a.text}`}>{icon}</span>
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">{label}</p>
-        <p className="text-2xl font-bold font-headline text-white mt-0.5 leading-none">
+        <p className="text-[1.35rem] font-bold font-headline text-white mt-0.5 leading-none">
           {value ?? "—"}
         </p>
         {sub && <p className="text-[11px] text-white/35 mt-1">{sub}</p>}

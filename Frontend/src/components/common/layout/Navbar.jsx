@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import logo from "../../../assets/LogoSQAC-Cntu4jgR.png";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -222,17 +223,24 @@ export default function Navbar() {
   const isSecretary = user?.role === "secretary";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] h-16 border-b border-white/8 bg-[#070910]/90 backdrop-blur-2xl px-6 md:px-12 flex items-center justify-between">
+    <nav className="sticky top-0 z-[100] h-16 border-b border-white/8 bg-[#070910]/90 backdrop-blur-2xl px-6 md:px-12 flex items-center justify-between">
 
       {/* Brand */}
-      <div className="flex items-center gap-3">
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[#f183ff] to-[#ff6c95] flex items-center justify-center font-headline font-bold text-black text-sm shadow-[0_0_15px_rgba(241,131,255,0.4)]">
-          SQ
+      <Link to="/dashboard" className="flex items-center gap-3 group">
+        <img
+          src={logo}
+          alt="SQAC Logo"
+          className="h-9 w-9 rounded-xl object-contain shadow-[0_0_18px_rgba(241,131,255,0.25)] ring-1 ring-white/10 bg-white/5"
+        />
+        <div className="leading-tight">
+          <p className="font-headline text-lg font-bold text-white tracking-wider group-hover:text-primary transition-colors">
+            SQAC <span className="text-[#ff6c95] font-light">Portal</span>
+          </p>
+          <p className="hidden sm:block text-[10px] uppercase tracking-[0.35em] text-white/35">
+            Software Quality Assurance Community
+          </p>
         </div>
-        <Link to="/dashboard" className="font-headline text-lg font-bold text-white tracking-wider hover:text-primary transition-colors">
-          SQAC <span className="text-[#ff6c95] font-light">Portal</span>
-        </Link>
-      </div>
+      </Link>
 
       <div className="flex items-center gap-4">
 
