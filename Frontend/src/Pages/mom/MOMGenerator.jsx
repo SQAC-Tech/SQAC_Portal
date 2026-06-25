@@ -38,12 +38,15 @@ const defaultMOM = {
 
 // Returns true only for YYYY-MM-DD strings that parse to a real date
 const isValidDateStr = (s) =>
-  typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(new Date(s).getTime());
+  typeof s === "string" &&
+  /^\d{4}-\d{2}-\d{2}$/.test(s) &&
+  !isNaN(new Date(s).getTime());
 
 /* ── Reusable primitives ─────────────────────────────────────────── */
 const Label = ({ children, required }) => (
   <label className="block text-[11px] font-semibold uppercase tracking-widest text-[#8a8496] mb-1.5">
-    {children}{required && <span className="text-[#ff6c95] ml-0.5">*</span>}
+    {children}
+    {required && <span className="text-[#ff6c95] ml-0.5">*</span>}
   </label>
 );
 
@@ -76,7 +79,9 @@ const Select = ({ children, className = "", ...props }) => (
 );
 
 const Card = ({ children, className = "" }) => (
-  <div className={`rounded-xl border border-[#2e2a3a] bg-[#100e1a] overflow-hidden ${className}`}>
+  <div
+    className={`rounded-xl border border-[#2e2a3a] bg-[#100e1a] overflow-hidden ${className}`}
+  >
     {children}
   </div>
 );
@@ -87,7 +92,11 @@ const CardHeader = ({ icon, title, badge }) => (
       <span className="text-sm">{icon}</span>
       <span className="text-sm font-semibold text-[#e8e0f5]">{title}</span>
     </div>
-    {badge && <span className="px-2 py-0.5 rounded-full bg-[#f183ff]/10 border border-[#f183ff]/20 text-[10px] text-[#f183ff] font-semibold">{badge}</span>}
+    {badge && (
+      <span className="px-2 py-0.5 rounded-full bg-[#f183ff]/10 border border-[#f183ff]/20 text-[10px] text-[#f183ff] font-semibold">
+        {badge}
+      </span>
+    )}
   </div>
 );
 
@@ -109,7 +118,9 @@ export default function MOMGenerator() {
   const [activeTab, setActiveTab] = useState("form");
 
   const scopeInitialized = useRef(false);
-  const headers = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+  const headers = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  });
 
   useEffect(() => {
     fetchMeetings();
@@ -134,15 +145,18 @@ export default function MOMGenerator() {
             (m) =>
               m.name?.toLowerCase().includes(q) ||
               m.email?.toLowerCase().includes(q) ||
-              m.coreDomain?.toLowerCase().includes(q)
+              m.coreDomain?.toLowerCase().includes(q),
           )
-        : allMembers
+        : allMembers,
     );
   }, [memberSearch, allMembers]);
 
   const fetchMeetings = async () => {
     try {
-      const { data } = await axios.get(`${API}/meet/getmeet`, { headers: headers(), withCredentials: true });
+      const { data } = await axios.get(`${API}/meet/getmeet`, {
+        headers: headers(),
+        withCredentials: true,
+      });
       setMeetings(Array.isArray(data) ? data : []);
     } catch {
       setMeetings([]);
@@ -166,7 +180,8 @@ export default function MOMGenerator() {
   };
 
   /* ── Field helpers ───────────────────────────────────────────── */
-  const set = (field) => (e) => setMom((prev) => ({ ...prev, [field]: e.target.value }));
+  const set = (field) => (e) =>
+    setMom((prev) => ({ ...prev, [field]: e.target.value }));
 
   const setArr = (field, idx, val) =>
     setMom((prev) => {
@@ -175,7 +190,8 @@ export default function MOMGenerator() {
       return { ...prev, [field]: arr };
     });
 
-  const addArr = (field) => setMom((prev) => ({ ...prev, [field]: [...prev[field], ""] }));
+  const addArr = (field) =>
+    setMom((prev) => ({ ...prev, [field]: [...prev[field], ""] }));
 
   const removeArr = (field, idx) =>
     setMom((prev) => {
@@ -215,12 +231,16 @@ export default function MOMGenerator() {
   };
 
   /* ── Attendees ───────────────────────────────────────────────── */
-  const isSelected = (member) => mom.attendees.some((a) => a.userId === member._id);
+  const isSelected = (member) =>
+    mom.attendees.some((a) => a.userId === member._id);
 
   const toggleAttendee = (member) => {
     setMom((prev) => {
       if (prev.attendees.some((a) => a.userId === member._id)) {
-        return { ...prev, attendees: prev.attendees.filter((a) => a.userId !== member._id) };
+        return {
+          ...prev,
+          attendees: prev.attendees.filter((a) => a.userId !== member._id),
+        };
       }
       return {
         ...prev,
@@ -243,13 +263,18 @@ export default function MOMGenerator() {
   const addActionItem = () =>
     setMom((prev) => ({
       ...prev,
-      actionItems: [...prev.actionItems, { task: "", assignee: "", dueDate: "" }],
+      actionItems: [
+        ...prev.actionItems,
+        { task: "", assignee: "", dueDate: "" },
+      ],
     }));
 
   const setActionItem = (idx, field, val) =>
     setMom((prev) => ({
       ...prev,
-      actionItems: prev.actionItems.map((it, i) => (i === idx ? { ...it, [field]: val } : it)),
+      actionItems: prev.actionItems.map((it, i) =>
+        i === idx ? { ...it, [field]: val } : it,
+      ),
     }));
 
   const removeActionItem = (idx) =>
@@ -268,14 +293,16 @@ export default function MOMGenerator() {
       const { data } = await axios.post(
         `${API}/api/mom/ai-generate`,
         { prompt: aiPrompt },
-        { headers: headers(), withCredentials: true }
+        { headers: headers(), withCredentials: true },
       );
       const d = data.data || {};
       setMom((prev) => ({
         ...prev,
         title: d.title || prev.title,
         description: d.description || prev.description,
-        discussedPoints: d.discussedPoints?.length ? d.discussedPoints : prev.discussedPoints,
+        discussedPoints: d.discussedPoints?.length
+          ? d.discussedPoints
+          : prev.discussedPoints,
         decisions: d.decisions?.length ? d.decisions : prev.decisions,
         // Bug fix: sanitize AI dueDate — only keep proper YYYY-MM-DD strings
         actionItems: d.actionItems?.length
@@ -285,7 +312,9 @@ export default function MOMGenerator() {
               dueDate: isValidDateStr(a.dueDate) ? a.dueDate : "",
             }))
           : prev.actionItems,
-        nextMeetDate: isValidDateStr(d.nextMeetDate) ? d.nextMeetDate : prev.nextMeetDate,
+        nextMeetDate: isValidDateStr(d.nextMeetDate)
+          ? d.nextMeetDate
+          : prev.nextMeetDate,
         nextMeetAgenda: d.nextMeetAgenda || prev.nextMeetAgenda,
         aiGenerated: true,
         rawPrompt: aiPrompt,
@@ -293,7 +322,10 @@ export default function MOMGenerator() {
       setAiApplied(true);
       setActiveTab("form");
     } catch (err) {
-      setAiError(err.response?.data?.message || "AI generation failed. Check your Groq API key.");
+      setAiError(
+        err.response?.data?.message ||
+          "AI generation failed. Check your Groq API key.",
+      );
     } finally {
       setAiLoading(false);
     }
@@ -313,7 +345,9 @@ export default function MOMGenerator() {
         ...mom,
         discussedPoints: mom.discussedPoints.filter((p) => p.trim()),
         decisions: mom.decisions.filter((d) => d.trim()),
-        nextMeetDate: isValidDateStr(mom.nextMeetDate) ? mom.nextMeetDate : null,
+        nextMeetDate: isValidDateStr(mom.nextMeetDate)
+          ? mom.nextMeetDate
+          : null,
         meetingRef: mom.meetingRef || null,
         actionItems: mom.actionItems
           .filter((a) => a.task.trim())
@@ -343,7 +377,9 @@ export default function MOMGenerator() {
     setSaveSuccess(false);
     setSaveError("");
     scopeInitialized.current = false;
-    setTimeout(() => { scopeInitialized.current = true; }, 0);
+    setTimeout(() => {
+      scopeInitialized.current = true;
+    }, 0);
   };
 
   /* ── PDF Export ──────────────────────────────────────────────── */
@@ -369,10 +405,14 @@ export default function MOMGenerator() {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#81ecff] to-[#f183ff] flex items-center justify-center mx-auto mb-6">
               <span className="text-2xl">✓</span>
             </div>
-            <h2 className="text-2xl font-bold text-[#f0eaf8] mb-2">MOM Saved!</h2>
+            <h2 className="text-2xl font-bold text-[#f0eaf8] mb-2">
+              MOM Saved!
+            </h2>
             <p className="text-[#8a8496] text-sm mb-8">
-              Minutes of Meeting "<span className="text-[#f183ff]">{mom.title}</span>" published.
-              {mom.attendees.length > 0 && ` ${mom.attendees.length} attendee${mom.attendees.length > 1 ? "s" : ""} will be notified by email.`}
+              Minutes of Meeting "
+              <span className="text-[#f183ff]">{mom.title}</span>" published.
+              {mom.attendees.length > 0 &&
+                ` ${mom.attendees.length} attendee${mom.attendees.length > 1 ? "s" : ""} will be notified by email.`}
             </p>
             <div className="flex gap-3 justify-center">
               <button
@@ -397,17 +437,17 @@ export default function MOMGenerator() {
 
   /* ─────────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-[#0a0812] text-[#f0eaf8] font-sans pt-16">
-      <Navbar />
-
+    <div className="min-h-screen bg-[#0a0812] text-[#f0eaf8] font-sans">
       {/* ── Top bar ─────────────────────────────────────────────── */}
-      <div className="sticky top-16 z-50 bg-[#0a0812]/95 backdrop-blur-md border-b border-[#1e1b2e] px-6 py-3.5 flex items-center justify-between">
+      <div className="sticky top-0 z-50 bg-[#0a0812]/95 backdrop-blur-md border-b border-[#1e1b2e] px-6 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f183ff] to-[#ff6c95] flex items-center justify-center text-white font-bold text-sm">
             M
           </div>
           <div>
-            <h1 className="text-[15px] font-bold text-[#f0eaf8] leading-tight">MOM Generator</h1>
+            <h1 className="text-[15px] font-bold text-[#f0eaf8] leading-tight">
+              MOM Generator
+            </h1>
             <p className="text-[11px] text-[#5a5468]">Minutes of Meeting</p>
           </div>
           {mom.aiGenerated && (
@@ -469,10 +509,10 @@ export default function MOMGenerator() {
 
       {/* ── Body ────────────────────────────────────────────────── */}
       <div className="flex flex-col xl:flex-row h-[calc(100vh-73px)]">
-
         {/* ── LEFT: Form ────────────────────────────────────────── */}
-        <div className={`flex-1 min-w-0 overflow-y-auto p-5 space-y-4 xl:border-r border-[#1e1b2e] ${activeTab !== "form" ? "hidden xl:block" : ""}`}>
-
+        <div
+          className={`flex-1 min-w-0 overflow-y-auto p-5 space-y-4 xl:border-r border-[#1e1b2e] ${activeTab !== "form" ? "hidden xl:block" : ""}`}
+        >
           {/* Meeting Info */}
           <Card>
             <CardHeader icon="📋" title="Meeting Info" />
@@ -492,7 +532,10 @@ export default function MOMGenerator() {
                   <option value="">— Standalone MOM (no link) —</option>
                   {meetings.map((m) => (
                     <option key={m._id} value={m._id}>
-                      {m.title}{m.startDate ? ` · ${new Date(m.startDate).toLocaleDateString("en-IN")}` : ""}
+                      {m.title}
+                      {m.startDate
+                        ? ` · ${new Date(m.startDate).toLocaleDateString("en-IN")}`
+                        : ""}
                     </option>
                   ))}
                 </Select>
@@ -505,11 +548,19 @@ export default function MOMGenerator() {
                 </div>
                 <div>
                   <Label>Start Time</Label>
-                  <Input value={mom.startTime} onChange={set("startTime")} placeholder="10:30 AM" />
+                  <Input
+                    value={mom.startTime}
+                    onChange={set("startTime")}
+                    placeholder="10:30 AM"
+                  />
                 </div>
                 <div>
                   <Label>Duration</Label>
-                  <Input value={mom.duration} onChange={set("duration")} placeholder="1h 30m" />
+                  <Input
+                    value={mom.duration}
+                    onChange={set("duration")}
+                    placeholder="1h 30m"
+                  />
                 </div>
               </div>
 
@@ -530,7 +581,11 @@ export default function MOMGenerator() {
             <CardHeader
               icon="👥"
               title="Attendees"
-              badge={mom.attendees.length > 0 ? `${mom.attendees.length} selected` : null}
+              badge={
+                mom.attendees.length > 0
+                  ? `${mom.attendees.length} selected`
+                  : null
+              }
             />
             <div className="p-4 space-y-3">
               <div className="flex gap-2">
@@ -538,7 +593,9 @@ export default function MOMGenerator() {
                   <Label>Team Scope</Label>
                   <Select value={mom.teamScope} onChange={set("teamScope")}>
                     {SCOPES.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
                     ))}
                   </Select>
                 </div>
@@ -554,7 +611,9 @@ export default function MOMGenerator() {
                         text-xs text-[#f183ff] hover:bg-[#ff6c95]/15 hover:border-[#ff6c95]/40 transition-all group"
                     >
                       {a.name}
-                      <span className="text-[#f183ff]/50 group-hover:text-[#ff6c95] text-sm leading-none">×</span>
+                      <span className="text-[#f183ff]/50 group-hover:text-[#ff6c95] text-sm leading-none">
+                        ×
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -568,7 +627,9 @@ export default function MOMGenerator() {
                 />
                 <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-[#1e1b2e] bg-[#0d0b17] divide-y divide-[#1a172a]">
                   {filteredMembers.length === 0 ? (
-                    <p className="text-xs text-[#5a5468] text-center py-8">No members for this scope</p>
+                    <p className="text-xs text-[#5a5468] text-center py-8">
+                      No members for this scope
+                    </p>
                   ) : (
                     filteredMembers.map((m) => {
                       const selected = isSelected(m);
@@ -579,17 +640,26 @@ export default function MOMGenerator() {
                           className={`w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm transition-all
                             ${selected ? "bg-[#f183ff]/8" : "hover:bg-[#13111e]"}`}
                         >
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all
-                            ${selected
-                              ? "bg-gradient-to-br from-[#f183ff] to-[#ff6c95] text-white"
-                              : "bg-[#1e1b2e] text-[#8a8496]"
+                          <div
+                            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all
+                            ${
+                              selected
+                                ? "bg-gradient-to-br from-[#f183ff] to-[#ff6c95] text-white"
+                                : "bg-[#1e1b2e] text-[#8a8496]"
                             }`}
                           >
                             {selected ? "✓" : m.name?.[0] || "?"}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className={`font-medium truncate ${selected ? "text-[#f0eaf8]" : "text-[#c4bdd4]"}`}>{m.name}</div>
-                            <div className="text-[11px] text-[#5a5468] truncate">{m.role} · {m.coreDomain}{m.subDomain ? ` / ${m.subDomain}` : ""}</div>
+                            <div
+                              className={`font-medium truncate ${selected ? "text-[#f0eaf8]" : "text-[#c4bdd4]"}`}
+                            >
+                              {m.name}
+                            </div>
+                            <div className="text-[11px] text-[#5a5468] truncate">
+                              {m.role} · {m.coreDomain}
+                              {m.subDomain ? ` / ${m.subDomain}` : ""}
+                            </div>
                           </div>
                         </button>
                       );
@@ -602,15 +672,23 @@ export default function MOMGenerator() {
 
           {/* Discussed Points */}
           <Card>
-            <CardHeader icon="💬" title="Points Discussed" badge={`${mom.discussedPoints.filter(p => p.trim()).length}`} />
+            <CardHeader
+              icon="💬"
+              title="Points Discussed"
+              badge={`${mom.discussedPoints.filter((p) => p.trim()).length}`}
+            />
             <div className="p-4 space-y-2">
               {mom.discussedPoints.map((pt, i) => (
                 <div key={i} className="flex gap-2 items-start group">
-                  <span className="mt-3 text-[11px] font-bold text-[#f183ff]/60 w-5 shrink-0 text-right">{i + 1}</span>
+                  <span className="mt-3 text-[11px] font-bold text-[#f183ff]/60 w-5 shrink-0 text-right">
+                    {i + 1}
+                  </span>
                   <Textarea
                     rows={2}
                     value={pt}
-                    onChange={(e) => setArr("discussedPoints", i, e.target.value)}
+                    onChange={(e) =>
+                      setArr("discussedPoints", i, e.target.value)
+                    }
                     placeholder={`Discussion point ${i + 1}…`}
                   />
                   <button
@@ -632,7 +710,11 @@ export default function MOMGenerator() {
 
           {/* Decisions */}
           <Card>
-            <CardHeader icon="⚡" title="Key Decisions" badge={`${mom.decisions.filter(d => d.trim()).length}`} />
+            <CardHeader
+              icon="⚡"
+              title="Key Decisions"
+              badge={`${mom.decisions.filter((d) => d.trim()).length}`}
+            />
             <div className="p-4 space-y-2">
               {mom.decisions.map((d, i) => (
                 <div key={i} className="flex gap-2 items-center group">
@@ -661,13 +743,22 @@ export default function MOMGenerator() {
 
           {/* Action Items */}
           <Card>
-            <CardHeader icon="✅" title="Action Items" badge={`${mom.actionItems.filter(a => a.task.trim()).length}`} />
+            <CardHeader
+              icon="✅"
+              title="Action Items"
+              badge={`${mom.actionItems.filter((a) => a.task.trim()).length}`}
+            />
             <div className="p-4 space-y-3">
               {mom.actionItems.length === 0 && (
-                <p className="text-xs text-[#5a5468] text-center py-4">No action items yet</p>
+                <p className="text-xs text-[#5a5468] text-center py-4">
+                  No action items yet
+                </p>
               )}
               {mom.actionItems.map((item, i) => (
-                <div key={i} className="rounded-lg bg-[#13111e] border border-[#2e2a3a] p-3 space-y-2.5 group">
+                <div
+                  key={i}
+                  className="rounded-lg bg-[#13111e] border border-[#2e2a3a] p-3 space-y-2.5 group"
+                >
                   <div className="flex gap-2">
                     <div className="w-5 h-5 rounded-full bg-[#f183ff]/10 border border-[#f183ff]/20 flex items-center justify-center text-[10px] text-[#f183ff] shrink-0 mt-0.5">
                       {i + 1}
@@ -688,10 +779,17 @@ export default function MOMGenerator() {
                   <div className="grid grid-cols-2 gap-2 pl-7">
                     <div>
                       <Label>Assignee</Label>
-                      <Select value={item.assignee} onChange={(e) => setActionItem(i, "assignee", e.target.value)}>
+                      <Select
+                        value={item.assignee}
+                        onChange={(e) =>
+                          setActionItem(i, "assignee", e.target.value)
+                        }
+                      >
                         <option value="">— Unassigned —</option>
                         {mom.attendees.map((a) => (
-                          <option key={a.userId} value={a.name}>{a.name}</option>
+                          <option key={a.userId} value={a.name}>
+                            {a.name}
+                          </option>
                         ))}
                       </Select>
                     </div>
@@ -715,7 +813,9 @@ export default function MOMGenerator() {
                         <Input
                           type="date"
                           value={item.dueDate}
-                          onChange={(e) => setActionItem(i, "dueDate", e.target.value)}
+                          onChange={(e) =>
+                            setActionItem(i, "dueDate", e.target.value)
+                          }
                         />
                       )}
                     </div>
@@ -726,7 +826,8 @@ export default function MOMGenerator() {
                 onClick={addActionItem}
                 className="flex items-center gap-1.5 text-xs text-[#f183ff]/70 hover:text-[#f183ff] transition-colors"
               >
-                <span className="text-base leading-none">+</span> Add action item
+                <span className="text-base leading-none">+</span> Add action
+                item
               </button>
             </div>
           </Card>
@@ -737,7 +838,11 @@ export default function MOMGenerator() {
             <div className="p-4 grid grid-cols-2 gap-3">
               <div>
                 <Label>Scheduled Date</Label>
-                <Input type="date" value={mom.nextMeetDate} onChange={set("nextMeetDate")} />
+                <Input
+                  type="date"
+                  value={mom.nextMeetDate}
+                  onChange={set("nextMeetDate")}
+                />
               </div>
               <div className="col-span-2">
                 <Label>Agenda for Next Meet</Label>
@@ -755,7 +860,8 @@ export default function MOMGenerator() {
         </div>
 
         {/* ── RIGHT: AI Panel ───────────────────────────────────── */}
-        <div className={`w-full xl:w-[400px] shrink-0 flex flex-col bg-[#0a0812] border-t xl:border-t-0 border-[#1e1b2e]
+        <div
+          className={`w-full xl:w-[400px] shrink-0 flex flex-col bg-[#0a0812] border-t xl:border-t-0 border-[#1e1b2e]
           ${activeTab !== "ai" ? "hidden xl:flex" : "flex"}`}
         >
           {/* Header */}
@@ -764,7 +870,9 @@ export default function MOMGenerator() {
               <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#81ecff] to-[#f183ff] flex items-center justify-center text-[10px] font-bold text-black">
                 AI
               </div>
-              <h2 className="font-bold text-sm text-[#f0eaf8]">AI MOM Assistant</h2>
+              <h2 className="font-bold text-sm text-[#f0eaf8]">
+                AI MOM Assistant
+              </h2>
               <span className="px-2 py-0.5 rounded-full bg-[#81ecff]/10 border border-[#81ecff]/20 text-[10px] text-[#81ecff]">
                 LLaMA 3.3-70B
               </span>
@@ -776,13 +884,16 @@ export default function MOMGenerator() {
 
           {aiApplied && (
             <div className="mx-5 mt-4 p-3 rounded-lg bg-[#81ecff]/8 border border-[#81ecff]/20 text-xs text-[#81ecff] flex items-center gap-2">
-              <span>✓</span> AI content applied to the form. Review and save when ready.
+              <span>✓</span> AI content applied to the form. Review and save
+              when ready.
             </div>
           )}
 
           {/* Examples */}
           <div className="px-5 pt-4 space-y-1.5">
-            <p className="text-[10px] uppercase tracking-widest text-[#3d384d] mb-2">Try something like…</p>
+            <p className="text-[10px] uppercase tracking-widest text-[#3d384d] mb-2">
+              Try something like…
+            </p>
             {[
               "Tech team sync today. Discussed new backend API, decided to use Node.js. Raghav will finish auth by Friday.",
               "Corporate meeting on hackathon sponsorships. Priya to contact 3 companies by next week. Next meet on Monday.",
@@ -828,7 +939,9 @@ export default function MOMGenerator() {
                   <Spinner white /> Generating MOM…
                 </>
               ) : (
-                <><span>✨</span> Generate MOM with AI</>
+                <>
+                  <span>✨</span> Generate MOM with AI
+                </>
               )}
             </button>
           </div>
@@ -842,7 +955,9 @@ function Spinner({ white }) {
   return (
     <span
       className={`w-3.5 h-3.5 border-2 rounded-full animate-spin shrink-0 ${
-        white ? "border-white border-t-transparent" : "border-[#f183ff] border-t-transparent"
+        white
+          ? "border-white border-t-transparent"
+          : "border-[#f183ff] border-t-transparent"
       }`}
     />
   );

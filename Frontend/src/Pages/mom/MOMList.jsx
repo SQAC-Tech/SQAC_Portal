@@ -42,9 +42,9 @@ export default function MOMList() {
   const fetchMOMs = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`${API}/api/mom/all`, { 
+      const { data } = await axios.get(`${API}/api/mom/all`, {
         headers,
-        withCredentials: true 
+        withCredentials: true,
       });
       setMoms(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -59,9 +59,9 @@ export default function MOMList() {
     if (!deleteId) return;
     setDeleting(true);
     try {
-      await axios.delete(`${API}/api/mom/${deleteId}`, { 
+      await axios.delete(`${API}/api/mom/${deleteId}`, {
         headers,
-        withCredentials: true 
+        withCredentials: true,
       });
       setMoms((prev) => prev.filter((m) => m._id !== deleteId));
       setDeleteId(null);
@@ -97,14 +97,17 @@ export default function MOMList() {
 
   const fmtDate = (d) => {
     if (!d) return "—";
-    return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    return new Date(d).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0d16] text-[#f5eefc] pt-16">
-      <Navbar />
+    <div className="min-h-screen bg-[#0f0d16] text-[#f5eefc]">
       {/* Header */}
-      <div className="sticky top-16 z-40 bg-[#0f0d16]/90 backdrop-blur-md border-b border-[#494651]/40 px-6 py-4">
+      <div className="sticky top-0 z-40 bg-[#0f0d16]/90 backdrop-blur-md border-b border-[#494651]/40 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
@@ -115,7 +118,9 @@ export default function MOMList() {
             </button>
             <div>
               <h1 className="text-lg font-bold text-[#f5eefc]">MOM History</h1>
-              <p className="text-xs text-[#aea9b6]">{moms.length} record{moms.length !== 1 ? "s" : ""}</p>
+              <p className="text-xs text-[#aea9b6]">
+                {moms.length} record{moms.length !== 1 ? "s" : ""}
+              </p>
             </div>
           </div>
           <button
@@ -148,7 +153,11 @@ export default function MOMList() {
         {!loading && filtered.length === 0 && (
           <div className="text-center py-20 space-y-3">
             <div className="text-5xl opacity-30">📋</div>
-            <p className="text-[#aea9b6]">{search ? "No MOMs match your search." : "No MOMs yet. Create your first one!"}</p>
+            <p className="text-[#aea9b6]">
+              {search
+                ? "No MOMs match your search."
+                : "No MOMs yet. Create your first one!"}
+            </p>
             {!search && (
               <button
                 onClick={() => navigate(createPath)}
@@ -190,17 +199,22 @@ export default function MOMList() {
                       {fmtDate(mom.date)}
                     </span>
                     <span className="px-2 py-0.5 rounded-full bg-[#494651]/40 text-[#aea9b6]">
-                      {(mom.teamScope || "all").replace(/^\w/, (c) => c.toUpperCase())}
+                      {(mom.teamScope || "all").replace(/^\w/, (c) =>
+                        c.toUpperCase(),
+                      )}
                     </span>
                     {mom.attendees?.length > 0 && (
                       <span className="px-2 py-0.5 rounded-full bg-[#494651]/40 text-[#aea9b6]">
-                        {mom.attendees.length} attendee{mom.attendees.length !== 1 ? "s" : ""}
+                        {mom.attendees.length} attendee
+                        {mom.attendees.length !== 1 ? "s" : ""}
                       </span>
                     )}
                   </div>
 
                   {mom.description && (
-                    <p className="text-xs text-[#aea9b6] line-clamp-2">{mom.description}</p>
+                    <p className="text-xs text-[#aea9b6] line-clamp-2">
+                      {mom.description}
+                    </p>
                   )}
 
                   {/* Stats row */}
@@ -216,7 +230,10 @@ export default function MOMList() {
                     <span className="text-[10px] text-[#78737f]">
                       by {mom.createdBy?.name || "Unknown"}
                     </span>
-                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className="flex gap-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <button
                         onClick={() => handlePDF(mom)}
                         disabled={pdfLoading === mom._id}
@@ -266,14 +283,28 @@ export default function MOMList() {
             <div className="p-6 space-y-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-bold text-[#f5eefc]">{selected.title}</h2>
+                  <h2 className="text-xl font-bold text-[#f5eefc]">
+                    {selected.title}
+                  </h2>
                   <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                    <span className="text-xs text-[#aea9b6]">{fmtDate(selected.date)}</span>
+                    <span className="text-xs text-[#aea9b6]">
+                      {fmtDate(selected.date)}
+                    </span>
                     {selected.startTime && (
-                      <><span className="text-[#494651]">·</span><span className="text-xs text-[#aea9b6]">{selected.startTime}</span></>
+                      <>
+                        <span className="text-[#494651]">·</span>
+                        <span className="text-xs text-[#aea9b6]">
+                          {selected.startTime}
+                        </span>
+                      </>
                     )}
                     {selected.duration && (
-                      <><span className="text-[#494651]">·</span><span className="text-xs text-[#aea9b6]">{selected.duration}</span></>
+                      <>
+                        <span className="text-[#494651]">·</span>
+                        <span className="text-xs text-[#aea9b6]">
+                          {selected.duration}
+                        </span>
+                      </>
                     )}
                   </div>
                 </div>
@@ -286,7 +317,9 @@ export default function MOMList() {
               </div>
 
               {selected.description && (
-                <p className="text-sm text-[#aea9b6] leading-relaxed">{selected.description}</p>
+                <p className="text-sm text-[#aea9b6] leading-relaxed">
+                  {selected.description}
+                </p>
               )}
 
               {selected.attendees?.length > 0 && (
@@ -309,11 +342,15 @@ export default function MOMList() {
 
               {selected.discussedPoints?.filter(Boolean).length > 0 && (
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#81ecff] mb-2">Discussion Points</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#81ecff] mb-2">
+                    Discussion Points
+                  </h4>
                   <ul className="space-y-1.5">
                     {selected.discussedPoints.filter(Boolean).map((pt, i) => (
                       <li key={i} className="flex gap-2 text-sm text-[#f5eefc]">
-                        <span className="text-[#f183ff] mt-0.5 shrink-0">•</span>
+                        <span className="text-[#f183ff] mt-0.5 shrink-0">
+                          •
+                        </span>
                         {pt}
                       </li>
                     ))}
@@ -323,7 +360,9 @@ export default function MOMList() {
 
               {selected.decisions?.filter(Boolean).length > 0 && (
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#ff6c95] mb-2">Key Decisions</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#ff6c95] mb-2">
+                    Key Decisions
+                  </h4>
                   <ul className="space-y-1.5">
                     {selected.decisions.filter(Boolean).map((d, i) => (
                       <li key={i} className="flex gap-2 text-sm text-[#f5eefc]">
@@ -337,13 +376,18 @@ export default function MOMList() {
 
               {selected.actionItems?.length > 0 && (
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#aea9b6] mb-2">Action Items</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#aea9b6] mb-2">
+                    Action Items
+                  </h4>
                   <div className="rounded-xl overflow-hidden border border-[#494651]/40">
                     <table className="w-full text-sm">
                       <thead className="bg-[#14121c]">
                         <tr>
                           {["Task", "Assignee", "Due Date"].map((h) => (
-                            <th key={h} className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[#f183ff]">
+                            <th
+                              key={h}
+                              className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[#f183ff]"
+                            >
                               {h}
                             </th>
                           ))}
@@ -351,10 +395,21 @@ export default function MOMList() {
                       </thead>
                       <tbody>
                         {selected.actionItems.map((item, i) => (
-                          <tr key={i} className={i % 2 === 0 ? "bg-[#1b1823]" : "bg-[#14121c]"}>
-                            <td className="px-3 py-2.5 text-[#f5eefc]">{item.task || "—"}</td>
-                            <td className="px-3 py-2.5 text-[#aea9b6]">{item.assignee || "—"}</td>
-                            <td className="px-3 py-2.5 text-[#aea9b6]">{fmtDate(item.dueDate)}</td>
+                          <tr
+                            key={i}
+                            className={
+                              i % 2 === 0 ? "bg-[#1b1823]" : "bg-[#14121c]"
+                            }
+                          >
+                            <td className="px-3 py-2.5 text-[#f5eefc]">
+                              {item.task || "—"}
+                            </td>
+                            <td className="px-3 py-2.5 text-[#aea9b6]">
+                              {item.assignee || "—"}
+                            </td>
+                            <td className="px-3 py-2.5 text-[#aea9b6]">
+                              {fmtDate(item.dueDate)}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -365,12 +420,18 @@ export default function MOMList() {
 
               {(selected.nextMeetDate || selected.nextMeetAgenda) && (
                 <div className="p-3 rounded-xl bg-[#14121c] border border-[#81ecff]/20">
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#81ecff] mb-2">Next Meeting</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#81ecff] mb-2">
+                    Next Meeting
+                  </h4>
                   {selected.nextMeetDate && (
-                    <p className="text-sm text-[#f5eefc]">📅 {fmtDate(selected.nextMeetDate)}</p>
+                    <p className="text-sm text-[#f5eefc]">
+                      📅 {fmtDate(selected.nextMeetDate)}
+                    </p>
                   )}
                   {selected.nextMeetAgenda && (
-                    <p className="text-xs text-[#aea9b6] mt-1">{selected.nextMeetAgenda}</p>
+                    <p className="text-xs text-[#aea9b6] mt-1">
+                      {selected.nextMeetAgenda}
+                    </p>
                   )}
                 </div>
               )}
@@ -382,11 +443,16 @@ export default function MOMList() {
                   disabled={pdfLoading === selected._id}
                   className="flex-1 py-2.5 rounded-lg border border-[#494651] text-sm text-[#aea9b6] hover:border-[#f183ff]/40 hover:text-[#f183ff] transition-all"
                 >
-                  {pdfLoading === selected._id ? "Generating…" : "📄 Export PDF"}
+                  {pdfLoading === selected._id
+                    ? "Generating…"
+                    : "📄 Export PDF"}
                 </button>
                 {isPrivileged && (
                   <button
-                    onClick={() => { setDeleteId(selected._id); setSelected(null); }}
+                    onClick={() => {
+                      setDeleteId(selected._id);
+                      setSelected(null);
+                    }}
                     className="px-4 py-2.5 rounded-lg border border-[#ff6e84]/30 text-sm text-[#ff6e84] hover:bg-[#ff6e84]/10 transition-all"
                   >
                     🗑 Delete
@@ -403,8 +469,12 @@ export default function MOMList() {
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-2xl border border-[#ff6e84]/40 bg-[#1b1823] p-6 space-y-4">
             <div className="text-4xl text-center">⚠️</div>
-            <h3 className="text-center font-bold text-[#f5eefc]">Delete this MOM?</h3>
-            <p className="text-sm text-center text-[#aea9b6]">This action cannot be undone.</p>
+            <h3 className="text-center font-bold text-[#f5eefc]">
+              Delete this MOM?
+            </h3>
+            <p className="text-sm text-center text-[#aea9b6]">
+              This action cannot be undone.
+            </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteId(null)}

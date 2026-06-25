@@ -45,7 +45,7 @@ const CARD = "rounded-2xl border border-white/8 bg-[#0c0f1a]/70 backdrop-blur-xl
 // ── Section header ──────────────────────────────────────────────────────────
 function SectionHeader({ title, linkTo, linkLabel = "View all" }) {
   return (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center justify-between mb-3">
       <h2 className="text-[11px] font-bold text-white uppercase tracking-[0.18em]">{title}</h2>
       {linkTo && (
         <Link
