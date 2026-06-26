@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/LogoSQAC-Cntu4jgR.png";
+import Seo from "../components/common/Seo";
+
+const ORG_JSON_LD = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Software Quality Assurance Community",
+    alternateName: "SQAC",
+    url: "https://portal.sqac.space/",
+    logo: "https://portal.sqac.space/pwa-512x512.png",
+    description:
+        "The SQAC Portal is the Software Quality Assurance Community's member hub for projects, meetings, attendance, minutes of meeting and certificates.",
+};
 
 const LETTERS = [
     { char: "S", word: "SOFTWARE", grad: ["#f183ff", "#a855f7"] },
@@ -287,8 +299,8 @@ function FeatureCard({ f, delay }) {
             style={{ opacity: inView ? 1 : 0, transform: inView ? "translateY(0)" : "translateY(26px)", transitionDelay: `${delay}ms` }}
         >
             <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-lg mb-5">{f.icon}</div>
-            <h3>{f.title}</h3>
-            <p>{f.desc}</p>
+            <h3 className="font-headline text-lg md:text-xl font-bold text-on-surface mb-2">{f.title}</h3>
+            <p className="font-body text-sm md:text-[15px] leading-relaxed text-on-surface-variant">{f.desc}</p>
         </div>
     );
 }
@@ -296,7 +308,13 @@ function FeatureCard({ f, delay }) {
 
 export default function LandingPage() {
     return (
-        <div className="bg-background text-on-surface">
+        <div className="bg-background text-on-surface overflow-x-hidden">
+            <Seo
+                title=""
+                description="The SQAC Portal is the Software Quality Assurance Community's member hub for projects, meetings, attendance, minutes of meeting and certificates — one place for every role."
+                path="/"
+                jsonLd={ORG_JSON_LD}
+            />
             <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 md:px-12 py-4
                         bg-background/70 backdrop-blur-xl border-b border-white/5">
 
@@ -321,14 +339,14 @@ export default function LandingPage() {
             <Hero />
             <ScrollLetterSequence />
 
-            <section className="px-6 py-20">
+            <section className="px-6 md:px-12 py-16 md:py-20 max-w-7xl mx-auto">
                 <h2
                     className="font-headline font-bold mb-10 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
                     style={{ fontSize: "clamp(32px, 5vw, 64px)" }}
                 >
                     Features
                 </h2>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                     {FEATURES.map((f, i) => (
                         <FeatureCard key={f.num} f={f} delay={i * 75} />
                     ))}

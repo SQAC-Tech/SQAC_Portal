@@ -62,6 +62,22 @@
     .material-symbols-outlined {
         font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
+
+    /* Prevent any single page/element from pushing the viewport sideways on
+       phones — the most common cause of a "broken" mobile layout. */
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+        background-color: #070910;
+    }
+
+    /* Reserve space for the fixed mobile bottom nav bar (< lg) so the last bit
+       of page content is never hidden behind it. */
+    @media (max-width: 1023px) {
+        body {
+            padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+        }
+    }
 }
 
 @layer utilities {

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { navItems, ROLE_LABELS } from "../../../utils/memberHelpers";
 import SQACLogo from "../../ui/SQACLogo";
@@ -51,7 +52,11 @@ export default function MobileNav({ open, onClose, onLogout, user }) {
     };
   }, [open, onClose]);
 
-  return (
+  // Rendered into <body> via a portal so the drawer's `position: fixed` is
+  // relative to the viewport. (The Navbar that hosts <MobileNav> has a
+  // backdrop-filter, which would otherwise become the containing block and
+  // collapse this fixed drawer to the navbar's height.)
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
@@ -64,6 +69,7 @@ export default function MobileNav({ open, onClose, onLogout, user }) {
 
       {/* Drawer */}
       <aside
+        style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
         className={`fixed left-0 top-0 z-[160] flex h-full w-[82%] max-w-[320px] flex-col border-r border-white/10 bg-[#0c0f1a]/98 backdrop-blur-2xl transition-transform duration-300 ease-out lg:hidden ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -140,6 +146,7 @@ export default function MobileNav({ open, onClose, onLogout, user }) {
           </button>
         </div>
       </aside>
-    </>
+    </>,
+    document.body
   );
 }

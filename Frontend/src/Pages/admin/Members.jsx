@@ -287,7 +287,7 @@ const Members = () => {
       <AdminSidebar />
 
       <header className="sticky top-0 z-40 border-b border-white/8 bg-[#070910]/70 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-6 px-5 py-4 md:px-8 lg:pl-28">
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-3 px-5 py-4 md:gap-6 md:px-8 lg:pl-28">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">Manage your team roster</p>
             <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">Members</h1>
@@ -313,7 +313,7 @@ const Members = () => {
               type="button"
             >
               <span className="material-symbols-outlined text-lg">download</span>
-              Export CSV
+              <span className="hidden sm:inline">Export CSV</span>
             </button>
             <button
               className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/7 px-4 py-2.5 text-sm font-semibold text-white/85 transition-all hover:-translate-y-0.5 hover:border-primary/45 hover:text-white"
@@ -321,7 +321,7 @@ const Members = () => {
               type="button"
             >
               <span className={`material-symbols-outlined text-lg ${refreshing ? "animate-spin" : ""}`}>refresh</span>
-              Refresh
+              <span className="hidden sm:inline">Refresh</span>
             </button>
           </div>
         </div>

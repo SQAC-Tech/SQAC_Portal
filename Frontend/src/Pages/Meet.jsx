@@ -294,9 +294,9 @@ export default function Meet() {
           </div>
 
           {/* Calendar Grid Container */}
-          <div className="relative flex-grow overflow-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)] flex flex-col">
+          <div className="relative flex-grow overflow-x-auto overflow-y-hidden rounded-[2rem] border border-white/12 bg-[linear-gradient(155deg,rgba(22,20,31,0.96),rgba(12,11,18,0.9))] shadow-[0_30px_80px_rgba(4,6,20,0.42)] flex flex-col">
             {/* Days header */}
-            <div className="grid grid-cols-7 border-b border-white/8 bg-white/2 text-center py-3">
+            <div className="grid grid-cols-7 min-w-[620px] border-b border-white/8 bg-white/2 text-center py-3">
               {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((d) => (
                 <div key={d} className="text-xs font-bold tracking-widest text-[#aea9b6] font-label">
                   {d}
@@ -305,7 +305,7 @@ export default function Meet() {
             </div>
 
             {/* Calendar Cells */}
-            <div className="grid grid-cols-7 grid-rows-5 flex-grow divide-x divide-y divide-white/8 border-l border-t border-transparent">
+            <div className="grid grid-cols-7 grid-rows-5 min-w-[620px] flex-grow divide-x divide-y divide-white/8 border-l border-t border-transparent">
               {cells.map((cell, idx) => {
                 const dayMeetings = meetings.filter((m) => {
                   const mDate = new Date(m.startDate);
@@ -521,7 +521,7 @@ export default function Meet() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">
                     Start Date *
@@ -772,8 +772,8 @@ export default function Meet() {
               {mom.actionItems?.length > 0 && (
                 <div>
                   <h4 className="text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] mb-2">Action Items</h4>
-                  <div className="overflow-hidden rounded-xl border border-white/8">
-                    <table className="w-full text-left text-xs">
+                  <div className="overflow-x-auto rounded-xl border border-white/8">
+                    <table className="w-full min-w-[420px] text-left text-xs">
                       <thead className="bg-white/4 text-[#aea9b6]">
                         <tr>
                           <th className="px-3 py-2 font-semibold">Task</th>

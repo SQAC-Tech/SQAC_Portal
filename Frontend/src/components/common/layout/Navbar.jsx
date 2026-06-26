@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import SQACLogo from "../../ui/SQACLogo";
 import MobileNav from "./MobileNav";
+import MobileBottomNav from "./MobileBottomNav";
 import { ROLE_LABELS } from "../../../utils/memberHelpers";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -263,7 +264,7 @@ export default function Navbar() {
           </button>
 
           {showDropdown && (
-            <div className="absolute right-0 mt-2 w-[360px] rounded-2xl border border-white/10 bg-[#0c0f1a]/96 backdrop-blur-2xl shadow-[0_24px_60px_rgba(0,0,0,0.7)] overflow-hidden z-[110]">
+            <div className="fixed left-2 right-2 top-[4.25rem] z-[110] rounded-2xl border border-white/10 bg-[#0c0f1a]/96 backdrop-blur-2xl shadow-[0_24px_60px_rgba(0,0,0,0.7)] overflow-hidden sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-[360px]">
 
               {/* Panel Header */}
               <div className="px-4 pt-4 pb-0">
@@ -498,13 +499,16 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* ── Mobile navigation drawer ── */}
+      {/* ── Mobile navigation drawer (full list, opened via "More") ── */}
       <MobileNav
         open={mobileNavOpen}
         onClose={() => setMobileNavOpen(false)}
         onLogout={handleLogout}
         user={user}
       />
+
+      {/* ── Always-visible bottom nav bar on phones/tablets ── */}
+      <MobileBottomNav user={user} onMore={() => setMobileNavOpen(true)} />
 
     </nav>
   );

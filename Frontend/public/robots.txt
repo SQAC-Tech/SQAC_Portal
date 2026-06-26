@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /$
+Allow: /login
+Allow: /onboarding
+
+# Authenticated, per-user areas — no value in crawling
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /user
+Disallow: /mom
+Disallow: /meet
+Disallow: /accept-coc
+Disallow: /complete-profile
+Disallow: /verify
+
+Sitemap: https://portal.sqac.space/sitemap.xml

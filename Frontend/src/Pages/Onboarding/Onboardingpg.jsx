@@ -3,6 +3,7 @@ import axios from "axios";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Seo from "../../components/common/Seo";
 
 const steps = ["Basic", "Academic", "Social", "Address"];
 
@@ -471,6 +472,11 @@ export default function OnboardingPage() {
 
   return (
     <div className="bg-background text-on-surface font-body selection:bg-primary/30 min-h-screen flex flex-col">
+      <Seo
+        title="Join SQAC"
+        description="Onboard to the Software Quality Assurance Community. Create your SQAC Portal account to access projects, meetings, attendance and certificates."
+        path="/onboarding"
+      />
       <ToastContainer />
 
       {/* Success Launch Overlay */}

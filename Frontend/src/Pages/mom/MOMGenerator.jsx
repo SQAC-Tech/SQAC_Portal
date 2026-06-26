@@ -777,7 +777,7 @@ export default function MOMGenerator() {
                       ×
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 pl-7">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-7">
                     <div>
                       <Label>Assignee</Label>
                       <Select
@@ -836,7 +836,7 @@ export default function MOMGenerator() {
           {/* Next Meeting */}
           <Card>
             <CardHeader icon="📅" title="Next Meeting" />
-            <div className="p-4 grid grid-cols-2 gap-3">
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label>Scheduled Date</Label>
                 <Input

@@ -378,8 +378,8 @@ export default function MOMList() {
                   <h4 className="text-xs font-bold uppercase tracking-widest text-[#aea9b6] mb-2">
                     Action Items
                   </h4>
-                  <div className="rounded-xl overflow-hidden border border-[#494651]/40">
-                    <table className="w-full text-sm">
+                  <div className="rounded-xl overflow-x-auto border border-[#494651]/40">
+                    <table className="w-full min-w-[480px] text-sm">
                       <thead className="bg-[#0c0f1a]">
                         <tr>
                           {["Task", "Assignee", "Due Date"].map((h) => (

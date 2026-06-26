@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import Seo from "../components/common/Seo";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -290,6 +291,11 @@ export default function Login() {
 
   return (
     <div className="bg-background text-on-surface font-body selection:bg-primary/30 min-h-screen flex flex-col">
+      <Seo
+        title="Login"
+        description="Sign in to the SQAC Portal — the Software Quality Assurance Community member hub for projects, meetings, attendance and certificates."
+        path="/login"
+      />
       <main
         ref={sceneRef}
         onPointerMove={handlePointerMove}

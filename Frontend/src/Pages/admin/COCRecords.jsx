@@ -185,7 +185,8 @@ export default function COCRecords() {
               </p>
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b border-white/8 text-[#aea9b6] text-xs uppercase tracking-[0.1em]">
                   <th className="px-5 py-4 text-left font-medium">#</th>
@@ -246,6 +247,7 @@ export default function COCRecords() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 

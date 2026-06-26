@@ -333,7 +333,16 @@ const Projects = () => {
       </header>
 
       <main className="mx-auto max-w-[1500px] px-5 pb-16 pt-8 md:px-8 lg:pl-28">
-        <div className="flex gap-4 mb-8 border-b border-white/10 pb-4">
+        <div className="mb-6 md:hidden">
+          <input
+            type="text"
+            placeholder="Search PRDs..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-full border border-white/10 bg-white/6 py-3 px-6 text-sm text-white outline-none transition-all placeholder:text-white/35 focus:border-primary/60 focus:bg-white/10"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2 sm:gap-4 mb-8 border-b border-white/10 pb-4">
           <button onClick={() => setFilter("all")} className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${filter === "all" ? "bg-white text-black" : "bg-white/5 text-white/70 hover:bg-white/10"}`}>All Projects</button>
           <button onClick={() => setFilter("unassigned")} className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${filter === "unassigned" ? "bg-white text-black" : "bg-white/5 text-white/70 hover:bg-white/10"}`}>Unassigned</button>
           <button onClick={() => setFilter("assigned")} className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${filter === "assigned" ? "bg-white text-black" : "bg-white/5 text-white/70 hover:bg-white/10"}`}>Assigned</button>
@@ -492,7 +501,7 @@ const Projects = () => {
       {/* Create Project Modal */}
       {showCreate && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/72 backdrop-blur-sm px-4 py-8">
-          <div className="w-full max-w-2xl max-h-full overflow-y-auto rounded-3xl border border-white/10 bg-[#0c0f1a]/97 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative custom-scrollbar">
+          <div className="w-full max-w-2xl max-h-full overflow-y-auto rounded-3xl border border-white/10 bg-[#0c0f1a]/97 backdrop-blur-[24px] p-5 sm:p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative custom-scrollbar">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary" />
 
             <div className="flex justify-between items-start mb-6">
@@ -571,7 +580,7 @@ const Projects = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Domain</label>
                     <select
@@ -594,7 +603,7 @@ const Projects = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Timeline</label>
                     <input
@@ -640,7 +649,7 @@ const Projects = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">Objectives <span className="text-white/30 normal-case">(one per line)</span></label>
                     <textarea

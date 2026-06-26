@@ -13,25 +13,39 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
+      includeAssets: ['sqac-logo.png', 'apple-touch-icon.png', 'robots.txt'],
       manifest: {
+        id: '/',
         name: 'SQAC Portal',
         short_name: 'SQAC',
-        description: 'SRM QAC Interactive Portal',
-        theme_color: '#0c0a15',
-        background_color: '#0c0a15',
+        description: 'Software Quality Assurance Community — member portal for projects, meetings, attendance and certificates.',
+        lang: 'en',
+        dir: 'ltr',
+        theme_color: '#0f0d16',
+        background_color: '#0f0d16',
         display: 'standalone',
+        orientation: 'portrait',
+        scope: '/',
+        start_url: '/',
+        categories: ['education', 'productivity'],
         icons: [
           {
             src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: 'pwa-maskable-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       }
