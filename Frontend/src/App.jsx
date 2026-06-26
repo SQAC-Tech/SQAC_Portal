@@ -26,6 +26,7 @@ import Approvals from "./Pages/admin/Approvals";
 import AcceptCOC from "./Pages/AcceptCOC";
 import CompleteProfile from "./Pages/CompleteProfile";
 import COCRecords from "./Pages/admin/COCRecords";
+import PwaInstallPrompt from "./components/common/PwaInstallPrompt";
 
 import {
   ProtectedRoute,
@@ -94,6 +95,8 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+
+      <PwaInstallPrompt />
     </>
   );
 }
