@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import AppShell from "../../components/common/layout/AppShell";
-import { ROLE_LABELS, ROLE_COLORS } from "../../utils/memberHelpers";
+import { ROLE_LABELS, ROLE_COLORS, isDefaultAvatar } from "../../utils/memberHelpers";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -177,8 +177,9 @@ export default function Approvals() {
                         <div className="flex items-center gap-3">
                           <div className="shrink-0 h-9 w-9 rounded-xl overflow-hidden border border-white/8 bg-white/5">
                             <img
-                              src={member.image || "https://images.unsplash.com/photo-1680355466468-bd0a68b11fa0?q=80&w=100"}
+                              src={isDefaultAvatar(member.image) ? "/pwa-192x192.png" : member.image}
                               alt={member.name}
+                              loading="lazy"
                               className="h-full w-full object-cover"
                             />
                           </div>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { isDefaultAvatar } from "../../utils/memberHelpers";
 
 /**
  * Avatar with a branded fallback: when no/failed image, shows the SQAC logo
@@ -14,7 +15,7 @@ const SIZE_MAP = { xs: 28, sm: 40, md: 56, lg: 80, xl: 112 };
 const Avatar = ({ src, alt = "", size = "md", ring = false, className = "" }) => {
   const px = typeof size === "number" ? size : SIZE_MAP[size] || SIZE_MAP.md;
   const [failed, setFailed] = useState(false);
-  const showImage = src && !failed;
+  const showImage = src && !isDefaultAvatar(src) && !failed;
 
   const inner = (
     <div

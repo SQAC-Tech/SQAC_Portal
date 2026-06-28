@@ -3,7 +3,7 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import SkillsEditorModal from "../../components/admin/SkillsEditorModal";
 import Navbar from "../../components/common/layout/Navbar";
 import {
-  DEFAULT_AVATAR,
+  isDefaultAvatar,
   formatDate,
   initialsFromName,
   roleLabel,
@@ -73,7 +73,9 @@ const Profile = () => {
 
       if (user?.email) {
         try {
-          const mResponse = await fetch(`${API_BASE_URL}/api/projects/members/email/${user.email}`);
+          const mResponse = await fetch(`${API_BASE_URL}/api/projects/members/email/${user.email}`, {
+            credentials: "include",
+          });
           if (mResponse.ok) {
             const mData = await mResponse.json();
             setMemberProfile(mData);
@@ -446,11 +448,11 @@ const Profile = () => {
                   <div className="flex items-start gap-5">
                     <div className="member-avatar-shell shrink-0 rounded-[1.6rem] p-1">
                       <div className="h-28 w-28 overflow-hidden rounded-[1.3rem] border border-white/10 bg-white/5">
-                        {profile.image ? (
+                        {profile.image && !isDefaultAvatar(profile.image) ? (
                           <img
                             alt={profile.name}
                             className="h-full w-full object-cover"
-                            src={profile.image || DEFAULT_AVATAR}
+                            src={profile.image}
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(145deg,rgba(241,131,255,0.24),rgba(129,236,255,0.16))] text-3xl font-bold text-white">

@@ -1,5 +1,10 @@
-export const DEFAULT_AVATAR =
-  "https://images.unsplash.com/photo-1680355466468-bd0a68b11fa0?q=80&w=715&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+// Local, square, branded fallback (already cached as the favicon) — replaces the
+// old 34KB external Unsplash photo that was seeded as User.image's default.
+export const DEFAULT_AVATAR = "/pwa-192x192.png";
+
+// Older accounts were seeded with this Unsplash photo as their image; treat it
+// (and empty values) as "no real avatar" so we never fetch the external image.
+export const isDefaultAvatar = (url) => !url || url.includes("photo-1680355466468");
 
 export const navItems = [
   { icon: "dashboard", label: "Dashboard", href: "/dashboard" },

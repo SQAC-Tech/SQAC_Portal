@@ -1,5 +1,5 @@
 import React from "react";
-import { DEFAULT_AVATAR, roleLabel } from "../../utils/memberHelpers";
+import { DEFAULT_AVATAR, isDefaultAvatar, roleLabel } from "../../utils/memberHelpers";
 
 const MemberCard = ({ member, index, onView, onDelete, canDelete = true }) => {
   return (
@@ -18,7 +18,12 @@ const MemberCard = ({ member, index, onView, onDelete, canDelete = true }) => {
         {/* Avatar */}
         <div className="member-avatar-shell shrink-0 rounded-[1.3rem] p-0.5 mb-4">
           <div className="h-20 w-20 overflow-hidden rounded-[1.1rem] border border-white/10 bg-white/5 shadow-md">
-            <img alt={member.name} className="h-full w-full object-cover" src={member.image || DEFAULT_AVATAR} />
+            <img
+              alt={member.name}
+              loading="lazy"
+              className={isDefaultAvatar(member.image) ? "h-full w-full object-contain p-3 opacity-90" : "h-full w-full object-cover"}
+              src={isDefaultAvatar(member.image) ? DEFAULT_AVATAR : member.image}
+            />
           </div>
         </div>
 
