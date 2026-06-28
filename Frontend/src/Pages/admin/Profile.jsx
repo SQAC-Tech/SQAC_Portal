@@ -11,6 +11,53 @@ import {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+// Raster formats the browser can decode onto a canvas (so we can compress them).
+// Anything else (HEIC/HEIF, etc.) is sent as-is for Cloudinary to convert.
+const COMPRESSIBLE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+const readFileAsDataURL = (file) =>
+  new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+
+const loadImage = (src) =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+
+/**
+ * Accept any image format with no size limit. Large JPEG/PNG/WEBP are
+ * downscaled + re-encoded on a canvas to keep the upload light; formats the
+ * browser can't decode (HEIC, …) are passed through untouched.
+ * @returns {Promise<string>} a data-URL ready to send to the backend
+ */
+async function prepareImage(file) {
+  const dataUrl = await readFileAsDataURL(file);
+  if (!COMPRESSIBLE_TYPES.includes(file.type)) return dataUrl; // e.g. HEIC → as-is
+  try {
+    const img = await loadImage(dataUrl);
+    const MAX = 1280; // longest edge
+    const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+    // Small + light already → no point re-encoding.
+    if (scale === 1 && file.size < 1_200_000) return dataUrl;
+    const w = Math.round(img.width * scale);
+    const h = Math.round(img.height * scale);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+    return canvas.toDataURL("image/jpeg", 0.85);
+  } catch {
+    return dataUrl; // decoding failed → send original, let the server handle it
+  }
+}
+
 const emptyProfile = {
   image: "",
   bio: "",
@@ -217,28 +264,27 @@ const Profile = () => {
     }));
   };
 
-  const handleImageSelect = (event) => {
+  const handleImageSelect = async (event) => {
     const file = event.target.files?.[0];
     setSuccessMessage("");
+    setError("");
 
     if (!file) {
-      setForm((current) => ({
-        ...current,
-        imageFile: null,
-        imageFileName: "",
-      }));
+      setForm((current) => ({ ...current, imageFile: null, imageFileName: "" }));
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    // No size limit, any format accepted — compressed when possible, else as-is.
+    try {
+      const dataUrl = await prepareImage(file);
       setForm((current) => ({
         ...current,
-        imageFile: typeof reader.result === "string" ? reader.result : null,
+        imageFile: typeof dataUrl === "string" ? dataUrl : null,
         imageFileName: file.name,
       }));
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      setError("Could not read that image file.");
+    }
   };
 
   const handleSocialChange = (field, value) => {
@@ -283,6 +329,25 @@ const Profile = () => {
 
       const data = await response.json().catch(() => null);
 
+      // Keep the localStorage user (used by navbar/dashboard avatars) in sync.
+      const syncLocalUser = (u) => {
+        if (!u) return;
+        try {
+          const stored = JSON.parse(localStorage.getItem("user") || "{}");
+          localStorage.setItem("user", JSON.stringify({ ...stored, image: u.image ?? stored.image }));
+        } catch { /* ignore */ }
+      };
+
+      // Backend saved the text fields but the photo upload failed (502).
+      if (response.status === 502 && data?.imageFailed) {
+        if (data.user) {
+          setProfile(data.user);
+          syncLocalUser(data.user);
+        }
+        setError(`${data?.message || "Photo upload failed."} Your other changes were saved.`);
+        return; // keep the editor open so they can retry the photo
+      }
+
       if (!response.ok) {
         throw new Error(
           data?.message ||
@@ -293,6 +358,7 @@ const Profile = () => {
 
       const updatedUser = data?.user || profile;
       setProfile(updatedUser);
+      syncLocalUser(updatedUser);
       setForm({
         image: updatedUser?.image || "",
         bio: updatedUser?.bio || "",
@@ -735,14 +801,14 @@ const Profile = () => {
                       {form.imageFileName || "Choose an image to upload"}
                     </p>
                     <p className="mt-1 text-xs text-white/45">
-                      JPG, PNG, or WEBP
+                      Any image — JPG, PNG, WEBP, HEIC… (large photos are optimized automatically)
                     </p>
                   </div>
                   <span className="material-symbols-outlined text-lg text-primary">
                     upload
                   </span>
                   <input
-                    accept="image/*"
+                    accept="image/*,.heic,.heif"
                     className="hidden"
                     onChange={handleImageSelect}
                     type="file"
