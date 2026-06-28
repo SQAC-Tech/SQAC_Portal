@@ -58,17 +58,36 @@ async function prepareImage(file) {
   }
 }
 
-const emptyProfile = {
-  image: "",
-  bio: "",
+const DEPARTMENTS = ["CTECH", "CINTEL", "ECE", "NWC", "DSBS", "Mechanical", "Other"];
+const RESIDENCE = ["Hosteller", "Dayscholar"];
+
+// Shared field styles for the edit modal.
+const MODAL_FIELD =
+  "w-full rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-primary/60";
+const MODAL_LABEL =
+  "mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-white/45";
+
+// Build the editable form state from a user object (single source of truth).
+const formFromUser = (u = {}) => ({
+  image: u.image || "",
+  bio: u.bio || "",
   imageFile: null,
   imageFileName: "",
+  name: u.name || "",
+  phoneNumber: u.phoneNumber || "",
+  department: u.department || "",
+  section: u.section || "",
+  facultyAdvisorName: u.facultyAdvisorName || "",
+  facultyAdvisorNo: u.facultyAdvisorNo || "",
+  residenceType: u.residenceType || "",
   socials: {
-    linkedin: "",
-    github: "",
-    instagram: "",
+    linkedin: u.socials?.linkedin || "",
+    github: u.socials?.github || "",
+    instagram: u.socials?.instagram || "",
   },
-};
+});
+
+const emptyProfile = formFromUser();
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -134,17 +153,7 @@ const Profile = () => {
         }
       }
 
-      setForm({
-        image: user?.image || "",
-        bio: user?.bio || "",
-        imageFile: null,
-        imageFileName: "",
-        socials: {
-          linkedin: user?.socials?.linkedin || "",
-          github: user?.socials?.github || "",
-          instagram: user?.socials?.instagram || "",
-        },
-      });
+      setForm(formFromUser(user));
       setSuccessMessage("");
     } catch (fetchError) {
       setError(
@@ -300,12 +309,26 @@ const Profile = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Only Faculty Advisor details are required.
+    if (!form.facultyAdvisorName.trim() || !form.facultyAdvisorNo.trim()) {
+      setError("Faculty Advisor name and contact are required.");
+      return;
+    }
+
     setSaving(true);
     setError("");
     setSuccessMessage("");
 
     try {
       const payload = {
+        name: form.name.trim(),
+        phoneNumber: form.phoneNumber.trim(),
+        department: form.department.trim(),
+        section: form.section.trim(),
+        facultyAdvisorName: form.facultyAdvisorName.trim(),
+        facultyAdvisorNo: form.facultyAdvisorNo.trim(),
+        residenceType: form.residenceType,
         bio: form.bio.trim(),
         socials: {
           linkedin: form.socials.linkedin.trim(),
@@ -359,17 +382,7 @@ const Profile = () => {
       const updatedUser = data?.user || profile;
       setProfile(updatedUser);
       syncLocalUser(updatedUser);
-      setForm({
-        image: updatedUser?.image || "",
-        bio: updatedUser?.bio || "",
-        imageFile: null,
-        imageFileName: "",
-        socials: {
-          linkedin: updatedUser?.socials?.linkedin || "",
-          github: updatedUser?.socials?.github || "",
-          instagram: updatedUser?.socials?.instagram || "",
-        },
-      });
+      setForm(formFromUser(updatedUser));
       setSuccessMessage("Profile updated successfully.");
       setIsEditOpen(false);
       fetchProfile({ silent: true });
@@ -737,17 +750,7 @@ const Profile = () => {
                   onClick={() => {
                     setError("");
                     setSuccessMessage("");
-                    setForm({
-                      image: profile.image || "",
-                      bio: profile.bio || "",
-                      imageFile: null,
-                      imageFileName: "",
-                      socials: {
-                        linkedin: profile.socials?.linkedin || "",
-                        github: profile.socials?.github || "",
-                        instagram: profile.socials?.instagram || "",
-                      },
-                    });
+                    setForm(formFromUser(profile));
                     setIsEditOpen(true);
                   }}
                   type="button"
@@ -764,148 +767,230 @@ const Profile = () => {
       </main>
 
       {isEditOpen && profile ? (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 px-4 backdrop-blur-md">
-          <div className="w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#0c0f1a]/95 p-6 shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
-            <div className="flex items-start justify-between gap-4">
+        <div
+          className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-black/70 px-4 py-6 backdrop-blur-md sm:items-center sm:py-10"
+          onClick={(e) => { if (!saving && e.target === e.currentTarget) setIsEditOpen(false); }}
+        >
+          <div className="relative w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#0c0f1a]/95 shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-0">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary/80">
                   Edit Profile
                 </p>
-                <h3 className="mt-2 text-2xl font-bold text-white font-headline">
-                  Public details
+                <h3 className="mt-2 text-xl font-bold text-white font-headline sm:text-2xl">
+                  Update your details
                 </h3>
                 <p className="mt-1 text-sm text-white/55">
-                  Upload a new profile photo and update your bio or social links.
+                  Only Faculty Advisor fields are required. All other fields are optional.
                 </p>
               </div>
               <button
-                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/70 transition-all hover:bg-white/10 hover:text-white"
-                onClick={() => {
-                  if (saving) return;
-                  setIsEditOpen(false);
-                }}
+                className="mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/70 transition-all hover:bg-white/10 hover:text-white"
+                onClick={() => { if (saving) return; setIsEditOpen(false); }}
                 type="button"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
 
-            <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+            {/* Scrollable form body */}
+            <form
+              className="max-h-[calc(100dvh-10rem)] overflow-y-auto px-6 pb-6 pt-5 space-y-5 sm:max-h-[75vh]"
+              onSubmit={handleSubmit}
+              style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.15) transparent" }}
+            >
+              {/* ── Profile photo ── */}
               <label className="block">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
-                  Profile photo
-                </span>
-                <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-dashed border-white/12 bg-white/6 px-4 py-3 text-sm text-white/85 transition-all hover:border-primary/45 hover:bg-white/8">
+                <span className={MODAL_LABEL}>Profile photo</span>
+                <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-dashed border-white/12 bg-white/6 px-4 py-3 text-sm transition-all hover:border-primary/45 hover:bg-white/8">
                   <div className="min-w-0">
-                    <p className="font-medium text-white">
+                    <p className="font-medium text-white truncate">
                       {form.imageFileName || "Choose an image to upload"}
                     </p>
                     <p className="mt-1 text-xs text-white/45">
-                      Any image — JPG, PNG, WEBP, HEIC… (large photos are optimized automatically)
+                      JPG, PNG, WEBP, HEIC… (optimized automatically)
                     </p>
                   </div>
-                  <span className="material-symbols-outlined text-lg text-primary">
-                    upload
-                  </span>
+                  <span className="material-symbols-outlined shrink-0 text-lg text-primary">upload</span>
+                  <input accept="image/*,.heic,.heif" className="hidden" onChange={handleImageSelect} type="file" />
+                </label>
+                {profile.image && (
+                  <p className="mt-2 text-xs text-white/35">Current photo is already set on your profile.</p>
+                )}
+              </label>
+
+              {/* ── Name + Phone ── */}
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <label className="block">
+                  <span className={MODAL_LABEL}>Full name</span>
                   <input
-                    accept="image/*,.heic,.heif"
-                    className="hidden"
-                    onChange={handleImageSelect}
-                    type="file"
+                    className={MODAL_FIELD}
+                    onChange={(e) => handleFieldChange("name", e.target.value)}
+                    placeholder="Your full name"
+                    type="text"
+                    value={form.name}
                   />
                 </label>
-                {profile.image ? (
-                  <p className="mt-2 text-xs text-white/35">
-                    Current photo is already set on your profile.
-                  </p>
-                ) : null}
-              </label>
+                <label className="block">
+                  <span className={MODAL_LABEL}>Phone number</span>
+                  <input
+                    className={MODAL_FIELD}
+                    onChange={(e) => handleFieldChange("phoneNumber", e.target.value)}
+                    placeholder="+91 XXXXX XXXXX"
+                    type="tel"
+                    value={form.phoneNumber}
+                  />
+                </label>
+              </div>
 
+              {/* ── Department + Section ── */}
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <label className="block">
+                  <span className={MODAL_LABEL}>Department</span>
+                  <select
+                    className={MODAL_FIELD + " cursor-pointer bg-[#131620]"}
+                    onChange={(e) => handleFieldChange("department", e.target.value)}
+                    value={form.department}
+                  >
+                    <option value="">Select department</option>
+                    {DEPARTMENTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className={MODAL_LABEL}>Section</span>
+                  <input
+                    className={MODAL_FIELD}
+                    onChange={(e) => handleFieldChange("section", e.target.value)}
+                    placeholder="e.g. A, B, C"
+                    type="text"
+                    value={form.section}
+                  />
+                </label>
+              </div>
+
+              {/* ── Residence ── */}
+              <div>
+                <span className={MODAL_LABEL}>Residence type</span>
+                <div className="flex flex-wrap gap-3">
+                  {RESIDENCE.map((opt) => (
+                    <label
+                      key={opt}
+                      className={`flex cursor-pointer items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-medium transition-all ${
+                        form.residenceType === opt
+                          ? "border-primary/60 bg-primary/15 text-white"
+                          : "border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white/80"
+                      }`}
+                    >
+                      <input
+                        checked={form.residenceType === opt}
+                        className="hidden"
+                        name="residenceType"
+                        onChange={() => handleFieldChange("residenceType", opt)}
+                        type="radio"
+                        value={opt}
+                      />
+                      {opt}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Faculty Advisor (required) ── */}
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-primary/80">
+                  Faculty Advisor <span className="normal-case text-red-400">* required</span>
+                </p>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <label className="block">
+                    <span className={MODAL_LABEL}>Advisor name</span>
+                    <input
+                      className={MODAL_FIELD}
+                      onChange={(e) => handleFieldChange("facultyAdvisorName", e.target.value)}
+                      placeholder="Prof. Full Name"
+                      required
+                      type="text"
+                      value={form.facultyAdvisorName}
+                    />
+                  </label>
+                  <label className="block">
+                    <span className={MODAL_LABEL}>Advisor contact</span>
+                    <input
+                      className={MODAL_FIELD}
+                      onChange={(e) => handleFieldChange("facultyAdvisorNo", e.target.value)}
+                      placeholder="+91 XXXXX XXXXX"
+                      required
+                      type="tel"
+                      value={form.facultyAdvisorNo}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* ── Bio ── */}
               <label className="block">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
-                  Bio
-                </span>
+                <span className={MODAL_LABEL}>Bio</span>
                 <textarea
-                  className="min-h-28 w-full rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-primary/60"
+                  className={"min-h-[100px] " + MODAL_FIELD}
                   maxLength={150}
-                  onChange={(event) =>
-                    handleFieldChange("bio", event.target.value)
-                  }
-                  placeholder="Write a short bio"
+                  onChange={(e) => handleFieldChange("bio", e.target.value)}
+                  placeholder="Write a short bio (optional)"
                   value={form.bio}
                 />
-                <span className="mt-2 block text-right text-xs text-white/35">
-                  {form.bio.length}/150
-                </span>
+                <span className="mt-1.5 block text-right text-xs text-white/35">{form.bio.length}/150</span>
               </label>
 
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
-                  LinkedIn
-                </span>
-                <input
-                  className="w-full rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-primary/60"
-                  onChange={(event) =>
-                    handleSocialChange("linkedin", event.target.value)
-                  }
-                  placeholder="https://linkedin.com/in/username"
-                  type="url"
-                  value={form.socials.linkedin}
-                />
-              </label>
+              {/* ── Social links ── */}
+              <div>
+                <span className={MODAL_LABEL}>Social links</span>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined shrink-0 text-base text-white/40">work</span>
+                    <input
+                      className={MODAL_FIELD}
+                      onChange={(e) => handleSocialChange("linkedin", e.target.value)}
+                      placeholder="LinkedIn URL"
+                      type="url"
+                      value={form.socials.linkedin}
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined shrink-0 text-base text-white/40">code</span>
+                    <input
+                      className={MODAL_FIELD}
+                      onChange={(e) => handleSocialChange("github", e.target.value)}
+                      placeholder="GitHub URL"
+                      type="url"
+                      value={form.socials.github}
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined shrink-0 text-base text-white/40">photo_camera</span>
+                    <input
+                      className={MODAL_FIELD}
+                      onChange={(e) => handleSocialChange("instagram", e.target.value)}
+                      placeholder="Instagram URL"
+                      type="url"
+                      value={form.socials.instagram}
+                    />
+                  </div>
+                </div>
+              </div>
 
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
-                  GitHub
-                </span>
-                <input
-                  className="w-full rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-primary/60"
-                  onChange={(event) =>
-                    handleSocialChange("github", event.target.value)
-                  }
-                  placeholder="https://github.com/username"
-                  type="url"
-                  value={form.socials.github}
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
-                  Instagram
-                </span>
-                <input
-                  className="w-full rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-primary/60"
-                  onChange={(event) =>
-                    handleSocialChange("instagram", event.target.value)
-                  }
-                  placeholder="https://instagram.com/username"
-                  type="url"
-                  value={form.socials.instagram}
-                />
-              </label>
-
-              {error ? (
+              {/* ── Error ── */}
+              {error && (
                 <div className="rounded-2xl border border-red-300/20 bg-red-400/10 px-4 py-3 text-sm text-red-100">
                   {error}
                 </div>
-              ) : null}
+              )}
 
-              <div className="flex items-center justify-end gap-3 pt-2">
+              {/* ── Actions ── */}
+              <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
                 <button
                   className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white/75 transition-all hover:bg-white/10 hover:text-white"
-                  onClick={() =>
-                    setForm({
-                      image: profile.image || "",
-                      bio: profile.bio || "",
-                      imageFile: null,
-                      imageFileName: "",
-                      socials: {
-                        linkedin: profile.socials?.linkedin || "",
-                        github: profile.socials?.github || "",
-                        instagram: profile.socials?.instagram || "",
-                      },
-                    })
-                  }
+                  onClick={() => setForm(formFromUser(profile))}
                   type="button"
                 >
                   Reset
@@ -915,7 +1000,7 @@ const Profile = () => {
                   disabled={saving}
                   type="submit"
                 >
-                  {saving ? "Saving..." : "Save Changes"}
+                  {saving ? "Saving…" : "Save Changes"}
                 </button>
               </div>
             </form>
