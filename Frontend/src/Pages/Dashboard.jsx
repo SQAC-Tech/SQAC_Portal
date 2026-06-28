@@ -582,28 +582,33 @@ export default function Dashboard() {
         if (uid) calls.myAttendance = fetchWithAuth(`${API}/attendance/user/${uid}`);
       }
 
-      const keys = Object.keys(calls);
-      const results = await Promise.allSettled(Object.values(calls));
+      // Map a single resolved response into the data slice it belongs to.
+      const normalize = (key, val) => {
+        if (key === "profile") return val?.user || val || null;
+        if (key === "projectStats") return val || null;
+        return Array.isArray(val) ? val : [];
+      };
 
-      if (cancelled) return;
-
-      const resolved = {};
-      keys.forEach((k, i) => {
-        resolved[k] = results[i].status === "fulfilled" ? results[i].value : null;
+      // Stream each result into state as it arrives so the dashboard fills in
+      // progressively, rather than holding the whole UI in skeleton until the
+      // slowest call (usually /api/projects/stats) finishes.
+      Object.entries(calls).forEach(([key, promise]) => {
+        promise
+          .then((val) => {
+            if (!cancelled) setData((prev) => ({ ...prev, [key]: normalize(key, val) }));
+          })
+          .catch(() => { /* keep the default for this slice */ })
+          .finally(() => {
+            // Reveal the dashboard the moment the profile (hero) is ready;
+            // the remaining sections animate in as their data lands.
+            if (!cancelled && key === "profile") setLoading(false);
+          });
       });
 
-      setData({
-        profile:      resolved.profile?.user || resolved.profile || null,
-        meetings:     Array.isArray(resolved.meetings)     ? resolved.meetings     : [],
-        notices:      Array.isArray(resolved.notices)      ? resolved.notices      : [],
-        members:      Array.isArray(resolved.members)      ? resolved.members      : [],
-        pending:      Array.isArray(resolved.pending)      ? resolved.pending      : [],
-        projectStats: resolved.projectStats || null,
-        myProjects:   Array.isArray(resolved.myProjects)   ? resolved.myProjects   : [],
-        myAttendance: Array.isArray(resolved.myAttendance) ? resolved.myAttendance : [],
-        moms:         Array.isArray(resolved.moms)         ? resolved.moms         : [],
+      // Safety net: never stay in skeleton forever if the profile call is slow.
+      Promise.allSettled(Object.values(calls)).finally(() => {
+        if (!cancelled) setLoading(false);
       });
-      setLoading(false);
     }
 
     load();
