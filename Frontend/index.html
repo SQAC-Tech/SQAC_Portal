@@ -2,7 +2,11 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/sqac-logo.png" />
+    <!-- Favicons — MUST be square for Google to show them in search results.
+         (The old /sqac-logo.png was 442x494 and was rejected.) -->
+    <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="shortcut icon" href="/pwa-192x192.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0f0d16" />
@@ -26,13 +30,14 @@
     <meta property="og:url" content="https://portal.sqac.space/" />
     <meta property="og:title" content="SQAC Portal — Software Quality Assurance Community" />
     <meta property="og:description" content="Member hub for projects, meetings, attendance, minutes of meeting and certificates — one place for every role." />
-    <meta property="og:image" content="/pwa-512x512.png" />
+    <meta property="og:image" content="https://portal.sqac.space/pwa-512x512.png" />
     <meta property="og:image:width" content="512" />
     <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="SQAC logo" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="SQAC Portal — Software Quality Assurance Community" />
     <meta name="twitter:description" content="Member hub for projects, meetings, attendance and certificates." />
-    <meta name="twitter:image" content="/pwa-512x512.png" />
+    <meta name="twitter:image" content="https://portal.sqac.space/pwa-512x512.png" />
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect"/>
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
