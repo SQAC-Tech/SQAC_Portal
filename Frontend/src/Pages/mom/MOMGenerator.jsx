@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
-import { exportMOMtoPDF, loadLogoBase64 } from "../../utils/momPdfExport";
+import { exportMOMtoPDF } from "../../utils/momPdfExport";
 import Navbar from "../../components/common/layout/Navbar";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -51,30 +51,19 @@ const Label = ({ children, required }) => (
   </label>
 );
 
+const FIELD =
+  "w-full bg-white/[0.03] border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-[#f5eefc] placeholder-white/25 focus:outline-none focus:border-[#f183ff]/50 focus:ring-2 focus:ring-[#f183ff]/15 focus:bg-white/[0.05] transition-all disabled:opacity-50";
+
 const Input = ({ className = "", ...props }) => (
-  <input
-    {...props}
-    className={`w-full bg-[#0c0f1a] border border-[#272c3a] rounded-lg px-3 py-2.5 text-sm text-[#f5eefc]
-      placeholder-[#353b4a] focus:outline-none focus:border-[#f183ff] focus:ring-1 focus:ring-[#f183ff]/20
-      transition-all disabled:opacity-50 ${className}`}
-  />
+  <input {...props} className={`${FIELD} ${className}`} />
 );
 
 const Textarea = ({ className = "", ...props }) => (
-  <textarea
-    {...props}
-    className={`w-full bg-[#0c0f1a] border border-[#272c3a] rounded-lg px-3 py-2.5 text-sm text-[#f5eefc]
-      placeholder-[#353b4a] focus:outline-none focus:border-[#f183ff] focus:ring-1 focus:ring-[#f183ff]/20
-      transition-all resize-none disabled:opacity-50 ${className}`}
-  />
+  <textarea {...props} className={`${FIELD} resize-none ${className}`} />
 );
 
 const Select = ({ children, className = "", ...props }) => (
-  <select
-    {...props}
-    className={`w-full bg-[#0c0f1a] border border-[#272c3a] rounded-lg px-3 py-2.5 text-sm text-[#f5eefc]
-      focus:outline-none focus:border-[#f183ff] transition-all ${className}`}
-  >
+  <select {...props} className={`${FIELD} ${className}`}>
     {children}
   </select>
 );
@@ -87,10 +76,13 @@ const Card = ({ children, className = "" }) => (
   </div>
 );
 
+// Borderless, non-boxy section header — icon chip + title (no filled bar).
 const CardHeader = ({ icon, title, badge }) => (
-  <div className="flex items-center justify-between px-4 py-3 border-b border-[#1b1f2b] bg-[#070910]">
+  <div className="flex items-center justify-between px-4 pt-4 pb-1">
     <div className="flex items-center gap-2.5">
-      <span className="text-sm">{icon}</span>
+      <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#f183ff]/10 border border-[#f183ff]/20 text-sm">
+        {icon}
+      </span>
       <span className="text-sm font-semibold text-[#f5eefc]">{title}</span>
     </div>
     {badge && (
@@ -256,10 +248,40 @@ export default function MOMGenerator() {
             coreDomain: member.coreDomain,
             subDomain: member.subDomain || "",
             email: member.email,
+            external: false,
           },
         ],
       };
     });
+  };
+
+  // Remove a specific attendee (handles guests with no userId by matching name)
+  const removeAttendee = (att) =>
+    setMom((prev) => ({
+      ...prev,
+      attendees: prev.attendees.filter((a) =>
+        att.userId ? a.userId !== att.userId : !(a.external && a.name === att.name),
+      ),
+    }));
+
+  // Add an unregistered guest attendee from the search text
+  const addGuestAttendee = (rawName) => {
+    const name = rawName.trim();
+    if (!name) return;
+    setMom((prev) => {
+      const exists = prev.attendees.some(
+        (a) => a.name.toLowerCase() === name.toLowerCase(),
+      );
+      if (exists) return prev;
+      return {
+        ...prev,
+        attendees: [
+          ...prev.attendees,
+          { userId: null, name, role: "Guest", coreDomain: "", subDomain: "", email: "", external: true },
+        ],
+      };
+    });
+    setMemberSearch("");
   };
 
   /* ── Action items ────────────────────────────────────────────── */
@@ -389,10 +411,10 @@ export default function MOMGenerator() {
   const handleExportPDF = async () => {
     setPdfLoading(true);
     try {
-      const logo = await loadLogoBase64();
-      await exportMOMtoPDF(mom, logo);
+      await exportMOMtoPDF(mom);
     } catch (e) {
       console.error("PDF export error:", e);
+      setSaveError(e.message || "Failed to generate PDF.");
     } finally {
       setPdfLoading(false);
     }
@@ -603,18 +625,21 @@ export default function MOMGenerator() {
               </div>
 
               {mom.attendees.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 p-3 bg-[#0c0f1a] rounded-lg border border-[#272c3a]">
+                <div className="flex flex-wrap gap-1.5">
                   {mom.attendees.map((a) => (
                     <button
-                      key={a.userId}
-                      onClick={() => toggleAttendee({ _id: a.userId })}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f183ff]/10 border border-[#f183ff]/25
-                        text-xs text-[#f183ff] hover:bg-[#ff6c95]/15 hover:border-[#ff6c95]/40 transition-all group"
+                      key={a.userId || `guest-${a.name}`}
+                      onClick={() => removeAttendee(a)}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs transition-all group
+                        ${a.external
+                          ? "bg-[#81ecff]/10 border-[#81ecff]/25 text-[#81ecff] hover:bg-[#ff6c95]/15 hover:border-[#ff6c95]/40"
+                          : "bg-[#f183ff]/10 border-[#f183ff]/25 text-[#f183ff] hover:bg-[#ff6c95]/15 hover:border-[#ff6c95]/40"}`}
                     >
                       {a.name}
-                      <span className="text-[#f183ff]/50 group-hover:text-[#ff6c95] text-sm leading-none">
-                        ×
-                      </span>
+                      {a.external && (
+                        <span className="text-[9px] uppercase tracking-wide opacity-70">guest</span>
+                      )}
+                      <span className="text-current/50 group-hover:text-[#ff6c95] text-sm leading-none">×</span>
                     </button>
                   ))}
                 </div>
@@ -626,11 +651,28 @@ export default function MOMGenerator() {
                   onChange={(e) => setMemberSearch(e.target.value)}
                   placeholder="Search members by name, email or domain…"
                 />
-                <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-[#1b1f2b] bg-[#070910] divide-y divide-[#0c0f1a]">
+                <div className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-[#070910]/60 divide-y divide-white/5">
                   {filteredMembers.length === 0 ? (
-                    <p className="text-xs text-[#6b6f7d] text-center py-8">
-                      No members for this scope
-                    </p>
+                    memberSearch.trim() ? (
+                      <button
+                        type="button"
+                        onClick={() => addGuestAttendee(memberSearch)}
+                        className="w-full flex items-center gap-3 px-3 py-4 text-left hover:bg-[#f183ff]/8 transition-colors group"
+                      >
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#81ecff]/15 border border-[#81ecff]/30 text-[#81ecff] text-base leading-none">
+                          +
+                        </span>
+                        <span className="text-sm">
+                          <span className="text-[#aea9b6]">Not on the portal? </span>
+                          <span className="font-semibold text-[#f5eefc]">Add “{memberSearch.trim()}”</span>
+                          <span className="text-[#aea9b6]"> as a guest</span>
+                        </span>
+                      </button>
+                    ) : (
+                      <p className="text-xs text-[#6b6f7d] text-center py-8">
+                        No members for this scope
+                      </p>
+                    )
                   ) : (
                     filteredMembers.map((m) => {
                       const selected = isSelected(m);
@@ -758,7 +800,7 @@ export default function MOMGenerator() {
               {mom.actionItems.map((item, i) => (
                 <div
                   key={i}
-                  className="rounded-lg bg-[#0c0f1a] border border-[#272c3a] p-3 space-y-2.5 group"
+                  className="rounded-2xl bg-white/[0.03] border border-white/8 p-3.5 space-y-2.5 group"
                 >
                   <div className="flex gap-2">
                     <div className="w-5 h-5 rounded-full bg-[#f183ff]/10 border border-[#f183ff]/20 flex items-center justify-center text-[10px] text-[#f183ff] shrink-0 mt-0.5">
@@ -788,7 +830,7 @@ export default function MOMGenerator() {
                       >
                         <option value="">— Unassigned —</option>
                         {mom.attendees.map((a) => (
-                          <option key={a.userId} value={a.name}>
+                          <option key={a.userId || a.name} value={a.name}>
                             {a.name}
                           </option>
                         ))}

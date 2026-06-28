@@ -64,10 +64,14 @@
     }
 
     /* Prevent any single page/element from pushing the viewport sideways on
-       phones — the most common cause of a "broken" mobile layout. */
+       phones — the most common cause of a "broken" mobile layout.
+       Use `clip` (not `hidden`): `overflow-x: hidden` forces overflow-y to auto
+       and turns html/body into a scroll container, which breaks `position:
+       sticky` (e.g. the landing scroll-letter sequence). `clip` clips the same
+       way without establishing a scroll container. */
     html, body {
         max-width: 100%;
-        overflow-x: hidden;
+        overflow-x: clip;
         background-color: #070910;
     }
 
@@ -648,14 +652,17 @@
 }
 
 /* ── Reduced-motion support (accessibility) ─────────────────────────────────
-   Honour users who request less motion: collapse animations/transitions. */
+   Honour users who request less motion by taming looping/decorative *keyframe*
+   animations (orb drift, glass flow, dot field, card-enter, parallax) and smooth
+   scrolling. We intentionally do NOT flatten `transition`s — short, user/state-
+   driven fades & slides (e.g. the landing hero) are not vestibular triggers and
+   flattening them with !important broke intentional UI motion. */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
-        transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
     }
 }

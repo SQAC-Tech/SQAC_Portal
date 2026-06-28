@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { exportMOMtoPDF, loadLogoBase64 } from "../../utils/momPdfExport";
+import { exportMOMtoPDF } from "../../utils/momPdfExport";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -75,8 +75,7 @@ export default function MOMList() {
   const handlePDF = async (mom) => {
     setPdfLoading(mom._id);
     try {
-      const logo = await loadLogoBase64();
-      await exportMOMtoPDF(mom, logo);
+      await exportMOMtoPDF(mom);
     } catch (e) {
       console.error("PDF error:", e);
     } finally {

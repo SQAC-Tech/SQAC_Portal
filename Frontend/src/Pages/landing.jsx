@@ -182,8 +182,16 @@ function Hero() {
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        const t = setTimeout(() => setReady(true), 80);
-        return () => clearTimeout(t);
+        // Flip after the initial opacity:0 frame has painted, so the CSS
+        // transition always has a "from" state to animate from.
+        let raf2;
+        const raf1 = requestAnimationFrame(() => {
+            raf2 = requestAnimationFrame(() => setReady(true));
+        });
+        return () => {
+            cancelAnimationFrame(raf1);
+            if (raf2) cancelAnimationFrame(raf2);
+        };
     }, []);
 
     return (
@@ -308,7 +316,7 @@ function FeatureCard({ f, delay }) {
 
 export default function LandingPage() {
     return (
-        <div className="bg-background text-on-surface overflow-x-hidden">
+        <div className="bg-background text-on-surface overflow-x-clip">
             <Seo
                 title=""
                 description="The SQAC Portal is the Software Quality Assurance Community's member hub for projects, meetings, attendance, minutes of meeting and certificates — one place for every role."
