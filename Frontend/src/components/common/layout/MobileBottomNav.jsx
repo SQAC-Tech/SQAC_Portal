@@ -1,27 +1,7 @@
 import React, { useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
-import { navItems } from "../../../utils/memberHelpers";
-
-const ROLES_WITH_ADMIN_ACCESS = [
-  "secretary", "joint_secretary", "technical_lead", "project_lead",
-  "corp_lead", "domain_lead", "associate_lead",
-];
-const CERT_PERM_ROLES = ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead"];
-
-/** Same role-filter rules as AdminSidebar / MobileNav, kept in sync. */
-function filterNav(role) {
-  const hasAdminAccess = ROLES_WITH_ADMIN_ACCESS.includes(role);
-  return navItems.filter((item) => {
-    if (!hasAdminAccess) {
-      return ["Dashboard", "Profile", "Schedule", "Noticeboard"].includes(item.label);
-    }
-    if (item.secretaryOnly && role !== "secretary") return false;
-    if (item.cocRecordsOnly && role !== "secretary" && role !== "joint_secretary") return false;
-    if (item.label === "Certificate Generator" && !CERT_PERM_ROLES.includes(role)) return false;
-    return true;
-  });
-}
+import { filterNavForRole } from "../../../utils/memberHelpers";
 
 /**
  * Always-visible bottom navigation bar for phones/tablets (< lg). Shows the top
@@ -31,7 +11,7 @@ function filterNav(role) {
 export default function MobileBottomNav({ user, onMore }) {
   const location = useLocation();
   const role = user?.role || "member";
-  const items = useMemo(() => filterNav(role), [role]);
+  const items = useMemo(() => filterNavForRole(role), [role]);
   // Up to 4 primary tabs; the rest live in the drawer behind "More".
   const primary = items.slice(0, 4);
 

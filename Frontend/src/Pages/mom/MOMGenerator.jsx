@@ -95,9 +95,12 @@ const CardHeader = ({ icon, title, badge }) => (
 );
 
 /* ── Main Component ──────────────────────────────────────────────── */
-export default function MOMGenerator() {
+export default function MOMGenerator({ embedded = false }) {
   const location = useLocation();
   const isAdminCtx = location.pathname.startsWith("/admin");
+  // Embedded = rendered inside an AppShell (which already supplies the navbar +
+  // sidebar), so we suppress our own navbar and full-screen chrome.
+  const embed = isAdminCtx || embedded;
   const [mom, setMom] = useState(defaultMOM);
   const [meetings, setMeetings] = useState([]);
   const [allMembers, setAllMembers] = useState([]);
@@ -424,8 +427,8 @@ export default function MOMGenerator() {
   /* ── Success screen ──────────────────────────────────────────── */
   if (saveSuccess) {
     return (
-      <div className={isAdminCtx ? "text-[#f5eefc] font-sans" : "min-h-screen bg-[#070910] text-[#f5eefc] font-sans pt-16"}>
-        {!isAdminCtx && <Navbar />}
+      <div className={embed ? "text-[#f5eefc] font-sans" : "min-h-screen bg-[#070910] text-[#f5eefc] font-sans pt-16"}>
+        {!embed && <Navbar />}
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] px-6">
           <div className="w-full max-w-md text-center">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#81ecff] to-[#f183ff] flex items-center justify-center mx-auto mb-6">
@@ -463,8 +466,8 @@ export default function MOMGenerator() {
 
   /* ─────────────────────────────────────────────────────────────── */
   return (
-    <div className={isAdminCtx ? "text-[#f5eefc] font-sans" : "min-h-screen bg-[#070910] text-[#f5eefc] font-sans"}>
-      {!isAdminCtx && <Navbar />}
+    <div className={embed ? "text-[#f5eefc] font-sans" : "min-h-screen bg-[#070910] text-[#f5eefc] font-sans"}>
+      {!embed && <Navbar />}
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <div className="sticky top-16 z-50 bg-[#070910]/90 backdrop-blur-2xl border-b border-white/8 px-6 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">

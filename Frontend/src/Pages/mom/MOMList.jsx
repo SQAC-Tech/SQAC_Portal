@@ -5,7 +5,7 @@ import { exportMOMtoPDF } from "../../utils/momPdfExport";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-export default function MOMList() {
+export default function MOMList({ embedded = false }) {
   const [moms, setMoms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null); // MOM detail modal
@@ -18,6 +18,9 @@ export default function MOMList() {
   // Detect admin context so links stay within admin section
   const isAdminCtx = location.pathname.startsWith("/admin");
   const createPath = isAdminCtx ? "/admin/mom/create" : "/mom/create";
+  // Embedded inside an AppShell (navbar + sidebar already provided) — drop our
+  // own full-screen chrome and sit the sticky header below the navbar.
+  const embed = isAdminCtx || embedded;
 
   // Role comes from the stored user (cookie-based auth is used everywhere else).
   const userRole = (() => {
@@ -96,9 +99,9 @@ export default function MOMList() {
   };
 
   return (
-    <div className={isAdminCtx ? "text-[#f5eefc]" : "min-h-screen bg-[#070910] text-[#f5eefc]"}>
+    <div className={embed ? "text-[#f5eefc]" : "min-h-screen bg-[#070910] text-[#f5eefc]"}>
       {/* Header */}
-      <div className={`sticky z-40 bg-[#070910]/90 backdrop-blur-md border-b border-[#494651]/40 px-6 py-4 ${isAdminCtx ? "top-16" : "top-0"}`}>
+      <div className={`sticky z-40 bg-[#070910]/90 backdrop-blur-md border-b border-[#494651]/40 px-6 py-4 ${embed ? "top-16" : "top-0"}`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button

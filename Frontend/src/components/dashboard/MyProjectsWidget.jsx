@@ -1,10 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+// Keys match the project schema's difficulty values (beginner/intermediate/advanced).
 const DIFFICULTY_COLORS = {
-  Easy:   "bg-emerald-500/10 border-emerald-400/20 text-emerald-300",
-  Medium: "bg-amber-500/10   border-amber-400/20   text-amber-300",
-  Hard:   "bg-red-500/10     border-red-400/20     text-red-300",
+  beginner:     "bg-emerald-500/10 border-emerald-400/20 text-emerald-300",
+  intermediate: "bg-amber-500/10   border-amber-400/20   text-amber-300",
+  advanced:     "bg-red-500/10     border-red-400/20     text-red-300",
 };
 
 const DOMAIN_COLORS = {
@@ -28,7 +29,7 @@ export default function MyProjectsWidget({ projects = [], limit = 3, linkTo = "/
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
       {list.map((project) => {
-        const diffClass = DIFFICULTY_COLORS[project.difficulty] || DIFFICULTY_COLORS.Medium;
+        const diffClass = DIFFICULTY_COLORS[project.difficulty] || DIFFICULTY_COLORS.intermediate;
         const domainColor = DOMAIN_COLORS[project.domain] || "text-white/50";
 
         return (

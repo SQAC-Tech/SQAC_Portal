@@ -54,6 +54,41 @@ export const editableRoles = [
   "secretary",
 ];
 
+// ── Sidebar navigation filtering (single source of truth) ────────────────────
+// Used by AdminSidebar (desktop), MobileNav (drawer) and MobileBottomNav so the
+// three stay in sync automatically.
+const ROLES_WITH_ADMIN_ACCESS = [
+  "secretary", "joint_secretary", "technical_lead", "project_lead",
+  "corp_lead", "domain_lead", "associate_lead",
+];
+const CERT_PERM_ROLES = ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead"];
+
+// Plain members can reach these pages. MOM entries point at the member-facing
+// routes (the admin /admin/mom/* routes are role-gated and would 404/redirect).
+const MEMBER_LABELS = ["Dashboard", "Profile", "Schedule", "Noticeboard", "Create MOM", "MOM History"];
+const MEMBER_HREF_OVERRIDES = {
+  "Create MOM": "/mom/create",
+  "MOM History": "/mom/list",
+};
+
+export function filterNavForRole(role = "member") {
+  if (!ROLES_WITH_ADMIN_ACCESS.includes(role)) {
+    return navItems
+      .filter((item) => MEMBER_LABELS.includes(item.label))
+      .map((item) =>
+        MEMBER_HREF_OVERRIDES[item.label]
+          ? { ...item, href: MEMBER_HREF_OVERRIDES[item.label] }
+          : item
+      );
+  }
+  return navItems.filter((item) => {
+    if (item.secretaryOnly && role !== "secretary") return false;
+    if (item.cocRecordsOnly && role !== "secretary" && role !== "joint_secretary") return false;
+    if (item.label === "Certificate Generator" && !CERT_PERM_ROLES.includes(role)) return false;
+    return true;
+  });
+}
+
 export const formatDate = (value) => {
   if (!value) return "Recently joined";
 

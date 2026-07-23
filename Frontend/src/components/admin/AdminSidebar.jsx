@@ -1,26 +1,7 @@
 import React, { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { navItems } from "../../utils/memberHelpers";
+import { filterNavForRole } from "../../utils/memberHelpers";
 import SQACLogo from "../ui/SQACLogo";
-
-// Roles that can access admin sections (everyone except member)
-const ROLES_WITH_ADMIN_ACCESS = [
-  "secretary",
-  "joint_secretary",
-  "technical_lead",
-  "project_lead",
-  "corp_lead",
-  "domain_lead",
-  "associate_lead",
-];
-
-const CERT_PERM_ROLES = [
-  "secretary",
-  "joint_secretary",
-  "technical_lead",
-  "project_lead",
-  "corp_lead",
-];
 
 const AdminSidebar = ({ onLogout }) => {
   const location = useLocation();
@@ -29,24 +10,10 @@ const AdminSidebar = ({ onLogout }) => {
     try {
       const userJson = localStorage.getItem("user");
       const user = userJson ? JSON.parse(userJson) : {};
-      const role = user.role || "member";
-      const hasAdminAccess = ROLES_WITH_ADMIN_ACCESS.includes(role);
-
-      return navItems.filter((item) => {
-        if (!hasAdminAccess) {
-          const memberOnlyLabels = ["Dashboard", "Profile", "Schedule", "Noticeboard"];
-          return memberOnlyLabels.includes(item.label);
-        }
-        if (item.secretaryOnly && role !== "secretary") return false;
-        if (item.cocRecordsOnly && role !== "secretary" && role !== "joint_secretary") return false;
-        if (item.label === "Certificate Generator" && !CERT_PERM_ROLES.includes(role)) {
-          return false;
-        }
-        return true;
-      });
+      return filterNavForRole(user.role || "member");
     } catch (e) {
       console.error("Sidebar role parse error:", e);
-      return navItems;
+      return filterNavForRole("member");
     }
   }, []);
 
