@@ -12,7 +12,7 @@ import { usePermissions } from "../../utils/usePermissions";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function Notice() {
-    const { canSendNotice, canDeleteMember: canDeleteNotice } = usePermissions();
+    const { canSendNotice } = usePermissions();
     const [notices, setNotices] = useState([]);
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
@@ -52,7 +52,7 @@ export default function Notice() {
     }
 
     const canCreate = canSendNotice;
-    const canManage = canDeleteNotice;
+    const canManage = canSendNotice;
 
     // ---------- GET NOTICES ----------
     async function fetchNotices() {

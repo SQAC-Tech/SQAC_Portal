@@ -21,13 +21,13 @@ const LETTERS = [
     { char: "C", word: "COMMUNITY", grad: ["#f183ff", "#ff6c95"] },
 ];                      
 
-const FEATURES = [  
-    { icon: "⚡", title: "Role-Based Access", num: "01", desc: "Members, domain leads, admins each with tailored dashboards and permissions that mirror your club's real hierarchy." },
-    { icon: "💬", title: "Realtime Chat", num: "02", desc: "Group channels and private threads powered by Socket.IO decisions made instantly, zero third-party apps." },
-    { icon: "🗂️", title: "Tasks & Projects", num: "03", desc: "Assign, track and ship deliverables across domains. Admin-powered workflows, member-visible progress." },
-    { icon: "🏅", title: "Certificates", num: "04", desc: "Generate and distribute achievement certificates in one click, backed by Firebase and email delivery." },
-    { icon: "📢", title: "Notice Board", num: "05", desc: "Push announcements with realtime socket notifications every member notified the moment it's posted." },
-    { icon: "📊", title: "Attendance & Meetings", num: "06", desc: "Schedule meetings, track attendance, save minutes all tied to each member's profile automatically." },
+const FEATURES = [
+    { icon: "⚡", title: "Role-Based Access", num: "01", desc: "Members, domain leads and admins each get tailored dashboards and permissions that mirror your club's real hierarchy." },
+    { icon: "🗂️", title: "Tasks & Projects", num: "02", desc: "Assign, track and ship deliverables across domains — admin-driven workflows with member-visible progress." },
+    { icon: "📝", title: "Minutes of Meeting", num: "03", desc: "Record discussions, decisions and action items for every meeting, then export them to PDF in one click." },
+    { icon: "🏅", title: "Certificates", num: "04", desc: "Generate and distribute achievement certificates in one click, with QR verification and email delivery." },
+    { icon: "📢", title: "Notice Board", num: "05", desc: "Post announcements to the whole club or a specific domain — every member sees them the moment they go live." },
+    { icon: "📊", title: "Attendance & Meetings", num: "06", desc: "Schedule meetings and track attendance, all tied to each member's profile automatically." },
 ];
 
 
@@ -259,7 +259,7 @@ function Hero() {
                         transition: "all 0.75s ease 820ms"
                     }}
                 >
-                    Your creative club's command center tasks, projects, chat, and certifications, unified in one place.
+                    Your club's hub for projects, meetings, attendance and certificates — all in one place.
                 </p>
 
                 {/* buttons */}

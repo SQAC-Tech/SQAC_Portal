@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 
+// Domain / sub-domain names must match the values stored on user profiles
+// (see Onboarding), otherwise notice targeting silently fails to match members.
 const domainMap = {
     Board: [],
-    Technical: ["Web Dev", "App Dev", "AI/ML"],
-    Corporate: ["Sponsorship", "Events"],
-    Media: ["Creatives", "PR"]
+    Technical: ["Web Development", "App Development", "AI/ML"],
+    Corporate: ["Events", "Media", "Sponsorships"]
 };
 
 export default function RightPanel({

@@ -3,7 +3,7 @@ import { toast } from "react-hot-toast";
 import MemberCard from "../../components/admin/MemberCard";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import Navbar from "../../components/common/layout/Navbar";
-import { usePermissions } from "../../utils/usePermissions";
+import { usePermissions, BOARD_ROLES } from "../../utils/usePermissions";
 import { roleLabel, formatDate, ROLE_LABELS } from "../../utils/memberHelpers";
 import { Avatar, EmptyState } from "../../components/ui";
 
@@ -43,6 +43,11 @@ function MemberDetailModal({ member, onClose }) {
                 <span className="px-2 py-0.5 rounded-full bg-[#81ecff]/10 border border-[#81ecff]/20 text-[#81ecff] text-[10px] font-semibold uppercase tracking-wide">
                   {ROLE_LABELS[member.role] || member.role || "Member"}
                 </span>
+                {(member.isBoardMember === true || BOARD_ROLES.includes(member.role)) && (
+                  <span className="px-2 py-0.5 rounded-full bg-[#f183ff]/10 border border-[#f183ff]/20 text-[#f183ff] text-[10px] font-semibold uppercase tracking-wide">
+                    Board Member
+                  </span>
+                )}
                 {member.cocAccepted && (
                   <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 text-[10px] font-semibold">
                     COC ✓
@@ -153,7 +158,7 @@ function exportCSV(members) {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 const Members = () => {
-  const { canDeleteMember } = usePermissions();
+  const { canDeleteMember, canChangeRole } = usePermissions();
   const [members, setMembers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -161,6 +166,7 @@ const Members = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
+  const [roleModal, setRoleModal] = useState({ isOpen: false, member: null, role: "", saving: false });
 
   const sceneRef = useRef(null);
   const pointerRef = useRef({ x: 0.5, y: 0.5 });
@@ -254,6 +260,38 @@ const Members = () => {
     });
   };
 
+  const openRoleModal = (member) => {
+    setRoleModal({ isOpen: true, member, role: member.role || "member", saving: false });
+  };
+
+  const submitRoleChange = async () => {
+    const { member, role } = roleModal;
+    if (!member || !role || role === member.role) {
+      setRoleModal((m) => ({ ...m, isOpen: false }));
+      return;
+    }
+    setRoleModal((m) => ({ ...m, saving: true }));
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/role/${member._id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.message || data?.error || "Failed to change role.");
+      const isBoardMember = data?.user?.isBoardMember;
+      setMembers((cur) =>
+        cur.map((m) => (m._id === member._id ? { ...m, role, isBoardMember } : m))
+      );
+      toast.success(`${member.name} is now ${ROLE_LABELS[role] || role}`);
+      setRoleModal({ isOpen: false, member: null, role: "", saving: false });
+    } catch (err) {
+      toast.error(err.message || "Failed to change role.");
+      setRoleModal((m) => ({ ...m, saving: false }));
+    }
+  };
+
   const filteredMembers = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return members;
@@ -343,7 +381,7 @@ const Members = () => {
 
         <section className="mt-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h3 className="text-2xl font-bold text-white font-headline">Member IDs</h3>
+            <h3 className="text-2xl font-bold text-white font-headline">All Members</h3>
             <p className="mt-1 text-sm text-white/55">Showing {filteredMembers.length} of {members.length} members</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -402,7 +440,9 @@ const Members = () => {
                 member={member}
                 onView={setSelectedMember}
                 onDelete={deleteMemberWrapper}
+                onChangeRole={openRoleModal}
                 canDelete={canDeleteMember}
+                canChangeRole={canChangeRole}
               />
             ))}
           </section>
@@ -411,6 +451,44 @@ const Members = () => {
 
       {/* Member Detail Modal */}
       <MemberDetailModal member={selectedMember} onClose={() => setSelectedMember(null)} />
+
+      {/* Change Role Modal */}
+      {roleModal.isOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0c0f1a] p-6 shadow-2xl">
+            <h3 className="text-lg font-bold text-white mb-1 font-headline">Change Role</h3>
+            <p className="text-white/50 text-sm mb-5">
+              Update the role for <span className="text-white font-semibold">{roleModal.member?.name}</span>.
+              Board roles (Secretary, Joint Secretary, Technical / Corporate / Project Lead) automatically
+              join the Board.
+            </p>
+            <label className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-2">Role</label>
+            <select
+              value={roleModal.role}
+              onChange={(e) => setRoleModal((m) => ({ ...m, role: e.target.value }))}
+              className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white outline-none focus:border-primary/50 transition-colors"
+            >
+              {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                <option key={value} value={value} className="bg-[#0c0f1a]">
+                  {label}{BOARD_ROLES.includes(value) ? " · Board" : ""}
+                </option>
+              ))}
+            </select>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setRoleModal({ isOpen: false, member: null, role: "", saving: false })}
+                disabled={roleModal.saving}
+                className="px-4 py-2 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors disabled:opacity-50"
+              >Cancel</button>
+              <button
+                onClick={submitRoleChange}
+                disabled={roleModal.saving || roleModal.role === roleModal.member?.role}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-black font-bold hover:-translate-y-0.5 transition-all disabled:opacity-40 disabled:hover:translate-y-0"
+              >{roleModal.saving ? "Saving…" : "Save"}</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirm Delete Modal */}
       {confirmModal.isOpen && (

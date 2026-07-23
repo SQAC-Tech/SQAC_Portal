@@ -6,6 +6,8 @@ import QRCode from "qrcode";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import Navbar from "../../components/common/layout/Navbar";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 export default function CertGenerator() {
   const [templateImage, setTemplateImage] = useState(null);
   const [csvData, setCsvData] = useState([]);
@@ -279,13 +281,11 @@ export default function CertGenerator() {
       saveAs(content, "Certificates.zip");
 
       // Upload to Backend (Firebase + Email)
-      const token = localStorage.getItem("token");
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-      const res = await fetch(`${apiUrl}/api/certificate/upload-generated`, {
+      const res = await fetch(`${API_BASE_URL}/api/certificate/upload-generated`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           certificates: generatedCerts,
@@ -333,7 +333,7 @@ export default function CertGenerator() {
       <AdminSidebar onLogout={handleLogout} />
       <div className="max-w-7xl w-full mx-auto px-5 pb-16 pt-8 md:px-8 lg:pl-28">
         <h1 className="text-4xl font-headline font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#f183ff] to-[#ff6c95] mb-8">
-          Certificate Generator Canvas
+          Certificate Generator
         </h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Controls Panel */}

@@ -296,7 +296,7 @@ const Projects = () => {
     <div className="min-h-screen bg-[#070910] text-[#f5eefc] overflow-hidden relative">
       <Navbar />
       <div className="pointer-events-none fixed inset-0 -z-40 bg-[radial-gradient(circle_at_top_left,rgba(241,131,255,0.18),transparent_30%),radial-gradient(circle_at_top_right,rgba(129,236,255,0.14),transparent_28%),linear-gradient(180deg,#070910_0%,#0b1020_44%,#070910_100%)]" />
-      <div className="pointer-events-none fixed inset-0 -z-30 opacity-70 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+      <div className="bg-grid pointer-events-none fixed inset-0 -z-30 opacity-70" />
 
       <AdminSidebar onLogout={() => {
         localStorage.removeItem("user");
@@ -313,7 +313,7 @@ const Projects = () => {
             <div className="hidden md:flex max-w-md flex-1">
               <input
                 type="text"
-                placeholder="Search PRDs..."
+                placeholder="Search projects..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full rounded-full border border-white/10 bg-white/6 py-3 px-6 text-sm text-white outline-none transition-all placeholder:text-white/35 focus:border-primary/60 focus:bg-white/10"
@@ -336,7 +336,7 @@ const Projects = () => {
         <div className="mb-6 md:hidden">
           <input
             type="text"
-            placeholder="Search PRDs..."
+            placeholder="Search projects..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-full border border-white/10 bg-white/6 py-3 px-6 text-sm text-white outline-none transition-all placeholder:text-white/35 focus:border-primary/60 focus:bg-white/10"
@@ -349,7 +349,7 @@ const Projects = () => {
         </div>
 
         {loading ? (
-          <div className="text-white/50 text-center py-20 animate-pulse">Loading PRDs...</div>
+          <div className="text-white/50 text-center py-20 animate-pulse">Loading projects...</div>
         ) : error ? (
           <div className="text-red-400 text-center py-20">{error}</div>
         ) : (
@@ -389,7 +389,7 @@ const Projects = () => {
                       className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-all font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <span className="material-symbols-outlined text-lg">psychology</span>
-                      {assigningId === project._id ? "Calculating..." : "Auto-Assign Team via AI Engine"}
+                      {assigningId === project._id ? "Assigning..." : "Auto-Assign Team"}
                     </button>
                   ) : (
                     <div className="flex gap-2">
@@ -445,7 +445,7 @@ const Projects = () => {
 
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 custom-scrollbar bg-[#0c0f1a]">
               <div className="mb-4">
-                <h4 className="text-sm font-bold text-white/80 uppercase tracking-wider mb-2">Project PRD</h4>
+                <h4 className="text-sm font-bold text-white/80 uppercase tracking-wider mb-2">Description</h4>
                 <p className="text-sm text-white/60">{selectedProject.description}</p>
               </div>
 
@@ -507,7 +507,7 @@ const Projects = () => {
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h3 className="text-2xl font-bold font-headline text-white tracking-wide">New Project</h3>
-                <p className="text-[#aea9b6] text-xs mt-1">Draft a PRD manually or let AI scaffold it for you</p>
+                <p className="text-[#aea9b6] text-xs mt-1">Fill in the details manually or let AI draft them for you</p>
               </div>
               <button
                 onClick={() => setShowCreate(false)}

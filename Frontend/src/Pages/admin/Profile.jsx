@@ -8,6 +8,7 @@ import {
   initialsFromName,
   roleLabel,
 } from "../../utils/memberHelpers";
+import { BOARD_ROLES } from "../../utils/usePermissions";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -424,7 +425,7 @@ const Profile = () => {
 
     if (memberProfile) {
       stats.push({
-        label: "System Rank",
+        label: "Rank",
         value: memberProfile.coreDomain === "Corporate" ? memberProfile.corpTier?.toUpperCase() : memberProfile.overallScore >= 55 ? "SENIOR" : memberProfile.overallScore >= 30 ? "MID" : "ROOKIE",
       });
       stats.push({
@@ -458,7 +459,7 @@ const Profile = () => {
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-6 px-5 py-4 md:px-8 lg:pl-28">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">
-              SQAC Portal
+              Your account
             </p>
             <h1 className="mt-2 text-2xl font-bold text-white font-headline md:text-3xl">
               My Profile
@@ -555,6 +556,12 @@ const Profile = () => {
                         <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/75">
                           {profile.regNum || "No reg number"}
                         </span>
+                        {(profile.isBoardMember === true || BOARD_ROLES.includes(profile.role)) && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-[#f183ff]/30 bg-[#f183ff]/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-[#f183ff]">
+                            <span className="material-symbols-outlined text-[13px]">shield_person</span>
+                            Board Member
+                          </span>
+                        )}
                         <span
                           className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] ${
                             profile.approved

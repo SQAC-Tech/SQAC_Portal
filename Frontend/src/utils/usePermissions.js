@@ -18,18 +18,26 @@ const PERMISSIONS = {
   MANAGE_ATTENDANCE: ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead", "domain_lead"],
 };
 
+// Board Members — leadership circle, derived from role. Keep in sync with
+// Backend/src/middleware/permissions.middleware.js → BOARD_ROLES.
+export const BOARD_ROLES = ["secretary", "joint_secretary", "technical_lead", "corp_lead", "project_lead"];
+
 const has = (role, action) => (PERMISSIONS[action] || []).includes(role);
 
 export function usePermissions() {
   return useMemo(() => {
     let role = "member";
+    let isBoardMember = false;
     try {
       const u = JSON.parse(localStorage.getItem("user") || "{}");
       role = u.role || "member";
+      // Trust the stored flag if present, else derive from role.
+      isBoardMember = u.isBoardMember === true || BOARD_ROLES.includes(role);
     } catch (_) {}
 
     return {
       role,
+      isBoardMember,
       canApproveMember:   has(role, "APPROVE_MEMBER"),
       canRejectMember:    has(role, "REJECT_MEMBER"),
       canDeleteMember:    has(role, "DELETE_MEMBER"),

@@ -5,8 +5,6 @@ import { exportMOMtoPDF } from "../../utils/momPdfExport";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-const roleOrder = { admin: 0, subadmin: 1, lead: 2, user: 3 };
-
 export default function MOMList() {
   const [moms, setMoms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,18 +19,15 @@ export default function MOMList() {
   const isAdminCtx = location.pathname.startsWith("/admin");
   const createPath = isAdminCtx ? "/admin/mom/create" : "/mom/create";
 
-  const token = localStorage.getItem("token");
-  const headers = { Authorization: `Bearer ${token}` };
-
-  // Decode role from token payload
+  // Role comes from the stored user (cookie-based auth is used everywhere else).
   const userRole = (() => {
     try {
-      return JSON.parse(atob(token.split(".")[1])).role || "user";
+      return JSON.parse(localStorage.getItem("user") || "{}").role || "member";
     } catch {
-      return "user";
+      return "member";
     }
   })();
-  const isPrivileged = ["admin", "subadmin"].includes(userRole);
+  const isPrivileged = ["secretary", "joint_secretary"].includes(userRole);
 
   useEffect(() => {
     fetchMOMs();
@@ -42,7 +37,6 @@ export default function MOMList() {
     setLoading(true);
     try {
       const { data } = await axios.get(`${API}/api/mom/all`, {
-        headers,
         withCredentials: true,
       });
       setMoms(Array.isArray(data) ? data : []);
@@ -59,7 +53,6 @@ export default function MOMList() {
     setDeleting(true);
     try {
       await axios.delete(`${API}/api/mom/${deleteId}`, {
-        headers,
         withCredentials: true,
       });
       setMoms((prev) => prev.filter((m) => m._id !== deleteId));

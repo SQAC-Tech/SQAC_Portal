@@ -7,7 +7,7 @@ import { usePermissions } from "../utils/usePermissions";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function Meet() {
-  const { canScheduleMeet } = usePermissions();
+  const { canScheduleMeet, isBoardMember } = usePermissions();
   const [meetings, setMeetings] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
@@ -169,6 +169,7 @@ export default function Meet() {
 
   // Get color based on scope/type
   const getEventBg = (scope) => {
+    if (scope === "board") return "bg-[#f183ff]/15 text-[#f183ff] border-[#f183ff]/25";
     if (scope === "Web Development" || scope === "AI/ML") return "bg-emerald-500/15 text-emerald-300 border-emerald-400/20";
     if (scope === "technical") return "bg-cyan-500/15 text-cyan-300 border-cyan-400/20";
     if (scope === "corporate" || scope === "Events") return "bg-purple-500/15 text-purple-300 border-purple-400/20";
@@ -256,7 +257,7 @@ export default function Meet() {
               <h1 className="text-3xl font-bold font-headline text-white tracking-wide">
                 {monthNames[month]} {year}
               </h1>
-              <p className="text-[#aea9b6] text-xs tracking-wider uppercase mt-1">Command Timeline View</p>
+              <p className="text-[#aea9b6] text-xs tracking-wider uppercase mt-1">Meeting Schedule</p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -287,7 +288,7 @@ export default function Meet() {
                   className="bg-gradient-to-r from-primary to-secondary text-black font-headline font-bold px-5 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(241,131,255,0.25)] active:scale-95 transition-all duration-300 flex items-center gap-2"
                 >
                   <span className="material-symbols-outlined text-lg font-bold">add</span>
-                  Deploy Meeting
+                  New Meeting
                 </button>
               )}
             </div>
@@ -362,7 +363,7 @@ export default function Meet() {
             <div className="space-y-3">
               {todayMeetings.length === 0 ? (
                 <div className="rounded-xl border border-white/6 bg-white/2 p-5 text-center text-[#aea9b6] text-xs">
-                  No briefings scheduled for today
+                  No meetings today
                 </div>
               ) : (
                 todayMeetings.map((meet) => {
@@ -372,18 +373,18 @@ export default function Meet() {
                       minute: "2-digit",
                       hour12: false
                     })
-                    : "10:00";
+                    : "TBD";
                   return (
                     <div
                       key={meet._id}
                       className="rounded-xl border border-primary/20 bg-primary/4 p-4 space-y-3 relative overflow-hidden shadow-[0_5px_15px_rgba(241,131,255,0.05)]"
                     >
                       <div className="flex justify-between items-center">
-                        <span className="text-[9px] font-bold bg-[#ff6c95]/15 border border-[#ff6c95]/20 text-[#ff6c95] px-2 py-0.5 rounded-full font-label uppercase tracking-widest animate-pulse">
-                          In Progress
+                        <span className="text-[9px] font-bold bg-[#ff6c95]/15 border border-[#ff6c95]/20 text-[#ff6c95] px-2 py-0.5 rounded-full font-label uppercase tracking-widest">
+                          Today
                         </span>
                         <span className="text-[10px] text-[#aea9b6] font-semibold">
-                          {mTime} UTC
+                          {mTime}
                         </span>
                       </div>
                       <div>
@@ -431,72 +432,19 @@ export default function Meet() {
               )}
             </div>
           </div>
-
-          {/* Global Hotkeys Section */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold font-headline text-white tracking-wide">Global Hotkeys</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: "Quick Deploy", keys: "CTRL + N", icon: "bolt" },
-                { label: "Shift Log", keys: "CTRL + L", icon: "schedule" },
-                { label: "Data Dump", keys: "CTRL + D", icon: "database" },
-                { label: "Console", keys: "CTRL + -", icon: "terminal" },
-              ].map((hk) => (
-                <div
-                  key={hk.label}
-                  className="rounded-2xl border border-white/10 bg-[linear-gradient(155deg,rgba(22,20,31,0.85),rgba(12,11,18,0.8))] p-3 flex flex-col gap-2 hover:-translate-y-0.5 hover:border-[#f183ff]/25 transition-all cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[#ff6c95] text-lg">{hk.icon}</span>
-                  <div>
-                    <h4 className="text-[10px] font-bold text-[#aea9b6] uppercase tracking-wider">{hk.label}</h4>
-                    <p className="text-xs font-bold text-white mt-0.5 font-label">{hk.keys}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Command Center Feed Section */}
-          <div className="space-y-4 flex-grow flex flex-col">
-            <h2 className="text-xl font-bold font-headline text-white tracking-wide">Command Center Feed</h2>
-            <div className="flex-grow rounded-xl border border-white/6 bg-white/2 p-4 flex flex-col gap-4 overflow-y-auto max-h-[160px]">
-              <div className="flex items-start gap-2.5 text-xs">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 mt-1.5 shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
-                <div>
-                  <p className="text-white/90">Uplink D4 verified meeting room "Void"</p>
-                  <p className="text-[10px] text-[#78737f] mt-0.5">Just now</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5 text-xs">
-                <span className="h-2 w-2 rounded-full bg-pink-400 mt-1.5 shrink-0 shadow-[0_0_8px_rgba(244,114,182,0.6)]" />
-                <div>
-                  <p className="text-white/90">Priority Alert: Sector 7 briefing starts in 5m</p>
-                  <p className="text-[10px] text-[#78737f] mt-0.5">3 mins ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5 text-xs">
-                <span className="h-2 w-2 rounded-full bg-[#6b6f7d] mt-1.5 shrink-0" />
-                <div>
-                  <p className="text-white/90">Archive: Q3 Review log moved to storage</p>
-                  <p className="text-[10px] text-[#78737f] mt-0.5">1 hour ago</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
 
-      {/* Deploy Briefing Popup Modal */}
+      {/* New Meeting Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/72 backdrop-blur-sm px-4">
           <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#0c0f1a]/95 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative overflow-hidden">
-            {/* Background cyber glowing details */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary" />
 
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h3 className="text-2xl font-bold font-headline text-white tracking-wide">Deploy New Briefing</h3>
-                <p className="text-[#aea9b6] text-xs mt-1">Initialize meeting schedule logs</p>
+                <h3 className="text-2xl font-bold font-headline text-white tracking-wide">New Meeting</h3>
+                <p className="text-[#aea9b6] text-xs mt-1">Schedule a meeting for your team</p>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -509,12 +457,12 @@ export default function Meet() {
             <form onSubmit={handleCreateMeet} className="space-y-4">
               <div className="space-y-1">
                 <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">
-                  Briefing Title *
+                  Title *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Tactical Review: Sector 7"
+                  placeholder="e.g. Weekly Web Dev Sync"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-white/20 transition-all"
@@ -550,7 +498,7 @@ export default function Meet() {
 
               <div className="space-y-1">
                 <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">
-                  Secure Meeting Link (URL) *
+                  Meeting Link (URL) *
                 </label>
                 <input
                   type="url"
@@ -572,18 +520,21 @@ export default function Meet() {
                   className="w-full bg-[#0c0f1a] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                 >
                   <option value="all">All Members</option>
+                  {isBoardMember && <option value="board">Board Members</option>}
                   <option value="technical">Technical Division</option>
                   <option value="corporate">Corporate Division</option>
                   <option value="Web Development">Web Development</option>
+                  <option value="App Development">App Development</option>
                   <option value="AI/ML">AI/ML</option>
                   <option value="Events">Events</option>
-                  <option value="Creatives">Creatives</option>
+                  <option value="Media">Media</option>
+                  <option value="Sponsorships">Sponsorships</option>
                 </select>
               </div>
 
               <div className="space-y-1">
                 <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">
-                  Briefing Description
+                  Description
                 </label>
                 <textarea
                   rows={3}
@@ -607,7 +558,7 @@ export default function Meet() {
                   disabled={submitting}
                   className="bg-gradient-to-r from-primary to-secondary text-black font-headline font-bold px-6 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(241,131,255,0.25)] hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
                 >
-                  {submitting ? "Deploying..." : "Deploy Log"}
+                  {submitting ? "Scheduling..." : "Schedule"}
                 </button>
               </div>
             </form>

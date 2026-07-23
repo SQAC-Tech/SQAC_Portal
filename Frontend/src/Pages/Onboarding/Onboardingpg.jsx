@@ -613,7 +613,7 @@ export default function OnboardingPage() {
                   className="flex-[2] bg-gradient-to-r from-primary to-secondary text-on-primary-fixed font-headline font-bold py-4 rounded-full shadow-[0_10px_20px_-5px_rgba(241,131,255,0.4)] active:scale-95 transition-all duration-300 group overflow-hidden relative"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    {isSubmitting ? "Processing..." : (step === steps.length - 1 ? "Launch Profile" : "Continue")}
+                    {isSubmitting ? "Processing..." : (step === steps.length - 1 ? "Finish" : "Continue")}
                     {!isSubmitting && (
                       <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">
                         {step === steps.length - 1 ? "rocket_launch" : "arrow_forward"}

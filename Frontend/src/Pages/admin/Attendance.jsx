@@ -199,7 +199,7 @@ export default function AttendancePage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/8 pb-6">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">Command Centre</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary/80">Track member attendance</p>
             <h1 className="text-3xl font-bold font-headline text-white mt-1 tracking-wide">
               Attendance Records
             </h1>
@@ -294,7 +294,7 @@ export default function AttendancePage() {
                 <tr className="bg-white/2 border-b border-white/8 text-[#aea9b6] text-xs font-bold font-label tracking-wider uppercase">
                   <th className="px-6 py-4">Member</th>
                   <th className="px-6 py-4">Reg No / Domain</th>
-                  <th className="px-6 py-4">Briefing Date</th>
+                  <th className="px-6 py-4">Date</th>
                   <th className="px-6 py-4">Clock In / Out</th>
                   <th className="px-6 py-4 text-center">Status</th>
                   <th className="px-6 py-4 text-center">Meet Type</th>
@@ -305,7 +305,7 @@ export default function AttendancePage() {
                 {loading ? (
                   <tr>
                     <td colSpan={7} className="text-center py-12 text-[#aea9b6]">
-                      <span className="inline-block animate-pulse">Accessing attendance records database...</span>
+                      <span className="inline-block animate-pulse">Loading…</span>
                     </td>
                   </tr>
                 ) : filteredRecords.length === 0 ? (
@@ -408,10 +408,10 @@ export default function AttendancePage() {
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h3 className="text-2xl font-bold font-headline text-white tracking-wide">
-                  {editingRecord ? "Edit Attendance Log" : "Mark Member Attendance"}
+                  {editingRecord ? "Edit Attendance" : "Mark Attendance"}
                 </h3>
                 <p className="text-[#aea9b6] text-xs mt-1">
-                  {editingRecord ? "Modify selected attendance log record" : "Record a new entry in attendance files"}
+                  {editingRecord ? "Update this attendance record" : "Add a new attendance record"}
                 </p>
               </div>
               <button
@@ -539,7 +539,7 @@ export default function AttendancePage() {
                   disabled={submitting}
                   className="bg-gradient-to-r from-primary to-secondary text-black font-headline font-bold px-6 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(241,131,255,0.25)] hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
                 >
-                  {submitting ? "Saving..." : "Save Log"}
+                  {submitting ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>

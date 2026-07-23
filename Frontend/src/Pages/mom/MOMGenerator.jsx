@@ -3,6 +3,7 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { exportMOMtoPDF } from "../../utils/momPdfExport";
 import Navbar from "../../components/common/layout/Navbar";
+import { usePermissions } from "../../utils/usePermissions";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -112,10 +113,13 @@ export default function MOMGenerator() {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
 
+  const { isBoardMember } = usePermissions();
+  // Board scope is only offered to board members.
+  const scopes = isBoardMember
+    ? [SCOPES[0], { value: "board", label: "Board Members" }, ...SCOPES.slice(1)]
+    : SCOPES;
+
   const scopeInitialized = useRef(false);
-  const headers = () => ({
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  });
 
   useEffect(() => {
     fetchMeetings();
@@ -149,7 +153,6 @@ export default function MOMGenerator() {
   const fetchMeetings = async () => {
     try {
       const { data } = await axios.get(`${API}/meet/getmeet`, {
-        headers: headers(),
         withCredentials: true,
       });
       setMeetings(Array.isArray(data) ? data : []);
@@ -161,7 +164,6 @@ export default function MOMGenerator() {
   const fetchMembers = async (scope) => {
     try {
       const { data } = await axios.get(`${API}/api/mom/members/approved`, {
-        headers: headers(),
         withCredentials: true,
         params: { scope: scope || "all" },
       });
@@ -318,7 +320,7 @@ export default function MOMGenerator() {
       const { data } = await axios.post(
         `${API}/api/mom/ai-generate`,
         { prompt: aiPrompt },
-        { headers: headers(), withCredentials: true },
+        { withCredentials: true },
       );
       const d = data.data || {};
       setMom((prev) => ({
@@ -349,7 +351,7 @@ export default function MOMGenerator() {
     } catch (err) {
       setAiError(
         err.response?.data?.message ||
-          "AI generation failed. Check your Groq API key.",
+          "AI generation failed. Please try again.",
       );
     } finally {
       setAiLoading(false);
@@ -383,7 +385,6 @@ export default function MOMGenerator() {
       };
 
       await axios.post(`${API}/api/mom/create`, payload, {
-        headers: headers(),
         withCredentials: true,
       });
 
@@ -615,7 +616,7 @@ export default function MOMGenerator() {
                 <div className="flex-1">
                   <Label>Team Scope</Label>
                   <Select value={mom.teamScope} onChange={set("teamScope")}>
-                    {SCOPES.map((s) => (
+                    {scopes.map((s) => (
                       <option key={s.value} value={s.value}>
                         {s.label}
                       </option>

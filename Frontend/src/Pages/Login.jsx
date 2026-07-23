@@ -313,15 +313,15 @@ export default function Login() {
             <div className="inline-block p-1 rounded-2xl bg-surface-container-lowest recessed-void mb-6">
               <div className="px-8 py-4 bg-surface-variant/40 backdrop-blur-[20px] rounded-xl border border-white/5">
                 <span className="text-3xl font-black bg-gradient-to-r from-[#f183ff] to-[#ff6c95] bg-clip-text text-transparent tracking-tighter font-headline">
-                  Login
+                  SQAC Portal
                 </span>
               </div>
             </div>
             <h1 className="font-headline text-4xl font-bold tracking-tight text-on-surface mb-2">
-              Initialize Session
+              Welcome back
             </h1>
             <p className="text-on-surface-variant font-label tracking-wide text-sm">
-              Welcome back to your Creative Space
+              Sign in to continue
             </p>
           </div>
 
@@ -335,7 +335,7 @@ export default function Login() {
 
               <div className="space-y-2">
                 <label className="block text-xs font-label uppercase tracking-widest text-on-surface-variant ml-1">
-                  Access Identity
+                  Email
                 </label>
                 <div className="relative group">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-xl group-focus-within:text-primary transition-colors">
@@ -356,7 +356,7 @@ export default function Login() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center ml-1 gap-4">
                   <label className="text-xs font-label uppercase tracking-widest text-on-surface-variant">
-                    Security Cipher
+                    Password
                   </label>
                   <button
                     type="button"
@@ -396,7 +396,7 @@ export default function Login() {
                 className="w-full bg-gradient-to-r from-primary to-secondary text-on-primary-fixed font-headline font-bold py-5 rounded-full shadow-[0_10px_20px_-5px_rgba(241,131,255,0.4)] active:scale-95 transition-all duration-300 group overflow-hidden relative"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
-                  Enter Portal
+                  Sign In
                   <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">
                     arrow_forward
                   </span>
@@ -408,7 +408,7 @@ export default function Login() {
             <div className="mt-8 flex items-center gap-4 text-center">
               <div className="h-px flex-grow bg-outline-variant/20"></div>
               <span className="text-xs font-label text-outline uppercase tracking-widest">
-                External Auth
+                New here?
               </span>
               <div className="h-px flex-grow bg-outline-variant/20"></div>
             </div>
@@ -428,8 +428,7 @@ export default function Login() {
 
           <div className="mt-8 text-center px-4">
             <p className="text-xs text-outline/60 leading-relaxed">
-              By entering the portal, you acknowledge the technical monitoring
-              of all SQAC metrics within the system environment.
+              For SQAC members only. Use your registered SRM email to sign in.
             </p>
           </div>
         </div>
@@ -623,27 +622,8 @@ export default function Login() {
       </main>
 
       <footer className="w-full py-12 px-10 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-white/5 bg-[#0f0d16] font-manrope text-sm tracking-wide z-10">
-        <div className="text-slate-500">(c) 2026 SQAC Portal.</div>
-        <nav className="flex gap-8">
-          <Link
-            to="#"
-            className="text-slate-500 hover:text-[#ff6c95] transition-colors duration-200"
-          >
-            Privacy Policy
-          </Link>
-          <Link
-            to="#"
-            className="text-slate-500 hover:text-[#ff6c95] transition-colors duration-200"
-          >
-            Terms of Service
-          </Link>
-          <Link
-            to="#"
-            className="text-[#f183ff] underline decoration-2 underline-offset-4"
-          >
-            System Status
-          </Link>
-        </nav>
+        <div className="text-slate-500">© 2026 SQAC Portal.</div>
+        <div className="text-slate-500">Software Quality Assurance Community</div>
       </footer>
     </div>
   );

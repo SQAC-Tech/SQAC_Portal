@@ -132,7 +132,7 @@ const MyProjects = () => {
                     onClick={() => setSelectedProject(project)}
                     className="mt-auto w-full py-3 rounded-xl bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-all font-bold text-sm"
                   >
-                    Open Project Workspace & Live Review
+                    Open Project & Review Thread
                   </button>
                 </div>
               ))}
@@ -166,7 +166,7 @@ const MyProjects = () => {
 
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 custom-scrollbar bg-[#0c0f1a]">
               <div className="mb-4">
-                <h4 className="text-sm font-bold text-white/80 uppercase tracking-wider mb-2">Project PRD</h4>
+                <h4 className="text-sm font-bold text-white/80 uppercase tracking-wider mb-2">Description</h4>
                 <p className="text-sm text-white/60">{selectedProject.description}</p>
                 <div className="flex gap-2 flex-wrap mt-3">
                   {selectedProject.techStack.map(t => (

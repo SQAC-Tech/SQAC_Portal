@@ -11,7 +11,7 @@ import PendingApprovalsWidget from "../components/dashboard/PendingApprovalsWidg
 import ActivityFeedWidget from "../components/dashboard/ActivityFeedWidget";
 import { Avatar, PremiumCard } from "../components/ui";
 import { fetchWithAuth } from "../api/fetchWithAuth";
-import { usePermissions } from "../utils/usePermissions";
+import { usePermissions, BOARD_ROLES } from "../utils/usePermissions";
 import { ROLE_LABELS, ROLE_COLORS } from "../utils/memberHelpers";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -75,6 +75,12 @@ function WelcomeHero({ profile, role, isMember, meta = [] }) {
               <span className={`text-[10px] font-bold uppercase tracking-[0.2em] px-2.5 py-0.5 rounded-full border ${badgeClass}`}>
                 {badge}
               </span>
+              {(profile?.isBoardMember === true || BOARD_ROLES.includes(role)) && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] px-2.5 py-0.5 rounded-full border border-[#f183ff]/30 bg-[#f183ff]/10 text-[#f183ff]">
+                  <span className="material-symbols-outlined text-[12px]">shield_person</span>
+                  Board
+                </span>
+              )}
               {profile?.coreDomain && (
                 <span className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">
                   {profile.coreDomain}
