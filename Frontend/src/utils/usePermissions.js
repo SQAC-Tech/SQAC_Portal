@@ -10,7 +10,7 @@ const PERMISSIONS = {
   CREATE_PROJECT:    ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead", "domain_lead"],
   ASSIGN_PROJECT:    ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead", "domain_lead"],
   SCHEDULE_MEET:     ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead", "domain_lead"],
-  SEND_NOTICE:       ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead", "domain_lead"],
+  SEND_NOTICE:       ["secretary", "joint_secretary", "technical_lead", "corp_lead", "project_lead"], // board members only
   ISSUE_WARNING:     ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead", "domain_lead"],
   GENERATE_CERT:     ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead"],
   GENERATE_MOM:      ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead", "domain_lead", "associate_lead", "member"],

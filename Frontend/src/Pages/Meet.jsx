@@ -1,10 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
 import Navbar from "../components/common/layout/Navbar";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import { usePermissions } from "../utils/usePermissions";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+// Domain scopes selectable when scheduling a meeting. "Board" is added at
+// render time for board members only.
+const DOMAIN_SCOPES = [
+  { value: "all", label: "All Members" },
+  { value: "technical", label: "Technical Division" },
+  { value: "corporate", label: "Corporate Division" },
+  { value: "Web Development", label: "Web Development" },
+  { value: "App Development", label: "App Development" },
+  { value: "AI/ML", label: "AI/ML" },
+  { value: "Events", label: "Events" },
+  { value: "Media", label: "Media" },
+  { value: "Sponsorships", label: "Sponsorships" },
+];
+
+const SCOPE_LABELS = {
+  all: "All Members",
+  board: "Board",
+  technical: "Technical",
+  corporate: "Corporate",
+  custom: "Specific people",
+};
+const prettyScope = (s) => SCOPE_LABELS[s] || s;
+
+// Human-readable audience label for a meeting (handles legacy single scope,
+// multi-scope, and custom invitee lists).
+function meetingAudienceLabel(meet) {
+  if (meet.teamScope === "custom" || (meet.invitees && meet.invitees.length))
+    return "Specific people";
+  const scopes = meet.teamScopes && meet.teamScopes.length ? meet.teamScopes : [meet.teamScope || "all"];
+  return scopes.map(prettyScope).join(", ");
+}
 
 export default function Meet() {
   const { canScheduleMeet, isBoardMember } = usePermissions();
@@ -21,8 +53,52 @@ export default function Meet() {
   const [startTimeStr, setStartTimeStr] = useState("");
   const [meetLink, setMeetLink] = useState("");
   const [description, setDescription] = useState("");
-  const [teamScope, setTeamScope] = useState("all");
   const [submitting, setSubmitting] = useState(false);
+
+  // Audience: "scope" = one or more domains; "people" = specific invitees.
+  const [audienceMode, setAudienceMode] = useState("scope");
+  const [selectedScopes, setSelectedScopes] = useState(["all"]);
+  const [invitees, setInvitees] = useState([]); // [{ _id, name, email, role }]
+  const [memberQuery, setMemberQuery] = useState("");
+  const [members, setMembers] = useState([]);
+  const membersLoadedRef = useRef(false);
+
+  const loadMembers = async () => {
+    if (membersLoadedRef.current) return;
+    membersLoadedRef.current = true;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/mom/members/approved`, { credentials: "include" });
+      if (res.ok) setMembers(await res.json());
+    } catch (e) {
+      console.error("Failed to load members:", e);
+      membersLoadedRef.current = false;
+    }
+  };
+
+  const toggleScope = (value) => {
+    setSelectedScopes((prev) => {
+      if (value === "all") return ["all"];
+      const next = prev.includes(value)
+        ? prev.filter((v) => v !== value)
+        : [...prev.filter((v) => v !== "all"), value];
+      return next.length ? next : ["all"];
+    });
+  };
+
+  const toggleInvitee = (member) => {
+    setInvitees((prev) =>
+      prev.some((u) => u._id === member._id)
+        ? prev.filter((u) => u._id !== member._id)
+        : [...prev, { _id: member._id, name: member.name, email: member.email, role: member.role }]
+    );
+  };
+
+  const resetAudience = () => {
+    setAudienceMode("scope");
+    setSelectedScopes(["all"]);
+    setInvitees([]);
+    setMemberQuery("");
+  };
 
   // Minutes of Meeting (MOM) for the selected meeting
   const [mom, setMom] = useState(null);
@@ -169,6 +245,7 @@ export default function Meet() {
 
   // Get color based on scope/type
   const getEventBg = (scope) => {
+    if (scope === "custom") return "bg-[#81ecff]/15 text-[#81ecff] border-[#81ecff]/25";
     if (scope === "board") return "bg-[#f183ff]/15 text-[#f183ff] border-[#f183ff]/25";
     if (scope === "Web Development" || scope === "AI/ML") return "bg-emerald-500/15 text-emerald-300 border-emerald-400/20";
     if (scope === "technical") return "bg-cyan-500/15 text-cyan-300 border-cyan-400/20";
@@ -181,6 +258,18 @@ export default function Meet() {
     if (!title || !startDateStr || !startTimeStr || !meetLink) {
       toast.error("Please fill in all required fields");
       return;
+    }
+
+    // Build the audience payload.
+    const audience = {};
+    if (audienceMode === "people") {
+      if (invitees.length === 0) {
+        toast.error("Select at least one person to invite");
+        return;
+      }
+      audience.invitees = invitees.map((u) => u._id);
+    } else {
+      audience.teamScopes = selectedScopes.length ? selectedScopes : ["all"];
     }
 
     setSubmitting(true);
@@ -197,7 +286,7 @@ export default function Meet() {
           starttime: `${startDateStr}T${startTimeStr}:00.000Z`,
           link: meetLink,
           description,
-          teamScope,
+          ...audience,
         }),
       });
 
@@ -211,7 +300,7 @@ export default function Meet() {
         setStartTimeStr("");
         setMeetLink("");
         setDescription("");
-        setTeamScope("all");
+        resetAudience();
         fetchMeetings();
       } else {
         toast.error(data.message || "Failed to schedule meeting");
@@ -338,7 +427,7 @@ export default function Meet() {
                       {dayMeetings.map((meet) => (
                         <div
                           key={meet._id}
-                          title={`${meet.title}\nScope: ${meet.teamScope}`}
+                          title={`${meet.title}\nFor: ${meetingAudienceLabel(meet)}`}
                           onClick={() => setSelectedMeeting(meet)}
                           className={`cursor-pointer text-[10px] font-semibold py-0.5 px-1.5 rounded border leading-tight truncate hover:scale-[1.02] transition-transform ${getEventBg(
                             meet.teamScope
@@ -422,8 +511,8 @@ export default function Meet() {
                           <p className="font-bold text-white truncate">{meet.title}</p>
                           <p className="text-[10px] text-[#aea9b6] mt-0.5">{meetDate}</p>
                         </div>
-                        <span className="text-[10px] uppercase font-semibold text-[#81ecff]">
-                          {meet.teamScope}
+                        <span className="text-[10px] uppercase font-semibold text-[#81ecff] text-right max-w-[45%] truncate">
+                          {meetingAudienceLabel(meet)}
                         </span>
                       </div>
                     );
@@ -510,26 +599,115 @@ export default function Meet() {
                 />
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#aea9b6] ml-1">
-                  Domain/Team Scope
+                  Who is this for?
                 </label>
-                <select
-                  value={teamScope}
-                  onChange={(e) => setTeamScope(e.target.value)}
-                  className="w-full bg-[#0c0f1a] border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
-                >
-                  <option value="all">All Members</option>
-                  {isBoardMember && <option value="board">Board Members</option>}
-                  <option value="technical">Technical Division</option>
-                  <option value="corporate">Corporate Division</option>
-                  <option value="Web Development">Web Development</option>
-                  <option value="App Development">App Development</option>
-                  <option value="AI/ML">AI/ML</option>
-                  <option value="Events">Events</option>
-                  <option value="Media">Media</option>
-                  <option value="Sponsorships">Sponsorships</option>
-                </select>
+
+                {/* Audience mode toggle */}
+                <div className="flex gap-1 p-1 rounded-xl bg-white/4 border border-white/8">
+                  <button
+                    type="button"
+                    onClick={() => setAudienceMode("scope")}
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${audienceMode === "scope" ? "bg-primary text-black" : "text-white/60 hover:text-white"}`}
+                  >
+                    By domain
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setAudienceMode("people"); loadMembers(); }}
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${audienceMode === "people" ? "bg-primary text-black" : "text-white/60 hover:text-white"}`}
+                  >
+                    Specific people
+                  </button>
+                </div>
+
+                {audienceMode === "scope" ? (
+                  <>
+                    <p className="text-[10px] text-white/35 ml-1">Pick one or more. Everyone above a domain in its division also sees it.</p>
+                    <div className="flex flex-wrap gap-2">
+                      {isBoardMember && (
+                        <button
+                          type="button"
+                          onClick={() => toggleScope("board")}
+                          className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${selectedScopes.includes("board") ? "bg-[#f183ff]/15 border-[#f183ff]/40 text-[#f183ff]" : "bg-white/4 border-white/10 text-white/60 hover:text-white"}`}
+                        >
+                          Board Members
+                        </button>
+                      )}
+                      {DOMAIN_SCOPES.map((s) => {
+                        const active = selectedScopes.includes(s.value);
+                        return (
+                          <button
+                            key={s.value}
+                            type="button"
+                            onClick={() => toggleScope(s.value)}
+                            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${active ? "bg-primary/15 border-primary/40 text-primary" : "bg-white/4 border-white/10 text-white/60 hover:text-white"}`}
+                          >
+                            {s.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      value={memberQuery}
+                      onChange={(e) => setMemberQuery(e.target.value)}
+                      placeholder="Search members by name or email…"
+                      className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-white/20 transition-all"
+                    />
+                    {invitees.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {invitees.map((u) => (
+                          <button
+                            key={u._id}
+                            type="button"
+                            onClick={() => toggleInvitee(u)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-primary/15 border border-primary/30 text-primary hover:bg-[#ff6c95]/15 hover:border-[#ff6c95]/40 hover:text-[#ff6c95] transition-all"
+                          >
+                            {u.name}
+                            <span className="material-symbols-outlined text-[13px]">close</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="max-h-44 overflow-y-auto rounded-xl border border-white/8 divide-y divide-white/5">
+                      {members
+                        .filter((m) => {
+                          const q = memberQuery.trim().toLowerCase();
+                          if (!q) return true;
+                          return m.name?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q);
+                        })
+                        .slice(0, 50)
+                        .map((m) => {
+                          const picked = invitees.some((u) => u._id === m._id);
+                          return (
+                            <button
+                              key={m._id}
+                              type="button"
+                              onClick={() => toggleInvitee(m)}
+                              className={`w-full flex items-center justify-between gap-3 px-3 py-2 text-left transition-colors ${picked ? "bg-primary/10" : "hover:bg-white/4"}`}
+                            >
+                              <div className="min-w-0">
+                                <p className="text-xs font-semibold text-white truncate">{m.name}</p>
+                                <p className="text-[10px] text-white/40 truncate">{m.email}</p>
+                              </div>
+                              <span className={`material-symbols-outlined text-[16px] shrink-0 ${picked ? "text-primary" : "text-white/25"}`}>
+                                {picked ? "check_circle" : "radio_button_unchecked"}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      {members.length === 0 && (
+                        <p className="px-3 py-4 text-center text-xs text-white/30">Loading members…</p>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-white/35 ml-1">{invitees.length} selected</p>
+                  </>
+                )}
               </div>
 
               <div className="space-y-1">
@@ -574,7 +752,7 @@ export default function Meet() {
             <div className="flex justify-between items-start mb-6">
               <div>
                 <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border mb-2 inline-block ${getEventBg(selectedMeeting.teamScope)}`}>
-                  {selectedMeeting.teamScope}
+                  {meetingAudienceLabel(selectedMeeting)}
                 </span>
                 <h3 className="text-2xl font-bold font-headline text-white tracking-wide">{selectedMeeting.title}</h3>
                 <p className="text-[#81ecff] text-xs font-semibold mt-1">

@@ -386,7 +386,7 @@ function DomainLeadLayout({ data }) {
           <SectionHeader title="Quick Actions" />
           <QuickActionsWidget actions={[
             { label: "Schedule Meet",  icon: "calendar_month",  to: "/meet",              gradient: "from-[#f183ff] to-[#ff6c95]" },
-            { label: "Create Notice",  icon: "campaign",        to: "/admin/notice",      gradient: "from-[#81ecff] to-[#f183ff]" },
+            { label: "Noticeboard",    icon: "campaign",        to: "/admin/notice",      gradient: "from-[#81ecff] to-[#f183ff]" },
             { label: "Attendance",     icon: "how_to_reg",      to: "/admin/attendance",  gradient: "from-[#ff6c95] to-[#f183ff]" },
             { label: "Create MOM",     icon: "description",     to: "/admin/mom/create",  gradient: "from-[#f183ff] to-[#81ecff]" },
           ]} />

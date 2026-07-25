@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 function timeAgo(date) {
     if (!date) return "just now";
 
@@ -22,11 +20,8 @@ function timeAgo(date) {
 }
 
 export default function NoticeCard({ notice, canManage, onDelete, onEdit }) {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
     return (
-        <>
-            <div className="
+        <div className="
                 relative p-5 rounded-2xl
                 bg-white/5
                 backdrop-blur-xl
@@ -81,20 +76,6 @@ export default function NoticeCard({ notice, canManage, onDelete, onEdit }) {
                         {notice.title}
                     </h2>
 
-                    {/* Image */}
-                    {notice.image && (
-                        <div 
-                            className="w-full h-40 mt-1 mb-2 overflow-hidden rounded-xl border border-white/10 cursor-pointer group"
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            <img 
-                                src={notice.image} 
-                                alt={notice.title} 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                            />
-                        </div>
-                    )}
-
                     {/* Description */}
                     <p className="text-gray-400 text-sm leading-relaxed line-clamp-3">
                         {notice.desc}
@@ -113,29 +94,5 @@ export default function NoticeCard({ notice, canManage, onDelete, onEdit }) {
 
                 </div>
             </div>
-
-            {/* Image Modal */}
-            {isModalOpen && notice.image && (
-                <div 
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-                    onClick={() => setIsModalOpen(false)}
-                >
-                    <div className="relative max-w-5xl max-h-screen">
-                        <button 
-                            className="absolute -top-10 right-0 text-white hover:text-pink-400 bg-black/50 rounded-full w-8 h-8 flex items-center justify-center transition"
-                            onClick={() => setIsModalOpen(false)}
-                        >
-                            ✕
-                        </button>
-                        <img 
-                            src={notice.image} 
-                            alt={notice.title} 
-                            className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl border border-white/10"
-                            onClick={(e) => e.stopPropagation()} 
-                        />
-                    </div>
-                </div>
-            )}
-        </>
     );
 }

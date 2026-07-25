@@ -13,8 +13,6 @@ export default function RightPanel({
     content,
     setTitle,
     setContent,
-    image,
-    setImage,
     handleCreate,
     loading,
     isEditing,
@@ -74,18 +72,6 @@ export default function RightPanel({
                     placeholder="Write your announcement..."
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                />
-            </div>
-
-            {/* Image URL */}
-            <div>
-                <label className="text-sm text-gray-400 mb-1 block">Image URL</label>
-                <input
-                    type="text"
-                    placeholder="Paste image link..."
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-[#1b1f2b] text-white border border-white/10 focus:ring-2 focus:ring-pink-500"
                 />
             </div>
 

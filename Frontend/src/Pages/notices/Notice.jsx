@@ -16,7 +16,6 @@ export default function Notice() {
     const [notices, setNotices] = useState([]);
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const [image, setImage] = useState("");
     const [loading, setLoading] = useState(false);
     const [editId, setEditId] = useState(null);
 
@@ -97,7 +96,6 @@ export default function Notice() {
     async function handleSaveNotice({ domain, subdomain }) {
         const trimmedTitle = title.trim();
         const trimmedContent = content.trim();
-        const trimmedImage = image.trim();
 
         if (!trimmedTitle || !trimmedContent) {
             toast.error("Title and description cannot be empty");
@@ -114,39 +112,33 @@ export default function Notice() {
             return;
         }
 
-        if (trimmedImage && !trimmedImage.startsWith("http")) {
-            toast.error("Image must be a valid URL");
-            return;
-        }
-
         setLoading(true);
 
         try {
-            // If editing, we simulate by deleting the old notice first
+            const payload = {
+                title: trimmedTitle,
+                description: trimmedContent,
+                domain: domain || "Board",
+                subdomain: subdomain || null,
+            };
+
             if (editId) {
                 await fetchWithAuth(`${API_BASE_URL}/notices/${editId}`, {
-                    method: "DELETE"
+                    method: "PUT",
+                    body: JSON.stringify(payload),
+                });
+            } else {
+                await fetchWithAuth(`${API_BASE_URL}/notices/create`, {
+                    method: "POST",
+                    body: JSON.stringify(payload),
                 });
             }
 
-            await fetchWithAuth(`${API_BASE_URL}/notices/create`, {
-                method: "POST",
-                body: JSON.stringify({
-                    title: trimmedTitle,
-                    description: trimmedContent,
-                    domain: domain || "Board",
-                    subdomain: subdomain || null,
-                    image: trimmedImage,
-                    link: ""
-                })
-            });
-
-            toast.success(editId ? "Notice updated 🚀" : "Notice created 🚀");
+            toast.success(editId ? "Notice updated" : "Notice created");
 
             // reset form
             setTitle("");
             setContent("");
-            setImage("");
             setEditId(null);
 
             fetchNotices();
@@ -164,14 +156,12 @@ export default function Notice() {
         setEditId(notice._id);
         setTitle(notice.title || "");
         setContent(notice.desc || "");
-        setImage(notice.image || "");
     }
 
     function handleCancelEdit() {
         setEditId(null);
         setTitle("");
         setContent("");
-        setImage("");
     }
 
     // ---------- DELETE ----------
@@ -210,8 +200,6 @@ export default function Notice() {
                     content={content}
                     setTitle={setTitle}
                     setContent={setContent}
-                    image={image}
-                    setImage={setImage}
                     handleCreate={handleSaveNotice}
                     loading={loading}
                     isEditing={!!editId}
