@@ -19,8 +19,6 @@ export default function Notice() {
     const [loading, setLoading] = useState(false);
     const [editId, setEditId] = useState(null);
 
-    const [currentUser, setCurrentUser] = useState(null);
-
     const navigate = useNavigate();
 
     // ---------- LOGOUT ----------
@@ -38,18 +36,6 @@ export default function Notice() {
         }
     };
 
-    // ---------- GET USER PROFILE ----------
-    async function fetchUser() {
-        try {
-            const data = await fetchWithAuth(`${API_BASE_URL}/user/profile`);
-            if (data && data.user) {
-                setCurrentUser(data.user);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
     const canCreate = canSendNotice;
     const canManage = canSendNotice;
 
@@ -65,30 +51,11 @@ export default function Notice() {
         }
     }
 
-    // ---------- FILTER NOTICES ----------
-    const filteredNotices = notices.filter(notice => {
-        if (canManage) return true; // Admin sees all notices to manage them
-
-        const nDomain = notice.domain;
-        const nSub = notice.subDomain || notice.subdomain;
-
-        const uDomain = currentUser?.coreDomain;
-        const uSub = currentUser?.subDomain || currentUser?.subdomain;
-
-        // "Board" is treated as global announcements for everyone
-        if (nDomain === "Board") return true;
-
-        if (nDomain !== uDomain) return false;
-
-        // If notice has a specific subdomain (and it's not "No subdomain"), it must match user's subdomain
-        if (nSub && nSub !== "No subdomain" && nSub !== uSub) return false;
-
-        return true;
-    });
+    // All notices are shown to everyone on the noticeboard.
+    const filteredNotices = notices;
 
     // ---------- INITIAL LOAD ----------
     useEffect(() => {
-        fetchUser();
         fetchNotices();
     }, []);
 

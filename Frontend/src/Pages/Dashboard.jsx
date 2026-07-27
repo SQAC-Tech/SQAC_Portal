@@ -9,6 +9,7 @@ import QuickActionsWidget from "../components/dashboard/QuickActionsWidget";
 import MyProjectsWidget from "../components/dashboard/MyProjectsWidget";
 import PendingApprovalsWidget from "../components/dashboard/PendingApprovalsWidget";
 import ActivityFeedWidget from "../components/dashboard/ActivityFeedWidget";
+import ProfilePrompt from "../components/dashboard/ProfilePrompt";
 import { Avatar, PremiumCard } from "../components/ui";
 import { fetchWithAuth } from "../api/fetchWithAuth";
 import { usePermissions, BOARD_ROLES } from "../utils/usePermissions";
@@ -713,6 +714,7 @@ export default function Dashboard() {
           rejectModal={rejectModal}
         />
       )}
+      <ProfilePrompt />
     </AppShell>
   );
 }

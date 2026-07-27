@@ -526,13 +526,13 @@ export default function Meet() {
 
       {/* New Meeting Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/72 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#0c0f1a]/95 backdrop-blur-[24px] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative overflow-hidden">
+        <div className="fixed inset-0 z-[150] flex items-start sm:items-center justify-center bg-black/72 backdrop-blur-sm px-4 py-6 overflow-y-auto">
+          <div className="w-full max-w-lg my-auto max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 bg-[#0c0f1a]/95 backdrop-blur-[24px] p-5 sm:p-8 shadow-[0_30px_70px_rgba(0,0,0,0.8)] relative">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary" />
 
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h3 className="text-2xl font-bold font-headline text-white tracking-wide">New Meeting</h3>
+                <h3 className="text-xl sm:text-2xl font-bold font-headline text-white tracking-wide">New Meeting</h3>
                 <p className="text-[#aea9b6] text-xs mt-1">Schedule a meeting for your team</p>
               </div>
               <button
