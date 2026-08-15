@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { getStoredUser } from "../../../api/session";
 
 const ALL_ADMIN_ROLES = [
   "secretary",
@@ -11,14 +12,12 @@ const ALL_ADMIN_ROLES = [
   "associate_lead",
 ];
 
-function getUser() {
-  try {
-    const s = localStorage.getItem("user");
-    return s ? JSON.parse(s) : null;
-  } catch {
-    return null;
-  }
-}
+// These guards are deliberately optimistic: they render from what's in
+// storage so navigation stays instant, and never claim to prove the session is
+// still alive — only the server can do that. If it isn't, the first API call
+// the page makes comes back 401 and the fetch interceptor
+// (api/installFetchInterceptor.js) sends the user to /login.
+const getUser = getStoredUser;
 
 export const ProtectedRoute = ({ children }) => {
   const user = getUser();

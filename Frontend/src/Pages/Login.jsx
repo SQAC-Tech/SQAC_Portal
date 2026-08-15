@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import Seo from "../components/common/Seo";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { API_BASE_URL, clearSession, saveSession } from "../api/session";
 
 const RESET_STEPS = {
   email: "email",
@@ -15,6 +14,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [expiredNotice, setExpiredNotice] = useState(false);
   const [isResetOpen, setIsResetOpen] = useState(false);
   const [resetStep, setResetStep] = useState(RESET_STEPS.email);
   const [resetEmail, setResetEmail] = useState("");
@@ -31,6 +31,18 @@ export default function Login() {
   const dotFieldRef = useRef({ x: 0.5, y: 0.5 });
   const animationFrameRef = useRef(null);
   const currentOffsetRef = useRef({ x: 0, y: 0 });
+
+  // Reaching the login page means there is no usable session — drop whatever
+  // is left in storage so a stale user object can't wave a guard through.
+  useEffect(() => {
+    clearSession();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("expired")) {
+      setExpiredNotice(true);
+      // Tidy the URL so a refresh doesn't keep showing the banner.
+      window.history.replaceState({}, "", "/login");
+    }
+  }, []);
 
   useEffect(() => {
     const scene = sceneRef.current;
@@ -272,7 +284,9 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("user", JSON.stringify(data.user));
+        // Keep the bearer token alongside the user — it's what carries the
+        // session in browsers that block the cross-site cookie.
+        saveSession({ user: data.user, token: data.token });
         if (!data.user.cocAccepted) {
           window.location.href = "/accept-coc";
         } else if (!data.user.profileCompleted) {
@@ -327,6 +341,11 @@ export default function Login() {
 
           <div className="prismatic-edge interactive-glass-card bg-surface-variant/60 backdrop-blur-[24px] rounded-3xl p-10 shadow-[0_30px_60px_-15px_rgba(241,131,255,0.06)]">
             <form className="space-y-6" onSubmit={handleSubmit}>
+              {expiredNotice && !error && (
+                <p className="text-sm text-center font-semibold bg-primary/10 text-primary p-2 rounded-md">
+                  Your session ended. Please sign in again.
+                </p>
+              )}
               {error && (
                 <p className="text-error text-sm text-center font-bold bg-error/10 p-2 rounded-md">
                   {error}

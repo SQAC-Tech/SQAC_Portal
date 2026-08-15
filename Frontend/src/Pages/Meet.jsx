@@ -3,6 +3,7 @@ import { toast } from "react-hot-toast";
 import Navbar from "../components/common/layout/Navbar";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import { usePermissions } from "../utils/usePermissions";
+import { clearSession } from "../api/session";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -181,7 +182,7 @@ export default function Meet() {
   }, [selectedMeeting]);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    clearSession();
     window.location.href = "/login";
   };
 

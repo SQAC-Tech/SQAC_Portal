@@ -5,6 +5,7 @@ import SQACLogo from "../../ui/SQACLogo";
 import MobileNav from "./MobileNav";
 import MobileBottomNav from "./MobileBottomNav";
 import { ROLE_LABELS, isDefaultAvatar } from "../../../utils/memberHelpers";
+import { clearSession } from "../../../api/session";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -212,7 +213,7 @@ export default function Navbar() {
     } catch (logoutError) {
       console.error("Logout failed:", logoutError);
     } finally {
-      localStorage.removeItem("user");
+      clearSession();
       window.location.href = "/login";
     }
   };

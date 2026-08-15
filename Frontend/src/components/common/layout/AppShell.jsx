@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import AdminSidebar from "../../admin/AdminSidebar";
+import { clearSession } from "../../../api/session";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -34,7 +35,7 @@ export default function AppShell({
     } catch {
       /* ignore — clear client state regardless */
     }
-    localStorage.removeItem("user");
+    clearSession();
     navigate("/login");
   }, [navigate]);
 

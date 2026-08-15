@@ -9,6 +9,7 @@ import {
   roleLabel,
 } from "../../utils/memberHelpers";
 import { BOARD_ROLES } from "../../utils/usePermissions";
+import { clearSession } from "../../api/session";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -261,7 +262,7 @@ const Profile = () => {
     } catch (logoutError) {
       console.error("Logout failed:", logoutError);
     } finally {
-      localStorage.removeItem("user");
+      clearSession();
       window.location.href = "/login";
     }
   };

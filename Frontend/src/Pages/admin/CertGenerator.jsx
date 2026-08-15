@@ -5,6 +5,7 @@ import { saveAs } from "file-saver";
 import QRCode from "qrcode";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import Navbar from "../../components/common/layout/Navbar";
+import { clearSession } from "../../api/session";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -51,7 +52,7 @@ export default function CertGenerator() {
     } catch (logoutError) {
       console.error("Logout failed:", logoutError);
     } finally {
-      localStorage.removeItem("user");
+      clearSession();
       window.location.href = "/login";
     }
   };

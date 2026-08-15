@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import Navbar from "../../components/common/layout/Navbar";
 import { usePermissions } from "../../utils/usePermissions";
+import { clearSession } from "../../api/session";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -299,7 +300,7 @@ const Projects = () => {
       <div className="bg-grid pointer-events-none fixed inset-0 -z-30 opacity-70" />
 
       <AdminSidebar onLogout={() => {
-        localStorage.removeItem("user");
+        clearSession();
         window.location.href = "/login";
       }} />
 

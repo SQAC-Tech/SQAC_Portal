@@ -8,6 +8,7 @@ import RightPanel from "../../components/common/layout/RightPanel";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import { fetchWithAuth } from "../../api/fetchWithAuth";
 import { usePermissions } from "../../utils/usePermissions";
+import { clearSession } from "../../api/session";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -31,7 +32,7 @@ export default function Notice() {
         } catch (err) {
             console.error("Logout failed:", err);
         } finally {
-            localStorage.removeItem("user");
+            clearSession();
             navigate("/login");
         }
     };
