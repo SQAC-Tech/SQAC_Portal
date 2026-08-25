@@ -15,6 +15,7 @@ import {
   SecretaryOrJointRoute,
   COCRoute,
   ActiveRoute,
+  CertRoute,
 } from "./components/common/guards/AuthGuards";
 
 // ── Lazy: everything behind auth — split into separate chunks, loaded on demand.
@@ -34,6 +35,7 @@ const Members = lazy(() => import("./Pages/admin/Members"));
 const Projects = lazy(() => import("./Pages/admin/Projects"));
 const AttendancePage = lazy(() => import("./Pages/admin/Attendance"));
 const CertGenerator = lazy(() => import("./Pages/admin/CertGenerator"));
+const CertificateLogs = lazy(() => import("./Pages/admin/CertificateLogs"));
 const AdminMOMGenerator = lazy(() => import("./Pages/admin/AdminMOMGenerator"));
 const AdminMOMList = lazy(() => import("./Pages/admin/AdminMOMList"));
 const Approvals = lazy(() => import("./Pages/admin/Approvals"));
@@ -102,7 +104,8 @@ function App() {
           <Route path="/admin/members" element={<AdminRoute><Members /></AdminRoute>} />
           <Route path="/admin/projects" element={<AdminRoute><Projects /></AdminRoute>} />
           <Route path="/admin/attendance" element={<AdminRoute><AttendancePage /></AdminRoute>} />
-          <Route path="/dashboard/certificates" element={<AdminRoute><CertGenerator /></AdminRoute>} />
+          <Route path="/dashboard/certificates" element={<CertRoute><CertGenerator /></CertRoute>} />
+          <Route path="/admin/certificates/logs" element={<CertRoute><CertificateLogs /></CertRoute>} />
           <Route path="/admin/mom/create" element={<AdminRoute><AdminMOMGenerator /></AdminRoute>} />
           <Route path="/admin/mom/list" element={<ActiveRoute><AdminMOMList /></ActiveRoute>} />
           <Route path="/admin/approvals" element={<SecretaryRoute><Approvals /></SecretaryRoute>} />

@@ -20,6 +20,11 @@ export const navItems = [
     href: "/dashboard/certificates",
   },
   {
+    icon: "receipt_long",
+    label: "Certificate Log",
+    href: "/admin/certificates/logs",
+  },
+  {
     icon: "pending_actions",
     label: "Approvals",
     href: "/admin/approvals",
@@ -61,7 +66,11 @@ const ROLES_WITH_ADMIN_ACCESS = [
   "secretary", "joint_secretary", "technical_lead", "project_lead",
   "corp_lead", "domain_lead", "associate_lead",
 ];
+// Mirrors GENERATE_CERT / VIEW_CERT_LOGS on the server. The log carries every
+// recipient's full email address and the raw SMTP errors, so it is gated the
+// same way as issuing.
 const CERT_PERM_ROLES = ["secretary", "joint_secretary", "technical_lead", "project_lead", "corp_lead"];
+const CERT_LABELS = ["Certificate Generator", "Certificate Log"];
 
 // Plain members can reach these pages. MOM entries point at the member-facing
 // routes (the admin /admin/mom/* routes are role-gated and would 404/redirect).
@@ -84,7 +93,7 @@ export function filterNavForRole(role = "member") {
   return navItems.filter((item) => {
     if (item.secretaryOnly && role !== "secretary") return false;
     if (item.cocRecordsOnly && role !== "secretary" && role !== "joint_secretary") return false;
-    if (item.label === "Certificate Generator" && !CERT_PERM_ROLES.includes(role)) return false;
+    if (CERT_LABELS.includes(item.label) && !CERT_PERM_ROLES.includes(role)) return false;
     return true;
   });
 }

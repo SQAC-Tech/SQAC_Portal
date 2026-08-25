@@ -12,6 +12,19 @@ const ALL_ADMIN_ROLES = [
   "associate_lead",
 ];
 
+// Mirrors GENERATE_CERT / VIEW_CERT_LOGS in the backend's permissions
+// middleware. AdminRoute is too wide for these pages: it lets domain_lead and
+// associate_lead through, who then hit a 403 on every request the page makes.
+// The server is still the one enforcing this — the guard just stops the portal
+// from rendering a screen that can only fail.
+const CERT_ROLES = [
+  "secretary",
+  "joint_secretary",
+  "technical_lead",
+  "project_lead",
+  "corp_lead",
+];
+
 // These guards are deliberately optimistic: they render from what's in
 // storage so navigation stays instant, and never claim to prove the session is
 // still alive — only the server can do that. If it isn't, the first API call
@@ -53,6 +66,14 @@ export const SecretaryOrJointRoute = ({ children }) => {
   const user = getUser();
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== "secretary" && user.role !== "joint_secretary") return <Navigate to="/dashboard" replace />;
+  return children;
+};
+
+export const CertRoute = ({ children }) => {
+  const user = getUser();
+  if (!user) return <Navigate to="/login" replace />;
+  if (!CERT_ROLES.includes(user.role || "member"))
+    return <Navigate to="/dashboard" replace />;
   return children;
 };
 
