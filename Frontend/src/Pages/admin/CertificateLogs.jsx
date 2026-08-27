@@ -365,11 +365,27 @@ export default function CertificateLogs() {
                       ) : (
                         <>
                           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                            <p className="text-xs text-[#78737f]">
-                              Issued by {detail.issuedByName} · Failed mail can be
-                              resent for {detail.retryWindowHours}h after sending;
-                              after that the certificate must be regenerated.
-                            </p>
+                            <div className="text-xs text-[#78737f]">
+                              <p>
+                                Issued by {detail.issuedByName} · Failed mail can
+                                be resent for {detail.retryWindowHours}h after
+                                sending; after that the certificate must be
+                                regenerated.
+                              </p>
+                              {detail.driveLink && (
+                                <a
+                                  href={detail.driveLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="mt-1 inline-flex items-center gap-1 text-[#81ecff] hover:underline"
+                                >
+                                  <span className="material-symbols-outlined text-sm">
+                                    folder_open
+                                  </span>
+                                  Drive folder sent with this batch
+                                </a>
+                              )}
+                            </div>
                             <div className="flex gap-2">
                               <button
                                 onClick={downloadFailedCsv}

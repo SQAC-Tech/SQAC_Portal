@@ -53,6 +53,7 @@ export default function CertGenerator() {
   const [templateType, setTemplateType] = useState("participation");
   const [templateTitle, setTemplateTitle] = useState("");
   const [templateDescription, setTemplateDescription] = useState("");
+  const [driveLink, setDriveLink] = useState("");
   const [inputType, setInputType] = useState("csv"); // 'csv' or 'manual'
   const [manualName, setManualName] = useState("");
   const [manualEmail, setManualEmail] = useState("");
@@ -418,6 +419,7 @@ export default function CertGenerator() {
           type: templateType,
           title: templateTitle.trim(),
           description: templateDescription.trim(),
+          driveLink: driveLink.trim(),
         }),
       });
 
@@ -723,6 +725,22 @@ export default function CertGenerator() {
                 onChange={(e) => setTemplateDescription(e.target.value)}
                 className="w-full bg-[#070910] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
               />
+              <div>
+                <input
+                  type="url"
+                  placeholder="Drive folder link (optional)"
+                  value={driveLink}
+                  onChange={(e) => setDriveLink(e.target.value)}
+                  className="w-full bg-[#070910] border border-white/10 rounded-xl p-3 text-sm focus:border-[#f183ff] outline-none"
+                />
+                {/* Create the (empty) Drive folder first, paste its link here,
+                    then generate — the mail is sent in the same run, so a link
+                    added afterwards would arrive too late. */}
+                <p className="mt-1.5 text-[11px] text-[#78737f]">
+                  Added to every email as a fallback if the attachment is lost.
+                  Create the folder first and paste its link before generating.
+                </p>
+              </div>
             </div>
 
             <div className="space-y-4">
